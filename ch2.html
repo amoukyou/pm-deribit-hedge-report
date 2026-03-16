@@ -355,9 +355,9 @@
   <!-- 2.5 实盘问题筛选表 -->
   <div class="section ch2">
     <h2 id="samples">第一批观察样本</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">只列 Above / Below，只用 BTC 举例。重点是解释时间关系和为什么值得先观察。</p>
+    <p style="color:var(--muted);margin-bottom:12px;">BTC Above 全部实盘问题 × Deribit 匹配期权。数据来自 Polymarket Gamma API + Deribit Public API（2026-03-16 抓取）。</p>
     <div class="table-wrap">
-      <table class="ch2">
+      <table class="ch2" id="sampleTable">
         <thead><tr>
           <th>PM 实盘问题</th>
           <th>PM 结束时间</th>
@@ -365,68 +365,13 @@
           <th>Deribit 到期时间</th>
           <th>时间差</th>
           <th>谁先到期</th>
-          <th>建议处理</th>
         </tr></thead>
-        <tbody>
-          <tr>
-            <td>Bitcoin above $64,000 on Mar 17?</td>
-            <td>3/17 16:00 UTC</td>
-            <td>BTC-17MAR26-64000-C / P</td>
-            <td>3/17 08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8 小时</span></td>
-            <td>Deribit 先</td>
-            <td>方法 2</td>
-          </tr>
-          <tr>
-            <td>Bitcoin above $74,000 on Mar 17?</td>
-            <td>3/17 16:00 UTC</td>
-            <td>BTC-17MAR26-74000-C / P</td>
-            <td>3/17 08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8 小时</span></td>
-            <td>Deribit 先</td>
-            <td>方法 2</td>
-          </tr>
-          <tr>
-            <td>Bitcoin above $82,000 on Mar 17?</td>
-            <td>3/17 16:00 UTC</td>
-            <td>BTC-17MAR26-82000-C / P</td>
-            <td>3/17 08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8 小时</span></td>
-            <td>Deribit 先</td>
-            <td>方法 2</td>
-          </tr>
-          <tr>
-            <td>Bitcoin above $62,000 on Mar 17?</td>
-            <td>3/17 16:00 UTC</td>
-            <td>BTC-17MAR26-62000-C / P</td>
-            <td>3/17 08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8 小时</span></td>
-            <td>Deribit 先</td>
-            <td>方法 2</td>
-          </tr>
-          <tr>
-            <td>Bitcoin above $72,000 on Mar 16?</td>
-            <td>3/16 16:00 UTC</td>
-            <td>BTC-17MAR26-72000-C / P（最近到期）</td>
-            <td>3/17 08:00 UTC</td>
-            <td><span class="badge badge-mid">16 小时</span></td>
-            <td>PM 先结束</td>
-            <td>方法 2（PM 结算后平 Deribit）</td>
-          </tr>
-          <tr>
-            <td>Bitcoin above $78,000 on Mar 16?</td>
-            <td>3/16 16:00 UTC</td>
-            <td>BTC-17MAR26-78000-C / P（最近到期）</td>
-            <td>3/17 08:00 UTC</td>
-            <td><span class="badge badge-mid">16 小时</span></td>
-            <td>PM 先结束</td>
-            <td>方法 2（PM 结算后平 Deribit）</td>
-          </tr>
-        </tbody>
+        <tbody></tbody>
       </table>
     </div>
     <div class="callout" style="margin-top:16px;">
-      <b>数据来源：</b>PM 问题来自 Polymarket Gamma API 实时数据（2026-03-16 抓取）。Deribit 期权来自 Deribit Public API。所有 PM Above 问题统一在 <b>16:00 UTC</b> 结束，Deribit 标准期权统一在 <b>08:00 UTC</b> 到期，固定时间差 <b>8 小时</b>。Mar 16 的 PM 问题没有当日 Deribit 到期匹配，最近的是 Mar 17 到期（时间差 16 小时）。
+      <b>数据来源：</b>Polymarket Gamma API + Deribit Public API（2026-03-16 抓取），共 <b>45 个</b> BTC Above 问题。<br>
+      <b>规律：</b>PM 统一在 <b>16:00 UTC</b> 结束，Deribit 统一在 <b>08:00 UTC</b> 到期。同日匹配时间差固定 <b>8 小时</b>（Deribit 先到期）。Mar 16 无当日 Deribit 到期（差 16h），Mar 21–22 最近到期是 Mar 27（差 112–136h，不理想）。
     </div>
   </div>
 
@@ -445,5 +390,73 @@
 
 </div>
 
+<script>
+const btcAbove = [
+  // Mar 16 (no same-day Deribit, nearest is Mar 17)
+  ['Bitcoin above $58,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-58000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $60,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-60000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $62,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-62000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $64,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-64000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $66,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-66000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $68,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-68000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $70,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-70000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $72,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-72000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $74,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-74000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $76,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-76000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Bitcoin above $78,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-78000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  // Mar 17 (same-day Deribit)
+  ['Bitcoin above $62,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-62000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $64,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-64000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $66,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-66000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $68,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-68000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $70,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-70000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $72,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-72000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $74,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-74000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $76,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-76000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $78,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-78000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $80,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-80000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $82,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-82000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  // Mar 18 (same-day Deribit)
+  ['Bitcoin above $60,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-60000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $62,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-62000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $64,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-64000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $66,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-66000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $68,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-68000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $70,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-70000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $76,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-76000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $78,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-78000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $80,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-80000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  // Mar 19 (same-day Deribit)
+  ['Bitcoin above $62,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-62000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $64,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-64000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $68,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-68000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $74,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-74000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $76,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-76000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $78,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-78000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  // Mar 20 (same-day Deribit)
+  ['Bitcoin above $62,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-62000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $64,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-64000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $74,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-74000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
+  ['Bitcoin above $76,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-76000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
+  // Mar 21 (nearest Deribit is Mar 27)
+  ['Bitcoin above $64,000 on Mar 21?','3/21 16:00 UTC','BTC-27MAR26-64000-C/P','3/27 08:00 UTC',136,'PM 先'],
+  ['Bitcoin above $70,000 on Mar 21?','3/21 16:00 UTC','BTC-27MAR26-70000-C/P','3/27 08:00 UTC',136,'PM 先'],
+  // Mar 22 (nearest Deribit is Mar 27)
+  ['Bitcoin above $64,000 on Mar 22?','3/22 16:00 UTC','BTC-27MAR26-64000-C/P','3/27 08:00 UTC',112,'PM 先'],
+  ['Bitcoin above $66,000 on Mar 22?','3/22 16:00 UTC','BTC-27MAR26-66000-C/P','3/27 08:00 UTC',112,'PM 先'],
+];
+
+const tbody = document.querySelector('#sampleTable tbody');
+btcAbove.forEach(r => {
+  const tr = document.createElement('tr');
+  const diffH = r[4];
+  let badgeClass = 'badge-teal';
+  if (diffH > 100) badgeClass = 'badge-low';
+  else if (diffH > 12) badgeClass = 'badge-mid';
+  else if (diffH > 0) badgeClass = 'badge-midhigh';
+  tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td style="font-family:monospace;font-size:0.8rem;">${r[2]}</td><td>${r[3]}</td><td><span class="badge ${badgeClass}">${diffH}h</span></td><td>${r[5]}</td>`;
+  tbody.appendChild(tr);
+});
+</script>
 </body>
 </html>
