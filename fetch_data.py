@@ -49,7 +49,7 @@ def fetch_pm_markets():
     """Fetch all active BTC above/between markets from Polymarket Gamma API."""
     print("=== Step 1: Fetching Polymarket markets ===")
     all_markets = []
-    for offset in [0, 500, 1000]:
+    for offset in range(0, 5000, 500):
         url = (
             f"https://gamma-api.polymarket.com/markets?"
             f"limit=500&active=true&closed=false"
