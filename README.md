@@ -36,6 +36,13 @@ https://amoukyou.github.io/pm-deribit-hedge-report/
 - 从利润来源推导监控字段：定价差→比价、噪音→盘口跳动、补贴→活动覆盖
 - 利润来源与观察字段对应表
 
+### 第四章：开始监控——先看 Buy 方 ask 价格
+- 承接前三章：只看 Buy 方 ask，只看第二章筛出的样本
+- 监控主表：56 个样本的 PM ask vs Deribit ask 对照（含差值、观察结论）
+- 差值解读：PM 更贵 / Deribit 更贵 / 差值不明显
+- 样本 ask 对比图：横向柱状图展示 Top 10 差值样本
+- 时间差 × 价格差散点图：找出时间差小但差值大的最优样本
+
 ## 数据来源
 
 - PM 市场数据：[Polymarket Gamma API](https://gamma-api.polymarket.com)

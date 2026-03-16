@@ -276,7 +276,7 @@
   /* Landing page chapter cards */
   .chapter-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     margin-top: 48px;
   }
@@ -310,6 +310,10 @@
   .chapter-link-card.ch3-card:hover { border-color: #b45309; }
   .chapter-link-card.ch3-card .ch-label { color: #b45309; }
   .chapter-link-card.ch3-card .ch-arrow { color: #b45309; }
+  .chapter-link-card.ch4-card::before { background: #1d4ed8; }
+  .chapter-link-card.ch4-card:hover { border-color: #1d4ed8; }
+  .chapter-link-card.ch4-card .ch-label { color: #1d4ed8; }
+  .chapter-link-card.ch4-card .ch-arrow { color: #1d4ed8; }
   .chapter-link-card .ch-label {
     font-size: 0.8rem;
     font-weight: 700;
@@ -357,6 +361,7 @@
     <a href="ch1.html" class="nav-ch1">第一章</a>
     <a href="ch2.html" class="nav-ch2">第二章</a>
     <a href="ch3.html" class="nav-ch2">第三章</a>
+    <a href="ch4.html" class="nav-ch2">第四章</a>
   </div>
 </nav>
 
@@ -397,6 +402,12 @@
       <div class="ch-title">我打算赚谁的钱</div>
       <div class="ch-desc">在开始监控之前，先拆解利润来源：定价差、噪音回归、平台补贴，再把利润来源翻译成监控字段。</div>
       <div class="ch-arrow">阅读第三章 →</div>
+    </a>
+    <a href="ch4.html" class="chapter-link-card ch4-card">
+      <div class="ch-label">第四章</div>
+      <div class="ch-title">开始监控——先看 Buy 方 ask 价格</div>
+      <div class="ch-desc">把第二章筛出的 56 个样本放入监控，比较 PM Buy ask 和 Deribit 对应组合 ask，找出真实买入成本差。</div>
+      <div class="ch-arrow">阅读第四章 →</div>
     </a>
   </div>
 
