@@ -502,48 +502,61 @@
     <p style="color:var(--muted);margin-bottom:16px;">不考虑手续费的情况下，4 种策略的组合 PnL 全绿只需要满足一个条件。</p>
 
     <div class="prose" style="margin-bottom:20px;">
-      <p>设 <b>p</b> = PM 买入价（你花多少钱买这张票），<b>q</b> = Deribit 对冲收到的权利金（你卖出期权组合收到多少钱）。</p>
-      <p style="margin-top:10px;">在上面 4 种策略里，组合到期盈亏在每个价格点都等于同一个值：</p>
-      <p style="margin-top:14px;text-align:center;font-size:1.3rem;font-weight:700;color:var(--accent);letter-spacing:1px;">组合 PnL = q − p</p>
-      <p style="margin-top:14px;">所以全绿条件只有一个：</p>
-      <p style="margin-top:10px;text-align:center;font-size:1.2rem;font-weight:700;color:var(--green);">q &gt; p</p>
-      <p style="margin-top:14px;">也就是：<b>卖出 Deribit 期权组合收到的钱，比买 PM 票花的钱多</b>。差值 q−p 就是你的无风险利润。</p>
+      <p>全绿需要同时满足两个条件：<b>权利金关系</b>和<b>行权价选择</b>。</p>
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-bottom:12px;">条件一：权利金 q &gt; p</h3>
+    <div class="prose" style="margin-bottom:20px;">
+      <p>设 <b>p</b> = PM 买入价，<b>q</b> = Deribit 对冲收到的权利金。组合到期盈亏 = <b>q − p</b>。只要 q &gt; p，组合就是正的。</p>
+      <p style="margin-top:10px;">白话说：<b>卖出 Deribit 期权组合收到的钱，比买 PM 票花的钱多</b>。差值 q−p 就是利润。</p>
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-bottom:12px;">条件二：行权价必须正确选择</h3>
+    <div class="prose" style="margin-bottom:20px;">
+      <p>光有 q &gt; p 不够。如果行权价选错了，Deribit 的期权 payoff 和 PM 的台阶对不上，组合在某些价格区间就会出现缺口（红色区域）。</p>
+      <p style="margin-top:10px;">每种策略对行权价的要求不同：</p>
     </div>
 
     <div class="table-wrap">
       <table>
-        <thead><tr><th>策略</th><th>p（PM 成本）</th><th>q（Deribit 收入）</th><th>全绿条件</th><th>额外约束</th></tr></thead>
+        <thead><tr><th>策略</th><th>PM 端</th><th>Deribit 端</th><th>行权价怎么选</th><th>选错了会怎样</th></tr></thead>
         <tbody>
           <tr class="row-highlight">
             <td style="font-weight:700;color:var(--accent);">#1 Above Buy Yes</td>
-            <td>买 PM Yes 的价格</td>
-            <td>卖出 Bull Call Spread 收到的权利金</td>
-            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
-            <td>两个行权价越接近，Deribit 越接近 PM 台阶，但流动性越差</td>
+            <td>PM 问 "高于 K？"</td>
+            <td>卖出 Bull Call Spread<br>买 K Call + 卖 K+间距 Call</td>
+            <td>下腿行权价 = PM 的 K<br>两腿间距越小越好（越接近 PM 台阶）</td>
+            <td>间距太大 → 斜坡区域和 PM 台阶不重合 → 出现红色缺口</td>
           </tr>
           <tr class="row-highlight">
             <td style="font-weight:700;color:var(--accent);">#3 Above Buy No</td>
-            <td>买 PM No 的价格</td>
-            <td>卖出 Bear Put Spread 收到的权利金</td>
-            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
+            <td>PM 问 "高于 K？" 买 No</td>
+            <td>卖出 Bear Put Spread<br>买 K Put + 卖 K−间距 Put</td>
+            <td>上腿行权价 = PM 的 K<br>两腿间距越小越好</td>
             <td>同上</td>
           </tr>
           <tr class="row-highlight">
             <td style="font-weight:700;color:var(--accent);">#9 Range Buy Yes</td>
-            <td>买 PM Yes 的价格</td>
-            <td>卖出 Iron Butterfly 收到的权利金</td>
-            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
-            <td>Deribit 斜坡必须收在 PM 区间内（行权价间距 &lt; 区间宽度的一半）</td>
+            <td>PM 问 "在 K1–K2 之间？"</td>
+            <td>卖出 Iron Butterfly（4 条腿）</td>
+            <td>斜坡必须收在 PM 区间 K1–K2 <b>内部</b><br>即行权价间距 &lt; (K2−K1)/2</td>
+            <td>斜坡跑到区间外 → PM 已经归零但 Deribit 还在赔 → 红色</td>
           </tr>
           <tr class="row-highlight">
             <td style="font-weight:700;color:var(--accent);">#11 Range Buy No</td>
-            <td>买 PM No 的价格</td>
-            <td>买入 Iron Butterfly 花的钱 = 1−q</td>
-            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
-            <td>Deribit 斜坡必须在 PM 区间外（行权价间距合理）</td>
+            <td>PM 问 "在 K1–K2 之间？" 买 No</td>
+            <td>买入 Iron Butterfly（4 条腿）</td>
+            <td>斜坡必须在 PM 区间 K1–K2 <b>外部</b><br>即行权价从区间边界向外展开</td>
+            <td>斜坡跑到区间内 → PM=0 但 Deribit 在赔 → 红色</td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="callout" style="margin-top:16px;">
+      <b>总结：全绿 = 权利金对 + 行权价对</b><br>
+      <b>1)</b> q &gt; p（卖期权收的钱 &gt; 买 PM 票花的钱）<br>
+      <b>2)</b> 行权价正确（#1/#3 下腿或上腿对准 PM 的 K，间距尽量小；#9 斜坡收在区间内；#11 斜坡放在区间外）
     </div>
 
     <div class="callout" style="margin-top:20px;">
