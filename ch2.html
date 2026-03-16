@@ -478,8 +478,8 @@ allMarkets.forEach(r => {
   else if (diffH > 0) badgeClass = 'badge-midhigh';
 
   const typeBadge = type === 'Above'
-    ? '<span class="badge badge-high">Above</span>'
-    : '<span class="badge badge-midhigh">Range</span>';
+    ? '<span style="display:inline-block;font-size:0.7rem;padding:1px 8px;border-radius:10px;font-weight:600;background:rgba(79,70,229,0.12);color:#4f46e5;">Above</span>'
+    : '<span style="display:inline-block;font-size:0.7rem;padding:1px 8px;border-radius:10px;font-weight:600;background:rgba(234,88,12,0.12);color:#ea580c;">Range</span>';
 
   // PM link
   const pmLink = `https://polymarket.com/event/${r[7]}`;
