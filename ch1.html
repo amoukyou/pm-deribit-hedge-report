@@ -400,7 +400,7 @@
       <table id="mainTable">
         <thead><tr>
           <th>编号</th><th>实例问题</th><th>问题类型</th><th>方向</th><th>操作</th>
-          <th>PM 盘口</th><th>Deribit 近似</th><th>建议配合方式</th>
+          <th>PM 盘口</th><th>近似期权组合</th><th>建议对冲方式</th>
           <th>适配度</th><th>原因</th>
         </tr></thead>
         <tbody></tbody>
@@ -638,22 +638,22 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 const tableData = [
-  { id:1, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'K 附近窄上涨组合', suggest:'用 72,000 附近的窄 Call Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'最简单、最标准的一类' },
-  { id:2, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用 Call Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合做标准化监控' },
-  { id:3, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Buy', book:'No ask', deribit:'K 附近窄下跌组合', suggest:'用 72,000 附近的窄 Put Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'与单一价位判断最贴近' },
-  { id:4, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用 Put Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合作为主监控对象' },
-  { id:5, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'窄上涨组合', suggest:'用一个很窄的上涨组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'方向简单，但起点和结算时间容易带来误差' },
-  { id:6, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用上涨组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'逻辑能成立，但卖出不是无条件可做' },
-  { id:7, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Buy', book:'No ask', deribit:'窄下跌组合', suggest:'用一个很窄的下跌组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'也算简单，但仍有起点和时间误差' },
-  { id:8, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用下跌组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'结构能做，但同样受库存约束' },
-  { id:9, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'区间组合', suggest:'用"夹在中间"的区间组合去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'可以做，但比单一价位题更复杂' },
-  { id:10, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'区间组合反向', suggest:'用区间组合反向去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'能研究，但腿数更多' },
-  { id:11, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Buy', book:'No ask', deribit:'两翼组合', suggest:'用"两边都照顾到"的组合去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'和 #9 是同一个跨式的正反面' },
-  { id:12, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Sell', book:'No bid', deribit:'两翼组合反向', suggest:'用两翼组合反向去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'和 #10 是同一个跨式的正反面' },
-  { id:13, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似组合', suggest:'只能做近似组合', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'PM 看"中途碰到没有"，最难配' },
-  { id:14, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似组合反向', suggest:'只能做近似组合反向去配', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'做起来不干净' },
-  { id:15, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Buy', book:'No ask', deribit:'勉强近似', suggest:'只能勉强近似', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'"没碰到"比"碰到"更难表达' },
-  { id:16, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Sell', book:'No bid', deribit:'勉强近似反向', suggest:'只能勉强近似反向去配', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'不适合新手优先做' },
+  { id:1, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'相当于 Digital Call', suggest:'买入 Bull Call Spread（窄行权价）', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'最简单、最标准的一类' },
+  { id:2, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'相当于 Short Digital Call', suggest:'卖出 Bull Call Spread（窄行权价）', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合做标准化监控' },
+  { id:3, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Buy', book:'No ask', deribit:'相当于 Digital Put', suggest:'买入 Bear Put Spread（窄行权价）', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'与单一价位判断最贴近' },
+  { id:4, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Sell', book:'No bid', deribit:'相当于 Short Digital Put', suggest:'卖出 Bear Put Spread（窄行权价）', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合作为主监控对象' },
+  { id:5, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似 Digital Call（浮动 K）', suggest:'买入 Bull Call Spread（K=起点价）', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'方向简单，但起点价浮动带来误差' },
+  { id:6, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似 Short Digital Call', suggest:'卖出 Bull Call Spread（K=起点价）', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'逻辑能成立，但卖出需要库存' },
+  { id:7, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Buy', book:'No ask', deribit:'近似 Digital Put（浮动 K）', suggest:'买入 Bear Put Spread（K=起点价）', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'也算简单，但仍有起点和时间误差' },
+  { id:8, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Sell', book:'No bid', deribit:'近似 Short Digital Put', suggest:'卖出 Bear Put Spread（K=起点价）', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'结构能做，但同样受库存约束' },
+  { id:9, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'相当于 Short Iron Butterfly', suggest:'买入 Bull Call Spread(K1) + 买入 Bear Put Spread(K2)', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'可以做，但比单一价位题多一组腿' },
+  { id:10, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'相当于 Iron Butterfly', suggest:'卖出上述组合的反向', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'能研究，但需要库存' },
+  { id:11, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Buy', book:'No ask', deribit:'相当于 Iron Butterfly', suggest:'买入 Long Strangle / Iron Butterfly', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'和 #9 是同一个跨式的正反面' },
+  { id:12, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Sell', book:'No bid', deribit:'相当于 Short Iron Butterfly', suggest:'卖出 Long Strangle / Iron Butterfly', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'和 #10 是同一个跨式的正反面' },
+  { id:13, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似 One-Touch Option', suggest:'买入 OTM Call（近似，无精确复制）', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'PM 看路径，期权看终值，无法精确复制' },
+  { id:14, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似 Short One-Touch', suggest:'卖出 OTM Call（近似，无精确复制）', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'做起来不干净' },
+  { id:15, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Buy', book:'No ask', deribit:'近似 No-Touch Option', suggest:'无标准期权组合可复制', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'"没碰到"在标准期权里无法表达' },
+  { id:16, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Sell', book:'No bid', deribit:'近似 Short No-Touch', suggest:'无标准期权组合可复制', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'不适合新手优先做' },
 ];
 
 let filterState = { type: 'all', op: 'all' };
