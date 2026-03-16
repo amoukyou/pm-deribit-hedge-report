@@ -519,7 +519,7 @@
             <td>买 PM Yes 的价格</td>
             <td>卖出 Bull Call Spread 收到的权利金</td>
             <td style="color:var(--green);font-weight:700;">q &gt; p</td>
-            <td>ΔK 越小，Deribit 越接近 PM 台阶，但流动性越差</td>
+            <td>两个行权价越接近，Deribit 越接近 PM 台阶，但流动性越差</td>
           </tr>
           <tr class="row-highlight">
             <td style="font-weight:700;color:var(--accent);">#3 Above Buy No</td>
@@ -533,14 +533,14 @@
             <td>买 PM Yes 的价格</td>
             <td>卖出 Iron Butterfly 收到的权利金</td>
             <td style="color:var(--green);font-weight:700;">q &gt; p</td>
-            <td>Deribit 斜坡必须收在 PM 区间内（ΔK &lt; (K2−K1)/2）</td>
+            <td>Deribit 斜坡必须收在 PM 区间内（行权价间距 &lt; 区间宽度的一半）</td>
           </tr>
           <tr class="row-highlight">
             <td style="font-weight:700;color:var(--accent);">#11 Range Buy No</td>
             <td>买 PM No 的价格</td>
             <td>买入 Iron Butterfly 花的钱 = 1−q</td>
             <td style="color:var(--green);font-weight:700;">q &gt; p</td>
-            <td>Deribit 斜坡必须在 PM 区间外（ΔK 合理）</td>
+            <td>Deribit 斜坡必须在 PM 区间外（行权价间距合理）</td>
           </tr>
         </tbody>
       </table>
