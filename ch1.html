@@ -411,20 +411,34 @@
   <!-- 1.4 研究优先顺序 -->
   <div class="section">
     <h2 id="priority">研究优先顺序</h2>
-    <p style="color:var(--muted);margin-bottom:16px;">先按题型适配度排（Above > Up/Down > Range > Hit），再按操作可行性排（Buy > Sell）。当前报告的核心结论建立在<b>"无库存起手"</b>前提下。</p>
-    <ol class="priority-list">
-      <li><span class="rank">1</span><div><div class="p-title">Above / Below — Buy Yes / Buy No</div><div class="p-note">题型最简单、最标准，无库存可直接做，与 Deribit 适配度最高</div></div></li>
-      <li><span class="rank">2</span><div><div class="p-title">Up / Down — Buy Yes / Buy No</div><div class="p-note">方向简单，但多一层起点和时点误差</div></div></li>
-      <li><span class="rank">3</span><div><div class="p-title">Price Range — Buy Yes / Buy No</div><div class="p-note">较复杂，但仍可用 Deribit 组合近似</div></div></li>
-      <li><span class="rank dim">4</span><div><div class="p-title">Above / Below — Sell Yes / Sell No</div><div class="p-note">题型好，但需要先拆分代币准备库存</div></div></li>
-      <li><span class="rank dim">5</span><div><div class="p-title">Up / Down — Sell Yes / Sell No</div><div class="p-note">需库存 + 起点误差</div></div></li>
-      <li><span class="rank dim">6</span><div><div class="p-title">Price Range — Sell Yes / Sell No</div><div class="p-note">需库存 + 多腿组合</div></div></li>
-      <li><span class="rank dim">7</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"最难对冲，暂不优先</div></div></li>
-    </ol>
+    <p style="color:var(--muted);margin-bottom:16px;">从 16 种策略中，按两条规则筛选：<b>适配度高</b> + <b>无库存可直接做（Buy）</b>。</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>编号</th><th>问题类型</th><th>方向</th><th>操作</th><th>近似期权组合</th><th>适配度</th><th>能否无库存做</th><th>是否优先</th>
+        </tr></thead>
+        <tbody>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#1</td><td>Above / Below</td><td>Yes</td><td>Buy</td><td>Digital Call</td><td><span class="badge badge-high">高</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
+          <tr><td style="color:var(--muted);">#2</td><td>Above / Below</td><td>Yes</td><td>Sell</td><td>Short Digital Call</td><td><span class="badge badge-high">高</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#3</td><td>Above / Below</td><td>No</td><td>Buy</td><td>Digital Put</td><td><span class="badge badge-high">高</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
+          <tr><td style="color:var(--muted);">#4</td><td>Above / Below</td><td>No</td><td>Sell</td><td>Short Digital Put</td><td><span class="badge badge-high">高</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
+          <tr><td style="color:var(--muted);">#5</td><td>Up / Down</td><td>Yes</td><td>Buy</td><td>近似 Digital Call</td><td><span class="badge badge-mid">中</span></td><td style="color:var(--green);">可以</td><td style="color:var(--muted);">次优先</td></tr>
+          <tr><td style="color:var(--muted);">#7</td><td>Up / Down</td><td>No</td><td>Buy</td><td>近似 Digital Put</td><td><span class="badge badge-mid">中</span></td><td style="color:var(--green);">可以</td><td style="color:var(--muted);">次优先</td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#9</td><td>Price Range</td><td>Yes</td><td>Buy</td><td>Short Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
+          <tr><td style="color:var(--muted);">#10</td><td>Price Range</td><td>Yes</td><td>Sell</td><td>Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#11</td><td>Price Range</td><td>No</td><td>Buy</td><td>Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
+          <tr><td style="color:var(--muted);">#12</td><td>Price Range</td><td>No</td><td>Sell</td><td>Short Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
+          <tr><td style="color:var(--muted);">#6,#8</td><td>Up / Down</td><td colspan="2">Sell</td><td>—</td><td><span class="badge badge-mid">中</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
+          <tr><td style="color:var(--muted);">#13–#16</td><td>Hit Price</td><td colspan="2">全部</td><td>—</td><td><span class="badge badge-low">低</span></td><td>—</td><td style="color:var(--muted);">不优先</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="callout" style="margin-top:20px;">
       <b>结论：优先研究 #1、#3、#9、#11</b><br>
-      适配度高的 Buy 方向一共 4 个：<b>#1</b> Above Buy Yes、<b>#3</b> Above Buy No、<b>#9</b> Range Buy Yes、<b>#11</b> Range Buy No。它们的共同特点是：题型适配度高，且 Buy 操作无需库存、可以直接做。Sell 方向（#2、#4、#10、#12）虽然适配度同样高，但我们没有库存不能裸卖，暂不优先。
+      这 4 个策略的共同特点：<b>适配度高</b>（Above/Below 为高，Price Range 为中上），且都是 <b>Buy 操作</b>——无需库存、可以直接做。<br>
+      Sell 方向（#2、#4、#10、#12）适配度同样高，但我们没有库存不能裸卖，暂不优先。
     </div>
   </div>
 
