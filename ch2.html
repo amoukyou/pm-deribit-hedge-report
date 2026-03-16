@@ -457,11 +457,38 @@
   <!-- ===== 第二章结论 ===== -->
   <div class="summary-box ch2">
     <h2 style="color:var(--ch2);">第二章结论</h2>
-    <p>核心风险：<strong>时间差</strong>。两种应对：<strong>事前挑时间接近的</strong> + <strong>事后主动提前平仓</strong>。据此筛出了第一批观察样本。</p>
 
-    <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(13,148,136,0.25);">
-      <p style="font-weight:700;color:var(--ch2);margin-bottom:8px;">第三章预告</p>
-      <p>正式进入监控：基于上面筛出的样本，搭建数据观察和价格对比工具。</p>
+    <div class="table-wrap" style="margin-bottom:20px;">
+      <table>
+        <thead><tr><th>研究项</th><th>结论</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">核心风险</td>
+            <td>PM 16:00 UTC 结束，Deribit 08:00 UTC 到期，固定差 <b>8 小时</b></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">其他交易所</td>
+            <td>OKX / Binance 同样 08:00 UTC（无改善）。IBIT 20:00 UTC 只差 4h，但跨交易所成本高，暂不考虑</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">应对方法</td>
+            <td>事前：挑同日到期的（Mar 17–20 最优）。事后：主要机会兑现后提前平仓</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">观察样本</td>
+            <td>从 PM API 抓取 <b>45 个 Above + 11 个 Range = 56 个</b> BTC 实盘问题，全部匹配了 Deribit 期权合约</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">未解决</td>
+            <td>一侧到期后另一侧被动平仓的流动性问题——两边深度都不大，哪边先平尚无定论</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="padding-top:20px;border-top:1px solid rgba(13,148,136,0.25);">
+      <p style="font-weight:700;color:var(--ch2);margin-bottom:8px;">第三章方向</p>
+      <p>基于这 56 个样本，搭建实时价格对比工具：同时拉取 PM 票价和 Deribit 期权报价，计算 q−p 是否 > 手续费，找到真正可执行的套利机会。</p>
     </div>
 
     <p style="margin-top:20px;"><a href="ch1.html" style="color:var(--accent);font-weight:700;font-size:1rem;text-decoration:none;">← 回到上一章：第一章</a></p>
