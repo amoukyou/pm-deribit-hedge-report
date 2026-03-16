@@ -419,26 +419,33 @@ function toggleDetail(tr, r) {
     }
   }
 
-  // Build annotation: just small dots on the zero line at breakeven points, no labels
+  // Mark breakeven points directly in data as special points
+  // Insert breakeven values into the dataset so tooltip naturally snaps to them
+  const beIndices = new Set(breakevens.map(b => b.index));
+  const zPointRadius = zCombo.map((_, i) => beIndices.has(i) ? 7 : 0);
+  const zPointBgColor = zCombo.map((_, i) => beIndices.has(i) ? '#ef4444' : 'transparent');
+  const zPointBorderColor = zCombo.map((_, i) => beIndices.has(i) ? '#fff' : 'transparent');
   const annotations = {};
-  breakevens.forEach((be, idx) => {
-    annotations['be' + idx] = {
-      type: 'point', xValue: be.index, yValue: 0,
-      backgroundColor: '#ef4444', borderColor: '#fff', borderWidth: 2, radius: 6
-    };
-  });
 
   const zCoMax = Math.max(...zCombo), zCoMin = Math.min(...zCombo);
   document.querySelector('#detailChart3').parentElement.querySelector('p').innerHTML = `组合损益（放大） <span style="color:${zCoMin >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;">$${zCoMin.toFixed(2)} ~ $${zCoMax.toFixed(2)}</span>` + (breakevens.length > 0 ? breakevens.map(b => ` <span style="color:var(--red);font-weight:600;">平衡点 ${b.label}</span>`).join('') : ' <span style="color:var(--green);font-weight:600;">全区间盈利</span>');
 
   new Chart(document.getElementById('detailChart3'), { type:'line', data:{ labels: zLabels, datasets:[
-    { label:'组合', data:zCombo, borderColor:'#16a34a', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:0, borderWidth:3 }
+    { label:'组合', data:zCombo, borderColor:'#16a34a', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:zPointRadius, pointBackgroundColor:zPointBgColor, pointBorderColor:zPointBorderColor, pointBorderWidth:2, pointHoverRadius:10, borderWidth:3 }
   ]}, options:{
     responsive:true, animation:{duration:0},
-    interaction:{mode:'index',intersect:false},
+    interaction:{mode:'nearest',intersect:false,axis:'x'},
     plugins:{
       legend:{labels:{color:'#374151',font:{size:10}}},
-      tooltip:{callbacks:{title:items=>items[0]?'BTC价格 '+items[0].label:'',label:item=>'损益: $'+item.parsed.y.toFixed(2)}},
+      tooltip:{callbacks:{
+        title:items=>items[0]?'BTC价格 '+items[0].label:'',
+        label:item=>{
+          const idx = item.dataIndex;
+          const isBE = beIndices.has(idx);
+          return (isBE ? '>>> 盈亏平衡点 <<< ' : '') + '损益: $' + item.parsed.y.toFixed(2);
+        },
+        labelColor:item=>({borderColor:beIndices.has(item.dataIndex)?'#ef4444':'#16a34a',backgroundColor:beIndices.has(item.dataIndex)?'#ef4444':'#16a34a'})
+      }},
       annotation:{ annotations }
     },
     scales:{
