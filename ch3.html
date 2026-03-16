@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PM × Deribit 对冲研究报告</title>
+<title>第三章 — PM × Deribit 对冲研究报告</title>
 <style>
   :root {
     --bg: #f8f9fc;
@@ -18,6 +18,7 @@
     --blue: #2563eb;
     --highlight-row: #f0f0ff;
     --ch2: #0d9488;
+    --ch3: #b45309;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; scroll-padding-top: 56px; }
@@ -45,6 +46,7 @@
     text-align: center;
   }
   .chapter-divider.ch2 { border-top-color: var(--ch2); }
+  .chapter-divider.ch3 { border-top-color: var(--ch3); }
   .chapter-divider h2 {
     font-size: 1.6rem;
     margin-bottom: 6px;
@@ -62,6 +64,7 @@
     display: inline-block;
   }
   .section.ch2 h2 { border-bottom-color: var(--ch2); }
+  .section.ch3 h2 { border-bottom-color: var(--ch3); }
 
   .prose {
     background: var(--card);
@@ -117,6 +120,7 @@
   th, td { padding: 9px 10px; border: 1px solid var(--border); text-align: left; }
   th { background: var(--card); color: var(--accent); font-weight: 600; position: sticky; top: 0; z-index: 1; }
   .ch2 th { color: var(--ch2); }
+  .ch3 th { color: var(--ch3); }
   tr:nth-child(even) { background: #f1f5f9; }
   tr.row-highlight { background: var(--highlight-row) !important; }
   .fit-high { color: var(--green); font-weight: 700; }
@@ -211,6 +215,7 @@
     padding: 28px 32px; margin-top: 48px;
   }
   .summary-box.ch2 { border-color: var(--ch2); background: linear-gradient(135deg, #f0fdfa, #f0fdf4); }
+  .summary-box.ch3 { border-color: var(--ch3); background: linear-gradient(135deg, #fffbeb, #fef3c7); }
   .summary-box h2 { border-bottom: none; display: block; margin-bottom: 12px; }
   .summary-box p { font-size: 0.95rem; line-height: 1.9; }
 
@@ -228,20 +233,26 @@
   .method-card h3 {
     font-size: 1.1rem; margin-bottom: 12px; color: var(--ch2);
   }
+  .method-card.ch3 h3 { color: var(--ch3); }
   .method-card p { font-size: 0.92rem; line-height: 1.8; }
   .method-card p + p { margin-top: 10px; }
   .method-card .method-conclusion {
     margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
     font-weight: 700; color: var(--ch2); font-size: 0.9rem;
   }
+  .method-card.ch3 .method-conclusion { color: var(--ch3); }
 
   /* Relation box */
   .relation-box {
     background: rgba(13,148,136,0.06); border: 1px solid rgba(13,148,136,0.25);
     border-radius: 12px; padding: 20px 24px; margin-top: 24px;
   }
+  .relation-box.ch3 {
+    background: rgba(180,83,9,0.06); border: 1px solid rgba(180,83,9,0.25);
+  }
   .relation-box p { font-size: 0.92rem; line-height: 1.8; }
   .relation-box .highlight { font-weight: 700; color: var(--ch2); font-size: 0.95rem; margin-top: 10px; }
+  .relation-box.ch3 .highlight { color: var(--ch3); }
 
   /* Top nav */
   .topnav {
@@ -266,84 +277,24 @@
   .topnav-inner a.nav-ch1:hover { border-bottom-color: var(--accent); color: var(--accent); }
   .topnav-inner a.nav-ch2 { border-bottom-color: transparent; }
   .topnav-inner a.nav-ch2:hover { border-bottom-color: var(--ch2); color: var(--ch2); }
-  .topnav-inner a.active-nav { color: var(--accent); border-bottom-color: var(--accent); }
+  .topnav-inner a.nav-ch3 { border-bottom-color: transparent; }
+  .topnav-inner a.nav-ch3:hover { border-bottom-color: var(--ch3); color: var(--ch3); }
+  .topnav-inner a.nav-ch1.active-nav { color: var(--accent); border-bottom-color: var(--accent); }
   .topnav-inner a.nav-ch2.active-nav { color: var(--ch2); border-bottom-color: var(--ch2); }
+  .topnav-inner a.nav-ch3.active-nav { color: var(--ch3); border-bottom-color: var(--ch3); }
   .topnav-inner .nav-brand {
     color: var(--text); font-weight: 700; font-size: 0.9rem;
     margin-right: auto; padding-left: 0;
   }
 
-  /* Landing page chapter cards */
-  .chapter-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 48px;
-  }
-  .chapter-link-card {
-    background: var(--card);
-    border: 2px solid var(--border);
-    border-radius: 16px;
-    padding: 40px 36px;
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    position: relative;
-    overflow: hidden;
-  }
-  .chapter-link-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-  }
-  .chapter-link-card.ch1-card::before { background: var(--accent); }
-  .chapter-link-card.ch2-card::before { background: var(--ch2); }
-  .chapter-link-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  }
-  .chapter-link-card.ch1-card:hover { border-color: var(--accent); }
-  .chapter-link-card.ch2-card:hover { border-color: var(--ch2); }
-  .chapter-link-card.ch3-card::before { background: #b45309; }
-  .chapter-link-card.ch3-card:hover { border-color: #b45309; }
-  .chapter-link-card.ch3-card .ch-label { color: #b45309; }
-  .chapter-link-card.ch3-card .ch-arrow { color: #b45309; }
-  .chapter-link-card .ch-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 12px;
-  }
-  .chapter-link-card.ch1-card .ch-label { color: var(--accent); }
-  .chapter-link-card.ch2-card .ch-label { color: var(--ch2); }
-  .chapter-link-card .ch-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    line-height: 1.4;
-  }
-  .chapter-link-card .ch-desc {
-    font-size: 0.92rem;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-  .chapter-link-card .ch-arrow {
-    margin-top: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-  .chapter-link-card.ch1-card .ch-arrow { color: var(--accent); }
-  .chapter-link-card.ch2-card .ch-arrow { color: var(--ch2); }
+  /* Subsection h3 for ch3 */
+  .section.ch3 h3 { color: var(--ch3); font-size: 1.05rem; margin: 20px 0 10px; }
 
   @media (max-width: 640px) {
     .hero h1 { font-size: 1.5rem; }
     .op-cards { grid-template-columns: 1fr; }
     .controls { flex-direction: column; align-items: flex-start; }
     .topnav-inner a { padding: 0 10px; font-size: 0.8rem; }
-    .chapter-cards { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -353,51 +304,179 @@
 <nav class="topnav">
   <div class="topnav-inner">
     <a href="index.html" class="nav-brand">PM × Deribit</a>
-    <a href="index.html" class="active-nav">首页</a>
+    <a href="index.html">首页</a>
     <a href="ch1.html" class="nav-ch1">第一章</a>
     <a href="ch2.html" class="nav-ch2">第二章</a>
-    <a href="ch3.html" class="nav-ch2">第三章</a>
+    <a href="ch3.html" class="nav-ch3 active-nav">第三章</a>
   </div>
 </nav>
 
-<!-- ===== HERO ===== -->
-<div class="hero">
-  <h1>PM × Deribit 对冲研究报告</h1>
-  <p class="sub">Polymarket 加密市场 × Deribit 期权，能不能配合起来？这份报告从最基础的问题分类开始，一步步推导。</p>
+<!-- ===== CHAPTER 3 HERO ===== -->
+<div class="hero" style="background: linear-gradient(180deg, #fef3c7 0%, var(--bg) 100%);">
+  <h1 style="color:#b45309;">第三章</h1>
+  <p class="sub">我打算赚谁的钱</p>
 </div>
 
 <div class="container">
 
-  <!-- ===== 研究动机 ===== -->
-  <div class="section">
-    <h2>这份研究是怎么开始的</h2>
+  <!-- 3.1 研究动机 -->
+  <div class="section ch3">
+    <h2>在开始监控之前，我想先回答一个更本质的问题</h2>
     <div class="prose">
-      <p>自从上一次美国大选前后，Polymarket 开始迅速蹿红，我就开始频繁注意到这个市场。差不多也在同一时期，我开始系统学习期权知识。那段时间里，我经常会不自觉地把这两个市场放在一起思考：它们在定价逻辑、概率表达和交易行为上，是否存在某些相似之处？</p>
-      <p>过去这些想法大多是零散的，只停留在脑海里的猜测和直觉。最近，随着我开始学会使用 Claude 进行 vibe coding，我终于有了一个更适合自己的方式，去把这些零散的市场猜想一点点捡起来，整理成结构化的推理，再进一步做成可视化和监控工具，看看它们到底有没有实际可行性。</p>
-      <p>这份报告，就是在这样的背景下开始的。它既是一次面向新手的整理，也是我把过去模糊想法逐步落地、逐步验证的第一步。</p>
+      <p>这套研究如果真的成立，我打算赚谁的钱？</p>
+      <p>我不把这件事理解成"猜 BTC 涨跌"。也不只是想靠押中 Yes/No 最终结果赚钱。</p>
+      <p>我真正想研究的，是 PM 和 Deribit 之间，是否因为标准不一致、时间不一致、参与者目的不一致，而留下了价格空隙。</p>
+      <p>如果这些空隙存在，利润来源很可能不是单一的一种，而是几类不同来源叠加在一起。</p>
     </div>
   </div>
 
-  <!-- ===== 章节导航卡片 ===== -->
-  <div class="chapter-cards">
-    <a href="ch1.html" class="chapter-link-card ch1-card">
-      <div class="ch-label">第一章</div>
-      <div class="ch-title">先搞清楚：PM 加密市场的问题长什么样</div>
-      <div class="ch-desc">把 PM 加密问题整理成可研究的结构：先分成 4 类问题，再展开为 16 个执行方向，最后在无库存起手的前提下排出优先顺序。</div>
-      <div class="ch-arrow">阅读第一章 →</div>
-    </a>
-    <a href="ch2.html" class="chapter-link-card ch2-card">
-      <div class="ch-label">第二章</div>
-      <div class="ch-title">认识风险，并筛出第一批值得监控的实盘问题</div>
-      <div class="ch-desc">识别 Above / Below 方向里最直接的现实风险——时间差，提出两种处理方法，并筛出第一批观察样本。</div>
-      <div class="ch-arrow">阅读第二章 →</div>
-    </a>
-    <a href="ch3.html" class="chapter-link-card ch3-card">
-      <div class="ch-label">第三章</div>
-      <div class="ch-title">我打算赚谁的钱</div>
-      <div class="ch-desc">在开始监控之前，先拆解利润来源：定价差、噪音回归、平台补贴，再把利润来源翻译成监控字段。</div>
-      <div class="ch-arrow">阅读第三章 →</div>
-    </a>
+  <!-- 3.2 三类利润来源 -->
+  <div class="section ch3">
+    <h2>利润可能主要来自 3 个地方</h2>
+
+    <div class="method-card ch3">
+      <h3>第一类：PM 与期权市场的定价差</h3>
+      <p>同样表达"某个价位会不会成立"，PM 和期权市场不一定给出一致的价格。</p>
+      <p>原因有很多：参与者不同——一边是散户和预测市场玩家，另一边是期权交易者和做市商；规则理解不同——PM 是直接押事件结果，期权市场通过价格结构间接表达概率；理解门槛也不同——期权定价对普通人来说更抽象，PM 更直觉。</p>
+      <p>这些差异叠加在一起，两个市场对同一件事给出的价格就可能不一样。</p>
+      <p class="method-conclusion">第一类钱，来自两个市场对同一件事给出了不同价格。</p>
+    </div>
+
+    <div class="method-card ch3">
+      <h3>第二类：噪音订单带来的价差回归</h3>
+      <p>有些订单不是认真比较两个市场后下的。</p>
+      <p>它们可能来自情绪——看到 BTC 涨了就冲进去买 Yes；可能来自临近结束时的着急——快截止了随便挂个价成交；可能来自只在 PM 单边思考——完全不对照外部市场就下单；也可能来自不在意买贵卖便宜——对价格不敏感的参与者。</p>
+      <p>这些订单在短时间内把价格推离合理位置，但过一段时间后，价格可能回归到更合理的水平。</p>
+      <p class="method-conclusion">第二类钱，不是赚最终结果的钱，而是赚噪音被修正的钱。</p>
+    </div>
+
+    <div class="method-card ch3">
+      <h3>第三类：PM 平台的补贴激励</h3>
+      <p>平台通过 Maker Rebates、Liquidity Rewards 等方式给出补贴，鼓励用户提供流动性、挂单、做市。</p>
+      <p>这些补贴让某些本来利润较薄的机会变得值得继续研究。前两类赚的是"价格偏差"，这一类赚的是"平台额外给出的补偿"。</p>
+      <p class="method-conclusion">第三类钱，来自平台为了鼓励流动性而额外给出的补贴。</p>
+    </div>
+  </div>
+
+  <!-- 3.3 三类叠加 -->
+  <div class="section ch3">
+    <h2>这三类利润来源，可能是叠加的</h2>
+    <div class="relation-box ch3">
+      <p>真实情况不一定只有一种在起作用。</p>
+      <p>有时是定价偏差在主导，有时是噪音订单在制造机会，有时是补贴在兜底。</p>
+      <p>更多时候，三者共同作用——定价偏差提供了方向，噪音放大了偏差幅度，补贴覆盖了执行成本。</p>
+      <p class="highlight">真正值得研究的，不一定是某一种单独的利润，而可能是几种小利润叠在一起。</p>
+    </div>
+  </div>
+
+  <!-- 3.4 监控字段推导 -->
+  <div class="section ch3">
+    <h2>如果要验证这三类利润来源，我需要监控什么</h2>
+
+    <h3>A. 验证"定价差"</h3>
+    <div class="prose">
+      <p>需要同时看 PM 问题的当前价格，和 Deribit 对应期权组合的当前价格，然后计算两边的差值。</p>
+      <p>还需要观察这个差值在不同时段是怎么变化的——是一直存在，还是只在某些时候出现？是越接近到期越大，还是越接近到期越小？</p>
+    </div>
+
+    <h3>B. 验证"噪音回归"</h3>
+    <div class="prose" style="margin-top:12px;">
+      <p>需要看 PM 价格的短时跳动——几分钟内突然拉升或跳水的情况。</p>
+      <p>还需要看买一卖一价差（spread）的变化、盘口深度的变化，以及临近结束时是否更容易出现偏离。</p>
+      <p>最关键的是：偏离之后，价格是否回归了？回归用了多长时间？</p>
+    </div>
+
+    <h3>C. 验证"平台补贴"</h3>
+    <div class="prose" style="margin-top:12px;">
+      <p>需要了解当前有哪些补贴活动在进行，补贴的具体规则是什么。</p>
+      <p>然后算一笔账：补贴能不能覆盖执行成本（手续费、滑点等）？那些本来利润很薄的边缘机会，是否因为补贴变得值得观察？</p>
+    </div>
+  </div>
+
+  <!-- 3.5 对应表 -->
+  <div class="section ch3">
+    <h2>利润来源与观察字段对应表</h2>
+    <div class="table-wrap">
+      <table class="ch3">
+        <thead>
+          <tr>
+            <th>潜在利润来源</th>
+            <th>观察什么</th>
+            <th>为什么观察</th>
+            <th>类型</th>
+            <th>对后续监控的意义</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">定价差</td>
+            <td>PM 价格 vs Deribit 组合价格、两边差值、差值随时间变化</td>
+            <td>验证两个市场是否真的对同一事件给出不同价格</td>
+            <td>核心指标</td>
+            <td>如果差值持续存在且足够大，说明这类利润值得追踪</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">噪音回归</td>
+            <td>PM 价格短时跳动、买卖价差、盘口深度、临近到期的偏离与回归</td>
+            <td>验证是否存在因噪音导致的短期错价，以及错价是否会自我修正</td>
+            <td>辅助指标</td>
+            <td>如果回归规律明显，可以在偏离时进场、回归时出场</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">平台补贴</td>
+            <td>当前补贴活动、补贴金额 vs 执行成本、边缘机会是否因补贴可行</td>
+            <td>验证补贴是否足以改变机会的盈亏平衡点</td>
+            <td>环境因素</td>
+            <td>如果补贴能覆盖执行成本，则放宽筛选标准、纳入更多观察对象</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3.6 观察重点 -->
+  <div class="section ch3">
+    <h2>第三章的观察重点</h2>
+    <div class="prose">
+      <p><b>1.</b> 先看 PM 与 Deribit 是否真的有持续价格差。这是最核心的前提——如果两边价格一直很接近，后面的研究意义就不大。</p>
+      <p><b>2.</b> 再看短时间里是否会因为噪音出现回归机会。即使整体差值不大，短期波动中也可能藏着可操作的窗口。</p>
+      <p><b>3.</b> 最后再看平台补贴是否足以改变机会厚度。补贴不是主要利润来源，但可能是让边缘机会变得可行的关键因素。</p>
+    </div>
+  </div>
+
+  <!-- ===== 第三章结论 ===== -->
+  <div class="summary-box ch3">
+    <h2 style="color:var(--ch3);">第三章结论</h2>
+
+    <div class="table-wrap" style="margin-bottom:20px;">
+      <table class="ch3">
+        <thead><tr><th>研究项</th><th>结论</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">核心问题</td>
+            <td>如果这套研究成立，我打算赚谁的钱</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">三类利润来源</td>
+            <td><b>①</b> 定价差 <b>②</b> 噪音回归 <b>③</b> 平台补贴</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">关键认识</td>
+            <td>三类来源可能叠加，不是互斥的</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">监控方向</td>
+            <td>围绕三类来源分别设计观察字段</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">第三章的作用</td>
+            <td>把"利润来源"翻译成"监控字段"</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:20px;"><a href="ch2.html" style="color:var(--ch3);font-weight:700;font-size:1rem;text-decoration:none;">&larr; 回到上一章：第二章</a></p>
   </div>
 
 </div>

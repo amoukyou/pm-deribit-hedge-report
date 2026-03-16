@@ -29,6 +29,13 @@ https://amoukyou.github.io/pm-deribit-hedge-report/
 - 完整实盘数据表：45 个 Above + 11 个 Range = 56 个 BTC 问题 × Deribit 匹配期权（含超链接）
 - 平仓顺序问题：两边流动性均有限，哪边先平尚无定论
 
+### 第三章：我打算赚谁的钱
+- 核心问题：如果这套研究成立，利润从哪里来
+- 三类潜在利润来源：① PM 与期权市场的定价差 ② 噪音订单带来的价差回归 ③ PM 平台补贴激励
+- 三类来源可能叠加，不是互斥的
+- 从利润来源推导监控字段：定价差→比价、噪音→盘口跳动、补贴→活动覆盖
+- 利润来源与观察字段对应表
+
 ## 数据来源
 
 - PM 市场数据：[Polymarket Gamma API](https://gamma-api.polymarket.com)
