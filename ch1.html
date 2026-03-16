@@ -545,17 +545,29 @@
     </div>
 
     <div style="margin-top:24px;">
-      <p style="font-weight:700;margin-bottom:12px;">以 #1 为例，估算一次完整对冲的手续费：</p>
+      <p style="font-weight:700;margin-bottom:8px;">以 #1 为例，按 Deribit 最小交易量算一次完整对冲：</p>
+      <p style="color:var(--muted);margin-bottom:12px;">Deribit BTC 期权最小交易量 = <b>0.1 BTC</b>。Bull Call Spread $85,000/$88,000 的最大 payoff = 0.1 × ($3,000/$85,000) BTC = <b>$300</b>。所以 0.1 BTC 的 spread 对冲 <b>300 张 PM 票</b>。</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>步骤</th><th>操作</th><th>手续费估算</th></tr></thead>
+          <thead><tr><th>端</th><th>操作</th><th>数量</th><th>手续费</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td>PM 上买入 Yes @ $0.50</td><td>≈ $0.0078（0.50 × 0.25 × (0.50×0.50)² ≈ 1.56%）</td></tr>
-            <tr><td>2</td><td>Deribit 买入 $85,000 Call</td><td>≈ 0.03% × BTC 价格</td></tr>
-            <tr><td>3</td><td>Deribit 卖出 $88,000 Call</td><td>≈ 0.03% × BTC 价格</td></tr>
+            <tr><td>PM</td><td>买入 300 张 Yes @ $0.50</td><td>花 $150</td><td>300 × $0.0078 = <b>$2.34</b></td></tr>
+            <tr><td>Deribit</td><td>买入 $85,000 Call × 0.1 BTC</td><td>—</td><td>0.03% × 0.1 × $85,000 = <b>$2.55</b></td></tr>
+            <tr><td>Deribit</td><td>卖出 $88,000 Call × 0.1 BTC</td><td>—</td><td>0.03% × 0.1 × $85,000 = <b>$2.55</b></td></tr>
             <tr style="background:#f0fdf4;">
-              <td colspan="2" style="font-weight:700;">总手续费（假设 BTC = $85,000）</td>
-              <td style="font-weight:700;">≈ $0.0078 + $25.5 + $25.5 = <span style="color:var(--red);">$51 per BTC</span></td>
+              <td colspan="2" style="font-weight:700;">总手续费</td>
+              <td></td>
+              <td style="font-weight:700;">$2.34 + $2.55 + $2.55 = <span style="color:var(--red);">$7.44</span></td>
+            </tr>
+            <tr style="background:#f0fdf4;">
+              <td colspan="2" style="font-weight:700;">理论利润（q−p = $0.05 × 300 张）</td>
+              <td></td>
+              <td style="font-weight:700;color:var(--green);">$15.00</td>
+            </tr>
+            <tr style="background:#f0fdf4;">
+              <td colspan="2" style="font-weight:700;">扣除手续费后净利润</td>
+              <td></td>
+              <td style="font-weight:700;color:var(--green);">$15.00 − $7.44 = $7.56</td>
             </tr>
           </tbody>
         </table>
@@ -563,11 +575,7 @@
     </div>
 
     <div class="callout" style="margin-top:20px;">
-      <b>关键结论</b><br>
-      PM 的手续费按票面算很小（不到 2%）。但 Deribit 期权的手续费是按 BTC 面值算的——即使只是 0.03%，乘以 $85,000 也是每条腿 $25 左右。<br><br>
-      所以真实的全绿条件是：<br>
-      <p style="text-align:center;font-size:1.1rem;font-weight:700;color:var(--accent);margin-top:8px;">q − p &gt; PM 手续费 + Deribit 手续费（所有腿）</p>
-      <p style="margin-top:10px;">如果 q − p 的差值不够大，手续费就会把理论利润吃光甚至变成亏损。这意味着：<b>不是所有定价偏差都值得做</b>，只有偏差足够大、超过手续费的才有利可图。</p>
+      真实全绿条件：<b>q − p &gt; 每张票分摊的手续费</b>（本例中手续费 $7.44 / 300 张 = $0.025/张，q−p 需 &gt; $0.025）
     </div>
   </div>
 
