@@ -162,7 +162,7 @@ async function fetchData() {
   txt.textContent = '拉取中...';
 
   try {
-    const res = await fetch('http://localhost:3456/api/monitor');
+    const res = await fetch('/api/monitor');
     const data = await res.json();
     allRows = data.rows;
 
@@ -176,8 +176,9 @@ async function fetchData() {
     document.getElementById('positiveCount').textContent = pos;
     document.getElementById('negativeCount').textContent = neg;
 
-    const maxQP = allRows.reduce((max, r) => r.qp > max ? r.qp : max, -Infinity);
-    document.getElementById('maxQP').textContent = maxQP > -Infinity ? maxQP.toFixed(4) : '--';
+    const validQP = allRows.filter(r => r.qp != null).map(r => r.qp);
+    const maxQP = validQP.length > 0 ? Math.max(...validQP) : null;
+    document.getElementById('maxQP').textContent = maxQP != null ? maxQP.toFixed(4) : '--';
 
     dot.className = 'dot live';
     txt.textContent = '实时';
