@@ -360,61 +360,61 @@
     <div class="table-wrap">
       <table class="ch2">
         <thead><tr>
-          <th>PM 实盘问题（示意）</th>
-          <th>Deribit 对应组合</th>
-          <th>时间关系</th>
-          <th>核心风险</th>
-          <th>为什么值得先观察</th>
-          <th>更适合的处理方式</th>
+          <th>PM 问题（示意）</th>
+          <th>PM 结束时间</th>
+          <th>Deribit 期权到期时间</th>
+          <th>时间差</th>
+          <th>谁先到期</th>
+          <th>建议处理方式</th>
         </tr></thead>
         <tbody>
           <tr>
-            <td>BTC 在 3/21 08:00 UTC 高于 $84,000？</td>
-            <td>3/21 到期、84,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-teal">几乎同时</span></td>
-            <td>时间差极小，风险最低</td>
-            <td>两边结束时间几乎重合，最适合第一批样本</td>
-            <td>方法 1（时间已经接近）</td>
+            <td>BTC 高于 $84,000？</td>
+            <td>3/21 08:00 UTC</td>
+            <td>3/21 08:00 UTC</td>
+            <td><span class="badge badge-teal">0 小时</span></td>
+            <td>同时</td>
+            <td>最理想，直接匹配</td>
           </tr>
           <tr>
-            <td>BTC 在 3/21 12:00 UTC 高于 $85,000？</td>
-            <td>3/21 到期（08:00 UTC）、85,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-midhigh">PM 晚 4 小时</span></td>
-            <td>Deribit 先到期，PM 还有 4 小时价格变化</td>
-            <td>时间差不大，结构简单，适合观察 Deribit 到期后的价格走势</td>
-            <td>方法 1 + 方法 2（如果 Deribit 到期时结果已明显，可提前平仓）</td>
+            <td>BTC 高于 $85,000？</td>
+            <td>3/21 12:00 UTC</td>
+            <td>3/21 08:00 UTC</td>
+            <td><span class="badge badge-midhigh">4 小时</span></td>
+            <td>Deribit 先到期</td>
+            <td>方法 1 + 方法 2</td>
           </tr>
           <tr>
-            <td>BTC 在 3/21 00:00 UTC 高于 $83,000？</td>
-            <td>3/21 到期（08:00 UTC）、83,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-midhigh">PM 早 8 小时</span></td>
-            <td>PM 先结束，Deribit 还有 8 小时未到期</td>
-            <td>PM 先结算，需要在 PM 结算后处理 Deribit 剩余仓位</td>
-            <td>方法 2（PM 结算后，Deribit 仓位可选择立即平仓）</td>
+            <td>BTC 高于 $83,000？</td>
+            <td>3/21 00:00 UTC</td>
+            <td>3/21 08:00 UTC</td>
+            <td><span class="badge badge-midhigh">8 小时</span></td>
+            <td>PM 先结束</td>
+            <td>方法 2（PM 结算后平 Deribit）</td>
           </tr>
           <tr>
-            <td>BTC Daily 高于 $86,000？（到纽约收盘）</td>
-            <td>同日到期、86,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-mid">差 ~12 小时</span></td>
-            <td>纽约收盘 21:00 UTC vs Deribit 08:00 UTC，差半天</td>
-            <td>时间差明显，但如果中途价格已远离目标价，仍可观察</td>
-            <td>方法 2 为主（密切关注价格远离后提前结束）</td>
+            <td>BTC Daily 高于 $86,000？</td>
+            <td>3/21 21:00 UTC（纽约收盘）</td>
+            <td>3/21 08:00 UTC</td>
+            <td><span class="badge badge-mid">13 小时</span></td>
+            <td>Deribit 先到期</td>
+            <td>方法 2 为主</td>
           </tr>
           <tr>
-            <td>BTC 4H 高于 $82,000？（某个 4 小时窗口结束）</td>
-            <td>最近到期、82,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-mid">不完全对齐</span></td>
-            <td>4H 窗口结束时间不一定与 Deribit 到期对齐</td>
-            <td>时间框架短，观察价格快速远离目标价时的行为</td>
-            <td>方法 1（优先挑窗口接近 08:00 UTC 的）+ 方法 2</td>
+            <td>BTC 4H 高于 $82,000？</td>
+            <td>3/21 04:00 UTC（4H 窗口）</td>
+            <td>3/21 08:00 UTC</td>
+            <td><span class="badge badge-mid">4 小时</span></td>
+            <td>PM 先结束</td>
+            <td>方法 1（挑靠近 08:00 的窗口）</td>
           </tr>
           <tr>
             <td>BTC 周五高于 $80,000？</td>
-            <td>周五到期、80,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-teal">通常接近</span></td>
-            <td>Deribit 周五期权 08:00 UTC 到期，PM 周线问题也常在周五结束</td>
-            <td>周线问题时间框架长，给了更多观察窗口</td>
-            <td>方法 1（周五到期天然接近）+ 方法 2（周中价格已远离可提前）</td>
+            <td>3/21 (周五) 16:00 UTC</td>
+            <td>3/21 (周五) 08:00 UTC</td>
+            <td><span class="badge badge-midhigh">8 小时</span></td>
+            <td>Deribit 先到期</td>
+            <td>方法 1 + 方法 2</td>
           </tr>
         </tbody>
       </table>
