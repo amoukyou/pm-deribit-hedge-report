@@ -348,17 +348,18 @@
   <!-- 2.4 为什么先筛这几个问题 -->
   <div class="section ch2">
     <h2>筛选标准</h2>
-    <p style="color:var(--muted);margin-bottom:4px;">不平均观察所有 Above / Below，而是按以下标准挑样本：</p>
-    <p style="color:var(--text);font-size:0.92rem;">&bull; 两边结束时间尽量接近 &bull; 只看一个明确价位 &bull; 适合用上面两种方法处理</p>
+    <p style="color:var(--muted);margin-bottom:4px;">第一章筛出了 Above / Below 和 Price Range 两类最适合研究的问题。第二章在此基础上，按以下标准挑出观察样本：</p>
+    <p style="color:var(--text);font-size:0.92rem;">&bull; 两边结束时间尽量接近 &bull; 规则简单 &bull; 适合用上面两种方法处理</p>
   </div>
 
   <!-- 2.5 实盘问题筛选表 -->
   <div class="section ch2">
     <h2 id="samples">第一批观察样本</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">BTC Above 全部实盘问题 × Deribit 匹配期权。数据来自 Polymarket Gamma API + Deribit Public API（2026-03-16 抓取）。</p>
+    <p style="color:var(--muted);margin-bottom:12px;">BTC Above + Range 全部实盘问题 × Deribit 匹配期权。默认按时间差从小到大排序。数据来自 Polymarket Gamma API + Deribit Public API（2026-03-16 抓取）。</p>
     <div class="table-wrap">
       <table class="ch2" id="sampleTable">
         <thead><tr>
+          <th>类型</th>
           <th>PM 实盘问题</th>
           <th>PM 结束时间</th>
           <th>Deribit 匹配期权</th>
@@ -370,7 +371,7 @@
       </table>
     </div>
     <div class="callout" style="margin-top:16px;">
-      <b>数据来源：</b>Polymarket Gamma API + Deribit Public API（2026-03-16 抓取），共 <b>45 个</b> BTC Above 问题。<br>
+      <b>数据来源：</b>Polymarket Gamma API + Deribit Public API（2026-03-16 抓取），共 <b>45 个 Above + 11 个 Range = 56 个</b>问题。<br>
       <b>规律：</b>PM 统一在 <b>16:00 UTC</b> 结束，Deribit 统一在 <b>08:00 UTC</b> 到期。同日匹配时间差固定 <b>8 小时</b>（Deribit 先到期）。Mar 16 无当日 Deribit 到期（差 16h），Mar 21–22 最近到期是 Mar 27（差 112–136h，不理想）。
     </div>
   </div>
@@ -391,84 +392,115 @@
 </div>
 
 <script>
-const btcAbove = [
+// type: 'Above' or 'Range'
+// [type, question, pmEnd, deribitInst, deribitEnd, diffHours, whoFirst, pmEventSlug]
+const allMarkets = [
   // Mar 16 (no same-day Deribit, nearest is Mar 17)
-  ['Bitcoin above $58,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-58000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $60,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-60000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $62,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-62000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $64,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-64000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $66,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-66000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $68,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-68000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $70,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-70000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $72,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-72000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $74,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-74000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $76,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-76000-C/P','3/17 08:00 UTC',16,'PM 先'],
-  ['Bitcoin above $78,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-78000-C/P','3/17 08:00 UTC',16,'PM 先'],
+  ['Above','Bitcoin above $58,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-58000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $60,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-60000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $62,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-62000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $64,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-64000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $66,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-66000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $68,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-68000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $70,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-70000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $72,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-72000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $74,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-74000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $76,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-76000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
+  ['Above','Bitcoin above $78,000 on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-78000-C/P','3/17 08:00 UTC',16,'PM 先','bitcoin-above-on-march-16'],
   // Mar 17 (same-day Deribit)
-  ['Bitcoin above $62,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-62000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $64,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-64000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $66,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-66000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $68,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-68000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $70,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-70000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $72,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-72000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $74,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-74000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $76,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-76000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $78,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-78000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $80,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-80000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $82,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-82000-C/P','3/17 08:00 UTC',8,'Deribit 先'],
+  ['Above','Bitcoin above $62,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-62000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $64,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-64000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $66,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-66000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $68,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-68000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $70,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-70000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $72,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-72000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $74,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-74000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $76,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-76000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $78,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-78000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $80,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-80000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
+  ['Above','Bitcoin above $82,000 on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-82000-C/P','3/17 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-17'],
   // Mar 18 (same-day Deribit)
-  ['Bitcoin above $60,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-60000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $62,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-62000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $64,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-64000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $66,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-66000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $68,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-68000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $70,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-70000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $76,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-76000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $78,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-78000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $80,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-80000-C/P','3/18 08:00 UTC',8,'Deribit 先'],
+  ['Above','Bitcoin above $60,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-60000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $62,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-62000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $64,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-64000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $66,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-66000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $68,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-68000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $70,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-70000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $76,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-76000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $78,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-78000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
+  ['Above','Bitcoin above $80,000 on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-80000-C/P','3/18 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-18'],
   // Mar 19 (same-day Deribit)
-  ['Bitcoin above $62,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-62000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $64,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-64000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $68,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-68000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $74,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-74000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $76,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-76000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $78,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-78000-C/P','3/19 08:00 UTC',8,'Deribit 先'],
+  ['Above','Bitcoin above $62,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-62000-C/P','3/19 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-19'],
+  ['Above','Bitcoin above $64,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-64000-C/P','3/19 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-19'],
+  ['Above','Bitcoin above $68,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-68000-C/P','3/19 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-19'],
+  ['Above','Bitcoin above $74,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-74000-C/P','3/19 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-19'],
+  ['Above','Bitcoin above $76,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-76000-C/P','3/19 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-19'],
+  ['Above','Bitcoin above $78,000 on Mar 19?','3/19 16:00 UTC','BTC-19MAR26-78000-C/P','3/19 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-19'],
   // Mar 20 (same-day Deribit)
-  ['Bitcoin above $62,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-62000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $64,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-64000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $74,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-74000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
-  ['Bitcoin above $76,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-76000-C/P','3/20 08:00 UTC',8,'Deribit 先'],
+  ['Above','Bitcoin above $62,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-62000-C/P','3/20 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-20'],
+  ['Above','Bitcoin above $64,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-64000-C/P','3/20 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-20'],
+  ['Above','Bitcoin above $74,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-74000-C/P','3/20 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-20'],
+  ['Above','Bitcoin above $76,000 on Mar 20?','3/20 16:00 UTC','BTC-20MAR26-76000-C/P','3/20 08:00 UTC',8,'Deribit 先','bitcoin-above-on-march-20'],
   // Mar 21 (nearest Deribit is Mar 27)
-  ['Bitcoin above $64,000 on Mar 21?','3/21 16:00 UTC','BTC-27MAR26-64000-C/P','3/27 08:00 UTC',136,'PM 先'],
-  ['Bitcoin above $70,000 on Mar 21?','3/21 16:00 UTC','BTC-27MAR26-70000-C/P','3/27 08:00 UTC',136,'PM 先'],
+  ['Above','Bitcoin above $64,000 on Mar 21?','3/21 16:00 UTC','BTC-27MAR26-64000-C/P','3/27 08:00 UTC',136,'PM 先','bitcoin-above-on-march-21'],
+  ['Above','Bitcoin above $70,000 on Mar 21?','3/21 16:00 UTC','BTC-27MAR26-70000-C/P','3/27 08:00 UTC',136,'PM 先','bitcoin-above-on-march-21'],
   // Mar 22 (nearest Deribit is Mar 27)
-  ['Bitcoin above $64,000 on Mar 22?','3/22 16:00 UTC','BTC-27MAR26-64000-C/P','3/27 08:00 UTC',112,'PM 先'],
-  ['Bitcoin above $66,000 on Mar 22?','3/22 16:00 UTC','BTC-27MAR26-66000-C/P','3/27 08:00 UTC',112,'PM 先'],
+  ['Above','Bitcoin above $64,000 on Mar 22?','3/22 16:00 UTC','BTC-27MAR26-64000-C/P','3/27 08:00 UTC',112,'PM 先','bitcoin-above-on-march-22'],
+  ['Above','Bitcoin above $66,000 on Mar 22?','3/22 16:00 UTC','BTC-27MAR26-66000-C/P','3/27 08:00 UTC',112,'PM 先','bitcoin-above-on-march-22'],
+  // === RANGE markets ===
+  // Mar 16 Range (nearest Deribit Mar 17)
+  ['Range','BTC between $60k–$62k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-60000/62000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $62k–$64k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-62000/64000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $64k–$66k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-64000/66000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $66k–$68k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-66000/68000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $68k–$70k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-68000/70000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $70k–$72k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-70000/72000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $72k–$74k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-72000/74000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $74k–$76k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-74000/76000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  ['Range','BTC between $76k–$78k on Mar 16?','3/16 16:00 UTC','BTC-17MAR26-76000/78000','3/17 08:00 UTC',16,'PM 先','bitcoin-price-on-march-16'],
+  // Mar 17 Range
+  ['Range','BTC between $62k–$64k on Mar 17?','3/17 16:00 UTC','BTC-17MAR26-62000/64000','3/17 08:00 UTC',8,'Deribit 先','bitcoin-price-on-march-17'],
+  // Mar 18 Range
+  ['Range','BTC between $64k–$66k on Mar 18?','3/18 16:00 UTC','BTC-18MAR26-64000/66000','3/18 08:00 UTC',8,'Deribit 先','bitcoin-price-on-march-18'],
 ];
 
+// Sort by time diff (ascending), then by type
+allMarkets.sort((a, b) => a[5] - b[5] || a[0].localeCompare(b[0]));
+
 const tbody = document.querySelector('#sampleTable tbody');
-btcAbove.forEach(r => {
+allMarkets.forEach(r => {
   const tr = document.createElement('tr');
-  const diffH = r[4];
+  const type = r[0];
+  const diffH = r[5];
   let badgeClass = 'badge-teal';
   if (diffH > 100) badgeClass = 'badge-low';
   else if (diffH > 12) badgeClass = 'badge-mid';
   else if (diffH > 0) badgeClass = 'badge-midhigh';
 
-  // PM link: event-level URL (all price levels on one page)
-  const pm = r[0];
-  const dayMatch = pm.match(/Mar (\d+)/);
-  let pmLink = '#';
-  if (dayMatch) {
-    pmLink = `https://polymarket.com/event/bitcoin-above-on-march-${dayMatch[1]}`;
+  const typeBadge = type === 'Above'
+    ? '<span class="badge badge-high">Above</span>'
+    : '<span class="badge badge-midhigh">Range</span>';
+
+  // PM link
+  const pmLink = `https://polymarket.com/event/${r[7]}`;
+
+  // Deribit link
+  const dbRaw = r[3];
+  let dbHtml;
+  if (dbRaw.includes('/') && !dbRaw.includes('-C/P')) {
+    // Range: two strikes like BTC-17MAR26-60000/62000 → link to individual options
+    const parts = dbRaw.split('/');
+    const base = dbRaw.split('-').slice(0,2).join('-');
+    dbHtml = `<span style="font-family:monospace;font-size:0.78rem;">${dbRaw}</span>`;
+  } else {
+    // Above: single strike like BTC-17MAR26-64000-C/P
+    const dbName = dbRaw.replace('-C/P','');
+    const dbCLink = 'https://www.deribit.com/options/BTC/' + dbName + '-C';
+    const dbPLink = 'https://www.deribit.com/options/BTC/' + dbName + '-P';
+    dbHtml = `<a href="${dbCLink}" target="_blank" style="color:var(--ch2);text-decoration:none;font-family:monospace;font-size:0.78rem;">${dbName}-C</a> / <a href="${dbPLink}" target="_blank" style="color:var(--ch2);text-decoration:none;">P</a>`;
   }
 
-  // Deribit link: extract instrument name (without /P suffix)
-  const dbName = r[2].replace('-C/P','');
-  const dbCallLink = `https://www.deribit.com/options/BTC/${dbName}-C`;
-  const dbPutLink = `https://www.deribit.com/options/BTC/${dbName}-P`;
-
-  tr.innerHTML = `<td><a href="${pmLink}" target="_blank" style="color:var(--accent);text-decoration:none;">${pm}</a></td><td>${r[1]}</td><td style="font-family:monospace;font-size:0.8rem;"><a href="${dbCallLink}" target="_blank" style="color:var(--ch2);text-decoration:none;">${dbName}-C</a> / <a href="${dbPutLink}" target="_blank" style="color:var(--ch2);text-decoration:none;">P</a></td><td>${r[3]}</td><td><span class="badge ${badgeClass}">${diffH}h</span></td><td>${r[5]}</td>`;
+  tr.innerHTML = `<td>${typeBadge}</td><td><a href="${pmLink}" target="_blank" style="color:var(--accent);text-decoration:none;">${r[1]}</a></td><td>${r[2]}</td><td>${dbHtml}</td><td>${r[4]}</td><td><span class="badge ${badgeClass}">${diffH}h</span></td><td>${r[6]}</td>`;
   tbody.appendChild(tr);
 });
 </script>
