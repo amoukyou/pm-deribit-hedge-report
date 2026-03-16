@@ -18,6 +18,9 @@ db.exec(`
     pm_date TEXT, strike TEXT, pm_ask REAL, deribit_desc TEXT,
     deribit_q REAL, qp REAL, time_diff INTEGER,
     pm_link TEXT, deribit_link TEXT,
+    leg1_name TEXT, leg1_action TEXT, leg1_price REAL,
+    leg2_name TEXT, leg2_action TEXT, leg2_price REAL,
+    underlying REAL, spread_width REAL,
     updated_at TEXT
   )
 `);
@@ -114,7 +117,7 @@ async function refreshData() {
 
   // Build rows and write to DB
   const now = new Date().toISOString();
-  const insert = db.prepare(`INSERT INTO monitor (type,strategy,direction,question,pm_date,strike,pm_ask,deribit_desc,deribit_q,qp,time_diff,pm_link,deribit_link,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+  const insert = db.prepare(`INSERT INTO monitor (type,strategy,direction,question,pm_date,strike,pm_ask,deribit_desc,deribit_q,qp,time_diff,pm_link,deribit_link,leg1_name,leg1_action,leg1_price,leg2_name,leg2_action,leg2_price,underlying,spread_width,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
 
   db.exec('DELETE FROM monitor');
   for (const meta of metas) {
@@ -126,18 +129,30 @@ async function refreshData() {
       const { K, k2, k1, dbPrefix, ci } = meta;
       const callK = dbR[ci[0]], callK2 = dbR[ci[1]], putK = dbR[ci[2]], putK1 = dbR[ci[3]];
 
+      // #1: sell K call (at bid), buy K+1000 call (at ask)
       let q1 = null;
       if (callK.bid != null && callK2.ask != null) q1 = (callK.bid - callK2.ask) * underlying / SPREAD_WIDTH;
       const qp1 = (q1 != null && yesAsk != null) ? +(q1 - yesAsk).toFixed(4) : null;
-      insert.run('Above', '#1', 'Buy Yes', m.question, m.pm_date, String(K), yesAsk, `Sell ${K}C / Buy ${k2}C`, q1, qp1, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-C`, now);
+      insert.run('Above', '#1', 'Buy Yes', m.question, m.pm_date, String(K), yesAsk,
+        `Sell ${K}C / Buy ${k2}C`, q1, qp1, m.time_diff_hours,
+        `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-C`,
+        `${dbPrefix}-C`, 'Sell', callK.bid,
+        `${dbPrefix.replace(`-${K}`,`-${k2}`)}-C`, 'Buy', callK2.ask,
+        underlying, SPREAD_WIDTH, now);
 
+      // #3: sell K put (at bid), buy K-1000 put (at ask)
       let q3 = null;
       if (putK.bid != null && putK1.ask != null) q3 = (putK.bid - putK1.ask) * underlying / SPREAD_WIDTH;
       const qp3 = (q3 != null && noAsk != null) ? +(q3 - noAsk).toFixed(4) : null;
-      insert.run('Above', '#3', 'Buy No', m.question, m.pm_date, String(K), noAsk, `Sell ${K}P / Buy ${k1}P`, q3, qp3, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-P`, now);
+      insert.run('Above', '#3', 'Buy No', m.question, m.pm_date, String(K), noAsk,
+        `Sell ${K}P / Buy ${k1}P`, q3, qp3, m.time_diff_hours,
+        `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-P`,
+        `${dbPrefix}-P`, 'Sell', putK.bid,
+        `${dbPrefix.replace(`-${K}`,`-${k1}`)}-P`, 'Buy', putK1.ask,
+        underlying, SPREAD_WIDTH, now);
     } else {
-      insert.run('Range', '#9', 'Buy Yes', m.question, m.pm_date, JSON.stringify(m.strike), yesAsk, 'Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, now);
-      insert.run('Range', '#11', 'Buy No', m.question, m.pm_date, JSON.stringify(m.strike), noAsk, 'Rev Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, now);
+      insert.run('Range', '#9', 'Buy Yes', m.question, m.pm_date, JSON.stringify(m.strike), yesAsk, 'Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, underlying, null, now);
+      insert.run('Range', '#11', 'Buy No', m.question, m.pm_date, JSON.stringify(m.strike), noAsk, 'Rev Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, underlying, null, now);
     }
   }
 

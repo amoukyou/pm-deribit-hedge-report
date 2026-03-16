@@ -275,11 +275,56 @@ function toggleDetail(tr, r) {
   const q = r.deribit_q ?? (p + 0.05);
   const K = typeof r.strike === 'string' ? parseInt(r.strike) : (Array.isArray(r.strike) ? r.strike[0] : r.strike);
   const isYes = r.direction === 'Buy Yes';
-  const spread = 1000;
+  const sw = r.spread_width || 1000;
+  const ul = r.underlying || 73500;
+
+  // PM side: number of tickets = 0.1 BTC * spread_width
+  const pmQty = sw ? 0.1 * sw : 300;
+  const pmCostPerTicket = p;
+  const pmTotalCost = pmQty * pmCostPerTicket;
+
+  // Deribit legs
+  const leg1p = r.leg1_price;
+  const leg2p = r.leg2_price;
+  const leg1usd = leg1p != null ? (leg1p * ul).toFixed(2) : '--';
+  const leg2usd = leg2p != null ? (leg2p * ul).toFixed(2) : '--';
+  const dbTotalBTC = (leg1p != null && leg2p != null) ? (r.leg1_action === 'Sell' ? leg1p - leg2p : leg2p - leg1p) : null;
+  const dbTotalUSD = dbTotalBTC != null ? (dbTotalBTC * ul * 0.1).toFixed(2) : '--';
+  const dbNetPerTicket = dbTotalBTC != null ? (dbTotalBTC * ul / sw).toFixed(4) : '--';
+
+  // Combined
+  const combinedCost = (pmTotalCost != null && dbTotalBTC != null) ? (pmTotalCost - dbTotalBTC * ul * 0.1).toFixed(2) : '--';
+  const pnlPerTicket = r.qp != null ? r.qp.toFixed(4) : '--';
+  const pnlTotal = r.qp != null ? (r.qp * pmQty).toFixed(2) : '--';
+  const pnlColor = r.qp > 0 ? 'var(--green)' : 'var(--red)';
 
   td.innerHTML = `
-    <div class="detail-info">
-      <b>${r.question}</b> · ${r.direction} · p = ${r.pm_ask != null ? r.pm_ask.toFixed(3) : '--'} · q = ${r.deribit_q != null ? r.deribit_q.toFixed(4) : '--'} · q-p = ${r.qp != null ? r.qp.toFixed(4) : '--'}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;">
+        <div style="font-weight:700;margin-bottom:8px;color:var(--accent);">PM 端（${r.direction}）</div>
+        <table style="width:100%;font-size:0.8rem;">
+          <tr><td style="color:var(--muted);">票价 (p)</td><td class="mono" style="text-align:right;">${p != null ? '$'+p.toFixed(3) : '--'}</td></tr>
+          <tr><td style="color:var(--muted);">数量（匹配 0.1 BTC spread）</td><td class="mono" style="text-align:right;">${pmQty} 张</td></tr>
+          <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">PM 总成本</td><td class="mono" style="text-align:right;font-weight:700;">$${pmTotalCost.toFixed(2)}</td></tr>
+        </table>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;">
+        <div style="font-weight:700;margin-bottom:8px;color:var(--blue);">Deribit 端（${r.deribit_desc}）</div>
+        <table style="width:100%;font-size:0.8rem;">
+          <tr><td style="color:var(--muted);">${r.leg1_action || 'Sell'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;">${leg1p != null ? leg1p.toFixed(4)+' BTC' : '--'} = $${leg1usd}</td></tr>
+          <tr><td style="color:var(--muted);">${r.leg2_action || 'Buy'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;">${leg2p != null ? leg2p.toFixed(4)+' BTC' : '--'} = $${leg2usd}</td></tr>
+          <tr><td style="color:var(--muted);">合约数量</td><td class="mono" style="text-align:right;">0.1 BTC / 每腿</td></tr>
+          <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">Deribit 净收入 (q × ${pmQty})</td><td class="mono" style="text-align:right;font-weight:700;">$${dbTotalUSD}</td></tr>
+        </table>
+      </div>
+    </div>
+    <div style="background:var(--card);border:2px solid ${r.qp > 0 ? 'var(--green)' : 'var(--border)'};border-radius:8px;padding:14px;margin-bottom:16px;">
+      <table style="width:100%;font-size:0.85rem;">
+        <tr><td style="width:50%;">PM 成本</td><td class="mono">$${pmTotalCost.toFixed(2)}</td></tr>
+        <tr><td>Deribit 净收入</td><td class="mono">$${dbTotalUSD}</td></tr>
+        <tr style="border-top:2px solid var(--border);"><td style="font-weight:700;">预计到期损益（q-p × ${pmQty} 张）</td><td class="mono" style="font-weight:700;font-size:1.1rem;color:${pnlColor};">${r.qp > 0 ? '+' : ''}$${pnlTotal}</td></tr>
+        <tr><td style="color:var(--muted);">每张票损益</td><td class="mono" style="color:${pnlColor};">${r.qp > 0 ? '+' : ''}${pnlPerTicket}</td></tr>
+      </table>
     </div>
     <div class="detail-charts">
       <div class="detail-chart"><p>PM 单腿损益</p><canvas id="detailChart1"></canvas></div>
@@ -330,7 +375,15 @@ function toggleDetail(tr, r) {
 
   const segGR = { borderColor: ctx => (ctx.p0.parsed.y <= 0 && ctx.p1.parsed.y <= 0) ? '#dc2626' : (ctx.p0.parsed.y > 0 && ctx.p1.parsed.y > 0) ? '#16a34a' : '#9ca3af' };
   const zeroGrid = { color: ctx => ctx.tick.value === 0 ? '#374151' : '#e5e7eb', lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1 };
-  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}}}, scales:{x:{ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9}},grid:zeroGrid}} });
+  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'index',intersect:false}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:{callbacks:{title:items=>items[0]?'BTC '+items[0].label:'',label:item=>'损益: $'+item.parsed.y.toFixed(4)}}}, scales:{x:{ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9}},grid:zeroGrid}} });
+
+  // Max/min for labels
+  const pmMax = Math.max(...pmPnl).toFixed(3), pmMin = Math.min(...pmPnl).toFixed(3);
+  const dbMax = Math.max(...dbPnl).toFixed(3), dbMin = Math.min(...dbPnl).toFixed(3);
+
+  // Update chart labels with max/min
+  document.querySelector('#detailChart1').parentElement.querySelector('p').innerHTML = `PM 单腿损益 <span style="color:var(--green);font-weight:600;">最大盈利 +$${pmMax}</span> <span style="color:var(--red);font-weight:600;">最大亏损 $${pmMin}</span>`;
+  document.querySelector('#detailChart2').parentElement.querySelector('p').innerHTML = `Deribit 对冲损益 <span style="color:var(--green);font-weight:600;">最大盈利 +$${dbMax}</span> <span style="color:var(--red);font-weight:600;">最大亏损 $${dbMin}</span>`;
 
   // Chart 1: PM PnL
   new Chart(document.getElementById('detailChart1'), { type:'line', data:{ labels, datasets:[
@@ -342,10 +395,8 @@ function toggleDetail(tr, r) {
     { label:`Deribit ${r.deribit_desc}`, data:dbPnl, borderColor:'#ca8a04', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:0, borderWidth:2 }
   ]}, options:chartOpts('PnL ($)') });
 
-  // Chart 3: Combo
+  // Chart 3: Combo (only combo line, no dashed PM/Deribit)
   new Chart(document.getElementById('detailChart3'), { type:'line', data:{ labels, datasets:[
-    { label:'PM', data:pmPnl, borderColor:'#4f46e5', pointRadius:0, borderWidth:1.5, stepped:true, borderDash:[5,3] },
-    { label:'Deribit', data:dbPnl, borderColor:'#ca8a04', pointRadius:0, borderWidth:1.5, borderDash:[5,3] },
     { label:'组合 PnL', data:comboPnl, borderColor:'#16a34a', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:0, borderWidth:3 }
   ]}, options:chartOpts('PnL ($)') });
 }
