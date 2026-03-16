@@ -387,12 +387,26 @@ function toggleDetail(tr, r) {
   document.querySelector('#detailChart2').parentElement.querySelector('p').innerHTML = `Deribit ${r.deribit_desc}（0.1BTC） <span style="color:var(--green);font-weight:600;">最大盈 +$${dbMax.toFixed(2)}</span> <span style="color:var(--red);font-weight:600;">最大亏 -$${Math.abs(dbMin).toFixed(2)}</span>`;
   document.querySelector('#detailChart3').parentElement.querySelector('p').innerHTML = `组合损益 <span style="color:${coMin >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;">范围 $${coMin.toFixed(2)} ~ $${coMax.toFixed(2)}</span>`;
 
+  // Find breakeven points for chart 1 and 2
+  function findBE(data) {
+    const be = new Set();
+    for (let i = 1; i < data.length; i++) {
+      if ((data[i-1] <= 0 && data[i] > 0) || (data[i-1] >= 0 && data[i] < 0)) be.add(i);
+    }
+    return be;
+  }
+  const pmBE = findBE(pmPnl);
+  const dbBE = findBE(dbPnl);
+  const mkPt = (data, beSet) => ({ r: data.map((_,i)=>beSet.has(i)?7:0), bg: data.map((_,i)=>beSet.has(i)?'#1d4ed8':'transparent'), bc: data.map((_,i)=>beSet.has(i)?'#fff':'transparent') });
+  const pmPt = mkPt(pmPnl, pmBE);
+  const dbPt = mkPt(dbPnl, dbBE);
+
   new Chart(document.getElementById('detailChart1'), { type:'line', data:{ labels, datasets:[
-    { label:`PM ${r.direction} ×${pmQty}`, data:pmPnl, borderColor:'#16a34a', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, stepped:true, pointRadius:0, borderWidth:2 }
+    { label:`PM ${r.direction} ×${pmQty}`, data:pmPnl, borderColor:'#16a34a', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, stepped:true, pointRadius:pmPt.r, pointBackgroundColor:pmPt.bg, pointBorderColor:pmPt.bc, pointBorderWidth:2, pointHoverRadius:10, borderWidth:2 }
   ]}, options:chartOpts('损益 (USD)') });
 
   new Chart(document.getElementById('detailChart2'), { type:'line', data:{ labels, datasets:[
-    { label:`Deribit ×0.1BTC`, data:dbPnl, borderColor:'#ca8a04', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:0, borderWidth:2 }
+    { label:`Deribit ×0.1BTC`, data:dbPnl, borderColor:'#ca8a04', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:dbPt.r, pointBackgroundColor:dbPt.bg, pointBorderColor:dbPt.bc, pointBorderWidth:2, pointHoverRadius:10, borderWidth:2 }
   ]}, options:chartOpts('损益 (USD)') });
 
   // Chart 3: Zoomed into the action area around K, with breakeven annotations
@@ -423,7 +437,7 @@ function toggleDetail(tr, r) {
   // Insert breakeven values into the dataset so tooltip naturally snaps to them
   const beIndices = new Set(breakevens.map(b => b.index));
   const zPointRadius = zCombo.map((_, i) => beIndices.has(i) ? 7 : 0);
-  const zPointBgColor = zCombo.map((_, i) => beIndices.has(i) ? '#ef4444' : 'transparent');
+  const zPointBgColor = zCombo.map((_, i) => beIndices.has(i) ? '#1d4ed8' : 'transparent');
   const zPointBorderColor = zCombo.map((_, i) => beIndices.has(i) ? '#fff' : 'transparent');
   const annotations = {};
 
@@ -444,7 +458,7 @@ function toggleDetail(tr, r) {
           const isBE = beIndices.has(idx);
           return (isBE ? '>>> 盈亏平衡点 <<< ' : '') + '损益: $' + item.parsed.y.toFixed(2);
         },
-        labelColor:item=>({borderColor:beIndices.has(item.dataIndex)?'#ef4444':'#16a34a',backgroundColor:beIndices.has(item.dataIndex)?'#ef4444':'#16a34a'})
+        labelColor:item=>({borderColor:beIndices.has(item.dataIndex)?'#1d4ed8':'#16a34a',backgroundColor:beIndices.has(item.dataIndex)?'#1d4ed8':'#16a34a'})
       }},
       annotation:{ annotations }
     },
