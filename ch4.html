@@ -247,7 +247,9 @@ function renderTable() {
     const pmLink = r.pm_link ? `<a href="${r.pm_link}" target="_blank">${r.question.replace('Will the price of Bitcoin be ','BTC ')}</a>` : r.question;
     const dbLink = r.deribit_link ? `<a href="${r.deribit_link}" target="_blank" class="mono">${r.deribit_desc}</a>` : `<span class="mono">${r.deribit_desc}</span>`;
 
-    tr.innerHTML = `<td>${typeBadge}</td><td class="mono">${r.strategy}</td><td>${dirBadge}</td><td>${pmLink}</td><td class="mono">${pmAsk}</td><td>${dbLink}</td><td class="mono">${dQ}</td><td style="font-weight:700;">${qpCell}</td><td>${r.time_diff}h</td>`;
+    // PM 16:00 UTC, Deribit 08:00 UTC same day = Deribit先; if time_diff > 8 = PM先 (cross-day)
+    const whoFirst = r.time_diff <= 8 ? '<span style="color:var(--muted);font-size:0.75rem;">Db先</span>' : '<span style="color:var(--muted);font-size:0.75rem;">PM先</span>';
+    tr.innerHTML = `<td>${typeBadge}</td><td class="mono">${r.strategy}</td><td>${dirBadge}</td><td>${pmLink}</td><td class="mono">${pmAsk}</td><td>${dbLink}</td><td class="mono">${dQ}</td><td style="font-weight:700;">${qpCell}</td><td>${r.time_diff}h ${whoFirst}</td>`;
     tr.className = 'clickable';
     tr.addEventListener('click', (e) => {
       if (e.target.tagName === 'A') return; // don't expand when clicking links
@@ -321,6 +323,7 @@ function toggleDetail(tr, r) {
           <tr><td style="color:var(--muted);">${r.leg1_action || 'Sell'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;">${leg1btc} = ${leg1usd}</td></tr>
           <tr><td style="color:var(--muted);">${r.leg2_action || 'Buy'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;">${leg2btc} = ${leg2usd}</td></tr>
           <tr><td style="color:var(--muted);">合约数量</td><td class="mono" style="text-align:right;">0.1 BTC / 每腿</td></tr>
+          <tr><td style="color:var(--muted);">保证金占用（spread 最大风险）</td><td class="mono" style="text-align:right;">$${(sw * 0.1).toFixed(0)}</td></tr>
           <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">Deribit 净收入</td><td class="mono" style="text-align:right;font-weight:700;">${anyNoMarket ? '<span style="color:var(--red);">无法执行（盘口缺失）</span>' : '$'+dbTotalUSD}</td></tr>
         </table>
       </div>
@@ -332,6 +335,7 @@ function toggleDetail(tr, r) {
         <tr><td>Deribit 净收入</td><td class="mono">${anyNoMarket ? '<span style="color:var(--red);">盘口缺失</span>' : '$'+dbTotalUSD}</td></tr>
         <tr style="border-top:2px solid var(--border);"><td style="font-weight:700;">预计到期损益（q-p × ${pmQty} 张）</td><td class="mono" style="font-weight:700;font-size:1.1rem;color:${executable ? pnlColor : 'var(--muted)'};">${executable ? (r.qp > 0 ? '+' : '') + '$' + pnlTotal : '无法计算'}</td></tr>
         ${executable ? `<tr><td style="color:var(--muted);">每张票损益</td><td class="mono" style="color:${pnlColor};">${r.qp > 0 ? '+' : ''}${pnlPerTicket}</td></tr>` : ''}
+        <tr id="comboMaxRow"></tr>
       </table>
     </div>
     <div class="detail-charts">
@@ -414,6 +418,12 @@ function toggleDetail(tr, r) {
   const coMax = Math.max(...comboPnl), coMin = Math.min(...comboPnl);
 
   const fmtPnl = (v) => { const c = v >= 0 ? 'var(--green)' : 'var(--red)'; const s = v >= 0 ? '+' : ''; return `<span style="color:${c};font-weight:600;">${s}$${v.toFixed(2)}</span>`; };
+
+  // Fill in combo max/min row
+  const maxRow = document.getElementById('comboMaxRow');
+  if (maxRow) {
+    maxRow.innerHTML = `<td style="color:var(--muted);">组合最大盈亏</td><td class="mono">最大盈利 ${fmtPnl(coMax)} · 最大亏损 ${fmtPnl(coMin)}</td>`;
+  }
   document.querySelector('#detailChart1').parentElement.querySelector('p').innerHTML = `PM ${r.direction}（${pmQty}张） 最大盈 ${fmtPnl(pmMax)} 最大亏 ${fmtPnl(pmMin)}`;
   document.querySelector('#detailChart2').parentElement.querySelector('p').innerHTML = `Deribit ${r.deribit_desc}（0.1BTC） 最大盈 ${fmtPnl(dbMax)} 最大亏 ${fmtPnl(dbMin)}`;
   document.querySelector('#detailChart3').parentElement.querySelector('p').innerHTML = `组合损益 <span style="color:${coMin >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;">范围 $${coMin.toFixed(2)} ~ $${coMax.toFixed(2)}</span>`;
