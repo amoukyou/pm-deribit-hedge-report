@@ -273,11 +273,26 @@
     margin-right: auto; padding-left: 0;
   }
 
+  /* Strategy tabs for chart section */
+  .strat-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
+  .strat-tab {
+    padding: 10px 20px; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all 0.2s; white-space: nowrap;
+  }
+  .strat-tab:hover { color: var(--text); }
+  .strat-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .strat-tab-content { display: none; }
+  .strat-tab-content.active { display: block; }
+  .strat-tab.placeholder { color: var(--border); }
+  .strat-tab.placeholder:hover { color: var(--muted); }
+
   @media (max-width: 640px) {
     .hero h1 { font-size: 1.5rem; }
     .op-cards { grid-template-columns: 1fr; }
     .controls { flex-direction: column; align-items: flex-start; }
     .topnav-inner a { padding: 0 10px; font-size: 0.8rem; }
+    .strat-tab { padding: 8px 12px; font-size: 0.8rem; }
   }
 </style>
 </head>
@@ -384,7 +399,7 @@
     <div class="table-wrap">
       <table id="mainTable">
         <thead><tr>
-          <th>实例问题</th><th>问题类型</th><th>方向</th><th>操作</th>
+          <th>编号</th><th>实例问题</th><th>问题类型</th><th>方向</th><th>操作</th>
           <th>PM 盘口</th><th>Deribit 近似</th><th>建议配合方式</th>
           <th>适配度</th><th>原因</th>
         </tr></thead>
@@ -397,124 +412,214 @@
   <div class="section">
     <h2 id="priority">研究优先顺序</h2>
     <p style="color:var(--muted);margin-bottom:16px;">先按题型适配度排（Above > Up/Down > Range > Hit），再按操作可行性排（Buy > Sell）。当前报告的核心结论建立在<b>"无库存起手"</b>前提下。</p>
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('nostock',this)">无库存起手</div>
-      <div class="tab" onclick="switchTab('stock',this)">有库存做市</div>
-    </div>
-    <div class="tab-content active" id="tab-nostock">
-      <ol class="priority-list">
-        <li><span class="rank">1</span><div><div class="p-title">Above / Below — Buy Yes / Buy No</div><div class="p-note">题型最简单、最标准，无库存可直接做，与 Deribit 适配度最高</div></div></li>
-        <li><span class="rank">2</span><div><div class="p-title">Up / Down — Buy Yes / Buy No</div><div class="p-note">方向简单，但多一层起点和时点误差</div></div></li>
-        <li><span class="rank">3</span><div><div class="p-title">Price Range — Buy Yes / Buy No</div><div class="p-note">较复杂，但仍可用 Deribit 组合近似</div></div></li>
-        <li><span class="rank dim">4</span><div><div class="p-title">Above / Below — Sell Yes / Sell No</div><div class="p-note">题型好，但需要先拆分代币准备库存</div></div></li>
-        <li><span class="rank dim">5</span><div><div class="p-title">Up / Down — Sell Yes / Sell No</div><div class="p-note">需库存 + 起点误差</div></div></li>
-        <li><span class="rank dim">6</span><div><div class="p-title">Price Range — Sell Yes / Sell No</div><div class="p-note">需库存 + 多腿组合</div></div></li>
-        <li><span class="rank dim">7</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"最难对冲，暂不优先</div></div></li>
-      </ol>
-      <div class="disclaimer" style="margin-top:16px;">
-        如果只从 Deribit 一侧看，买对冲结构通常更舒服；但一旦把 PM 不能裸卖、卖出通常需要先有对应结果代币这个现实约束加进来，就不能直接得出 Sell No / Sell Yes 更优的结论。因此，在无库存起手的前提下，第一阶段仍应优先研究 Buy Yes 和 Buy No。
-      </div>
-    </div>
-    <div class="tab-content" id="tab-stock">
-      <div class="prose" style="margin-bottom:16px;">
-        <p><b>有库存做市</b>意味着你已经有了自动拆分 USDC 为 Yes/No 结果代币、挂双边订单、以及自动合并回收的系统。在这种情况下，Sell 操作和 Buy 操作同样顺畅，优先级不再偏向一边。</p>
-        <p>排序逻辑变为<b>纯粹按题型适配度</b>：</p>
-      </div>
-      <ol class="priority-list">
-        <li><span class="rank">1</span><div><div class="p-title">Above / Below — 全部 4 种操作</div><div class="p-note">适配度最高，双边做市利润最优</div></div></li>
-        <li><span class="rank">2</span><div><div class="p-title">Up / Down — 全部 4 种操作</div><div class="p-note">适配度中等，仍有起点误差</div></div></li>
-        <li><span class="rank">3</span><div><div class="p-title">Price Range — 全部 4 种操作</div><div class="p-note">需要多腿组合，操作更复杂</div></div></li>
-        <li><span class="rank dim">4</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"仍然最难对冲</div></div></li>
-      </ol>
-      <div class="disclaimer">注意：有库存做市需要额外的自动化系统（代币拆分、库存管理、双边挂单），本报告暂未深入展开这部分内容。</div>
-    </div>
+    <ol class="priority-list">
+      <li><span class="rank">1</span><div><div class="p-title">Above / Below — Buy Yes / Buy No</div><div class="p-note">题型最简单、最标准，无库存可直接做，与 Deribit 适配度最高</div></div></li>
+      <li><span class="rank">2</span><div><div class="p-title">Up / Down — Buy Yes / Buy No</div><div class="p-note">方向简单，但多一层起点和时点误差</div></div></li>
+      <li><span class="rank">3</span><div><div class="p-title">Price Range — Buy Yes / Buy No</div><div class="p-note">较复杂，但仍可用 Deribit 组合近似</div></div></li>
+      <li><span class="rank dim">4</span><div><div class="p-title">Above / Below — Sell Yes / Sell No</div><div class="p-note">题型好，但需要先拆分代币准备库存</div></div></li>
+      <li><span class="rank dim">5</span><div><div class="p-title">Up / Down — Sell Yes / Sell No</div><div class="p-note">需库存 + 起点误差</div></div></li>
+      <li><span class="rank dim">6</span><div><div class="p-title">Price Range — Sell Yes / Sell No</div><div class="p-note">需库存 + 多腿组合</div></div></li>
+      <li><span class="rank dim">7</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"最难对冲，暂不优先</div></div></li>
+    </ol>
   </div>
 
   <!-- 1.5 图表区 -->
   <div class="section">
-    <h2 id="charts">单腿盈亏图：Above / Below</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">横轴是最后 BTC 价格，纵轴是这张票最后值多少。Above/Below 只看一个价位：有没有站上去。</p>
-    <div class="controls">
-      <div class="control-group">
-        <label>目标价位 (K)</label>
-        <input type="range" id="strikeSlider" min="60000" max="100000" value="85000" step="500">
-        <span class="val" id="strikeVal">$85,000</span>
-      </div>
-      <div class="toggle-group">
-        <button class="active" onclick="setPayoffType('yes',this)">Buy Yes</button>
-        <button onclick="setPayoffType('no',this)">Buy No</button>
-        <button onclick="setPayoffType('both',this)">两者对比</button>
-      </div>
-      <button class="preset-btn" onclick="applyPreset1()">真实案例：BTC &gt; $72,000</button>
-    </div>
-    <div class="chart-container"><canvas id="payoffChart"></canvas></div>
-  </div>
+    <h2 id="charts">策略 #1 演示：Above / Below · Buy Yes 对冲窄 Call Spread</h2>
+    <p style="color:var(--muted);margin-bottom:20px;">下面的图表展示的是 16 种策略中的第 1 种。其他高适配度的策略（如 #2、#3、#4、#9、#10）也可以做类似的图表分析。</p>
 
-  <div class="section">
-    <h2>PM 台阶 vs Deribit 斜坡</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是一个台阶（到价就是 $1，没到就是 $0）。Deribit 用 Call Spread 近似，像一条陡斜坡。组合宽度越窄，斜坡越像台阶——但成本也越高。</p>
-    <div class="controls">
-      <div class="control-group">
-        <label>目标价位 (K)</label>
-        <input type="range" id="strikeSlider2" min="60000" max="100000" value="85000" step="500">
-        <span class="val" id="strikeVal2">$85,000</span>
-      </div>
-      <div class="control-group">
-        <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
-        <input type="range" id="widthSlider" min="200" max="8000" value="3000" step="200">
-        <span class="val" id="widthVal">$3,000</span>
-      </div>
-      <div class="toggle-group">
-        <button class="active" onclick="setCompareMode('both2',this)">PM + Deribit</button>
-        <button onclick="setCompareMode('pm',this)">只看 PM</button>
-        <button onclick="setCompareMode('deribit',this)">只看 Deribit</button>
-      </div>
-      <button class="preset-btn" onclick="applyPreset2()">真实案例：K=$72,000 ΔK=$1,000</button>
+    <div class="strat-tabs">
+      <div class="strat-tab active" onclick="switchStratTab('s1',this)">#1 Above Buy Yes</div>
+      <div class="strat-tab" onclick="switchStratTab('s3',this)">#3 Above Buy No</div>
+      <div class="strat-tab placeholder" onclick="switchStratTab('s2',this)">#2 Above Sell Yes</div>
+      <div class="strat-tab placeholder" onclick="switchStratTab('s4',this)">#4 Above Sell No</div>
+      <div class="strat-tab placeholder" onclick="switchStratTab('s9',this)">#9 Range Buy Yes</div>
     </div>
-    <div class="chart-container"><canvas id="compareChart"></canvas></div>
-  </div>
 
-  <div class="section">
-    <h2>组合后结果：买 PM + 卖 Deribit Spread</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy Yes + 在 Deribit 上卖出对应的 Call Spread，组合后的盈亏长这样。理想情况下，组合后的整体形状会比单独持有一边更平一些，更接近中性。</p>
-    <div class="disclaimer" style="margin-bottom:16px;">但现实里仍然会受到时间点、价格来源、滑点、手续费和执行方式的影响，因此不能简单理解为真正无风险。下图展示的是简化模型下的理论效果。</div>
-    <div class="controls">
-      <div class="control-group">
-        <label>目标价位 (K)</label>
-        <input type="range" id="strikeSlider3" min="60000" max="100000" value="85000" step="500">
-        <span class="val" id="strikeVal3">$85,000</span>
+    <!-- ===== Strategy #1: Above Buy Yes ===== -->
+    <div class="strat-tab-content active" id="strat-s1">
+
+      <!-- Chart 1: Payoff -->
+      <h3 style="font-size:1.1rem;margin-bottom:12px;">单腿盈亏图：Above / Below</h3>
+      <p style="color:var(--muted);margin-bottom:12px;">横轴是最后 BTC 价格，纵轴是这张票最后值多少。Above/Below 只看一个价位：有没有站上去。</p>
+      <div class="controls">
+        <div class="control-group">
+          <label>目标价位 (K)</label>
+          <input type="range" id="strikeSlider" min="60000" max="100000" value="85000" step="500">
+          <span class="val" id="strikeVal">$85,000</span>
+        </div>
+        <div class="toggle-group">
+          <button class="active" onclick="setPayoffType('yes',this)">Buy Yes</button>
+          <button onclick="setPayoffType('no',this)">Buy No</button>
+          <button onclick="setPayoffType('both',this)">两者对比</button>
+        </div>
+        <button class="preset-btn" onclick="applyPreset1()">真实案例：BTC &gt; $72,000</button>
       </div>
-      <div class="control-group">
-        <label>组合宽度 (ΔK)</label>
-        <input type="range" id="widthSlider2" min="200" max="8000" value="3000" step="200">
-        <span class="val" id="widthVal2">$3,000</span>
+      <div class="chart-container"><canvas id="payoffChart"></canvas></div>
+
+      <!-- Chart 2: Compare -->
+      <div style="margin-top:36px;">
+        <h3 style="font-size:1.1rem;margin-bottom:12px;">PM 台阶 vs Deribit 斜坡</h3>
+        <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是一个台阶（到价就是 $1，没到就是 $0）。Deribit 用 Call Spread 近似，像一条陡斜坡。组合宽度越窄，斜坡越像台阶——但成本也越高。</p>
+        <div class="controls">
+          <div class="control-group">
+            <label>目标价位 (K)</label>
+            <input type="range" id="strikeSlider2" min="60000" max="100000" value="85000" step="500">
+            <span class="val" id="strikeVal2">$85,000</span>
+          </div>
+          <div class="control-group">
+            <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
+            <input type="range" id="widthSlider" min="200" max="8000" value="3000" step="200">
+            <span class="val" id="widthVal">$3,000</span>
+          </div>
+          <div class="toggle-group">
+            <button class="active" onclick="setCompareMode('both2',this)">PM + Deribit</button>
+            <button onclick="setCompareMode('pm',this)">只看 PM</button>
+            <button onclick="setCompareMode('deribit',this)">只看 Deribit</button>
+          </div>
+          <button class="preset-btn" onclick="applyPreset2()">真实案例：K=$72,000 ΔK=$1,000</button>
+        </div>
+        <div class="chart-container"><canvas id="compareChart"></canvas></div>
       </div>
-      <div class="control-group">
-        <label>PM 买入价</label>
-        <input type="range" id="pmPrice" min="10" max="90" value="50" step="1">
-        <span class="val" id="pmPriceVal">$0.50</span>
+
+      <!-- Chart 3: Combo -->
+      <div style="margin-top:36px;">
+        <h3 style="font-size:1.1rem;margin-bottom:12px;">组合后结果：买 PM + 卖 Deribit Spread</h3>
+        <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy Yes + 在 Deribit 上卖出对应的 Call Spread，组合后的盈亏长这样。理想情况下，组合后的整体形状会比单独持有一边更平一些，更接近中性。</p>
+        <div class="disclaimer" style="margin-bottom:16px;">但现实里仍然会受到时间点、价格来源、滑点、手续费和执行方式的影响，因此不能简单理解为真正无风险。下图展示的是简化模型下的理论效果。</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>目标价位 (K)</label>
+            <input type="range" id="strikeSlider3" min="60000" max="100000" value="85000" step="500">
+            <span class="val" id="strikeVal3">$85,000</span>
+          </div>
+          <div class="control-group">
+            <label>组合宽度 (ΔK)</label>
+            <input type="range" id="widthSlider2" min="200" max="8000" value="3000" step="200">
+            <span class="val" id="widthVal2">$3,000</span>
+          </div>
+          <div class="control-group">
+            <label>PM 买入价</label>
+            <input type="range" id="pmPrice" min="10" max="90" value="50" step="1">
+            <span class="val" id="pmPriceVal">$0.50</span>
+          </div>
+          <button class="preset-btn" onclick="applyPreset3()">真实案例：K=$72,000 价格$0.54</button>
+        </div>
+        <div class="chart-container"><canvas id="comboChart"></canvas></div>
       </div>
-      <button class="preset-btn" onclick="applyPreset3()">真实案例：K=$72,000 价格$0.54</button>
+
+    </div><!-- end strat-s1 -->
+
+    <!-- ===== Strategy #3: Above Buy No ===== -->
+    <div class="strat-tab-content" id="strat-s3">
+
+      <!-- Chart 1b: Payoff (Buy No) -->
+      <h3 style="font-size:1.1rem;margin-bottom:12px;">单腿盈亏图：Above / Below · Buy No</h3>
+      <p style="color:var(--muted);margin-bottom:12px;">Buy No 的逻辑反过来：如果最后价格<b>没有</b>站上 K，这张票值 $1；站上了就值 $0。</p>
+      <div class="controls">
+        <div class="control-group">
+          <label>目标价位 (K)</label>
+          <input type="range" id="strikeSliderB" min="60000" max="100000" value="85000" step="500">
+          <span class="val" id="strikeValB">$85,000</span>
+        </div>
+        <div class="toggle-group">
+          <button class="active" onclick="setPayoffTypeB('no',this)">Buy No</button>
+          <button onclick="setPayoffTypeB('yes',this)">Buy Yes</button>
+          <button onclick="setPayoffTypeB('both',this)">两者对比</button>
+        </div>
+        <button class="preset-btn" onclick="applyPreset1B()">真实案例：BTC &gt; $72,000</button>
+      </div>
+      <div class="chart-container"><canvas id="payoffChart2"></canvas></div>
+
+      <!-- Chart 2b: Compare (Put Spread) -->
+      <div style="margin-top:36px;">
+        <h3 style="font-size:1.1rem;margin-bottom:12px;">PM 台阶 vs Deribit 斜坡（Put Spread）</h3>
+        <p style="color:var(--muted);margin-bottom:12px;">Buy No 对应的台阶朝左：价格低于 K 时值 $1。Deribit 用 Put Spread 近似：max(0, min((K-S)/ΔK, 1))，同样是一条斜坡。</p>
+        <div class="controls">
+          <div class="control-group">
+            <label>目标价位 (K)</label>
+            <input type="range" id="strikeSlider2B" min="60000" max="100000" value="85000" step="500">
+            <span class="val" id="strikeVal2B">$85,000</span>
+          </div>
+          <div class="control-group">
+            <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
+            <input type="range" id="widthSliderB" min="200" max="8000" value="3000" step="200">
+            <span class="val" id="widthValB">$3,000</span>
+          </div>
+          <div class="toggle-group">
+            <button class="active" onclick="setCompareModeB('both2',this)">PM + Deribit</button>
+            <button onclick="setCompareModeB('pm',this)">只看 PM</button>
+            <button onclick="setCompareModeB('deribit',this)">只看 Deribit</button>
+          </div>
+          <button class="preset-btn" onclick="applyPreset2B()">真实案例：K=$72,000 ΔK=$1,000</button>
+        </div>
+        <div class="chart-container"><canvas id="compareChart2"></canvas></div>
+      </div>
+
+      <!-- Chart 3b: Combo (Buy No + Sell Put Spread) -->
+      <div style="margin-top:36px;">
+        <h3 style="font-size:1.1rem;margin-bottom:12px;">组合后结果：买 PM No + 卖 Deribit Put Spread</h3>
+        <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy No + 在 Deribit 上卖出对应的 Put Spread，组合后的盈亏长这样。</p>
+        <div class="disclaimer" style="margin-bottom:16px;">同样受到时间点、价格来源、滑点、手续费和执行方式的影响，不能简单理解为真正无风险。</div>
+        <div class="controls">
+          <div class="control-group">
+            <label>目标价位 (K)</label>
+            <input type="range" id="strikeSlider3B" min="60000" max="100000" value="85000" step="500">
+            <span class="val" id="strikeVal3B">$85,000</span>
+          </div>
+          <div class="control-group">
+            <label>组合宽度 (ΔK)</label>
+            <input type="range" id="widthSlider2B" min="200" max="8000" value="3000" step="200">
+            <span class="val" id="widthVal2B">$3,000</span>
+          </div>
+          <div class="control-group">
+            <label>PM 买入价</label>
+            <input type="range" id="pmPriceB" min="10" max="90" value="50" step="1">
+            <span class="val" id="pmPriceValB">$0.50</span>
+          </div>
+          <button class="preset-btn" onclick="applyPreset3B()">真实案例：K=$72,000 价格$0.46</button>
+        </div>
+        <div class="chart-container"><canvas id="comboChart2"></canvas></div>
+      </div>
+
+    </div><!-- end strat-s3 -->
+
+    <!-- ===== Placeholder tabs ===== -->
+    <div class="strat-tab-content" id="strat-s2">
+      <div class="prose" style="text-align:center;padding:60px 28px;color:var(--muted);">
+        <p style="font-size:1.2rem;font-weight:700;margin-bottom:8px;">待补充</p>
+        <p>策略 #2（Above / Below · Sell Yes）的图表分析将在后续更新中补充。</p>
+      </div>
     </div>
-    <div class="chart-container"><canvas id="comboChart"></canvas></div>
-  </div>
+    <div class="strat-tab-content" id="strat-s4">
+      <div class="prose" style="text-align:center;padding:60px 28px;color:var(--muted);">
+        <p style="font-size:1.2rem;font-weight:700;margin-bottom:8px;">待补充</p>
+        <p>策略 #4（Above / Below · Sell No）的图表分析将在后续更新中补充。</p>
+      </div>
+    </div>
+    <div class="strat-tab-content" id="strat-s9">
+      <div class="prose" style="text-align:center;padding:60px 28px;color:var(--muted);">
+        <p style="font-size:1.2rem;font-weight:700;margin-bottom:8px;">待补充</p>
+        <p>策略 #9（Price Range · Buy Yes）的图表分析将在后续更新中补充。</p>
+      </div>
+    </div>
+
+  </div><!-- end chart section -->
 
   <!-- 1.6 漏斗图 -->
   <div class="section">
     <h2>研究优先级漏斗</h2>
     <p style="color:var(--muted);margin-bottom:12px;">从最大范围一步步收窄，直到锁定第一优先研究对象。</p>
     <div class="funnel">
-      <div class="funnel-step" style="width:100%;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);">所有 PM 加密市场<div class="funnel-sub">5000+ 活跃市场</div></div>
+      <div class="funnel-step" style="width:100%;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);">所有 PM 市场<div class="funnel-sub">5000+ 活跃市场</div></div>
       <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:82%;background:rgba(99,102,241,0.13);border:1px solid rgba(99,102,241,0.35);">只看 BTC（流动性最好）<div class="funnel-sub">筛掉长尾小币种</div></div>
+      <div class="funnel-step" style="width:82%;background:rgba(99,102,241,0.13);border:1px solid rgba(99,102,241,0.35);">只看加密市场（因为好对价）<div class="funnel-sub">筛掉政治、体育等非加密类</div></div>
       <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:64%;background:rgba(99,102,241,0.20);border:1px solid rgba(99,102,241,0.45);">只看 Above / Below（适配度最高）<div class="funnel-sub">筛掉 Up/Down、Range、Hit Price</div></div>
+      <div class="funnel-step" style="width:64%;background:rgba(99,102,241,0.20);border:1px solid rgba(99,102,241,0.45);">只看 Above / Below 和 Price Range（适配度高）<div class="funnel-sub">筛掉 Up/Down、Hit Price</div></div>
       <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:48%;background:rgba(99,102,241,0.28);border:1px solid rgba(99,102,241,0.55);">只看 1H / 4H / Daily（可对冲）<div class="funnel-sub">筛掉 5min/15min（波动太剧烈）和周线（资金效率低）</div></div>
+      <div class="funnel-step" style="width:48%;background:rgba(99,102,241,0.28);border:1px solid rgba(99,102,241,0.55);">只看 Buy Yes / Buy No（无库存可直接做）<div class="funnel-sub">筛掉 Sell Yes、Sell No（需要库存）</div></div>
       <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:34%;background:rgba(99,102,241,0.40);border:1px solid var(--accent);">价格在 40%–60%（收益权重最大）<div class="funnel-sub">这个区间分到的 Maker Rebate 最多</div></div>
-      <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:24%;background:var(--accent);color:white;font-size:1.05rem;">Buy Yes / Buy No 优先<div class="funnel-sub" style="color:rgba(255,255,255,0.75);">无库存起手，最直接可执行</div></div>
+      <div class="funnel-step" style="width:34%;background:var(--accent);color:white;font-size:1.05rem;">？个实盘问题待第二章筛选<div class="funnel-sub" style="color:rgba(255,255,255,0.75);">最终筛出的当前实盘在线问题</div></div>
     </div>
   </div>
 
@@ -533,22 +638,22 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 const tableData = [
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'K 附近窄上涨组合', suggest:'用 72,000 附近的窄 Call Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'最简单、最标准的一类' },
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用 Call Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合做标准化监控' },
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Buy', book:'No ask', deribit:'K 附近窄下跌组合', suggest:'用 72,000 附近的窄 Put Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'与单一价位判断最贴近' },
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用 Put Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合作为主监控对象' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'窄上涨组合', suggest:'用一个很窄的上涨组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'方向简单，但起点和结算时间容易带来误差' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用上涨组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'逻辑能成立，但卖出不是无条件可做' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Buy', book:'No ask', deribit:'窄下跌组合', suggest:'用一个很窄的下跌组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'也算简单，但仍有起点和时间误差' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用下跌组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'结构能做，但同样受库存约束' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'区间组合', suggest:'用"夹在中间"的区间组合去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'可以做，但比单一价位题更复杂' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'区间组合反向', suggest:'用区间组合反向去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'能研究，但腿数更多' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Buy', book:'No ask', deribit:'两翼组合', suggest:'用"两边都照顾到"的组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'要同时考虑区间上边和下边' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Sell', book:'No bid', deribit:'两翼组合反向', suggest:'用两翼组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'可以做，但执行更复杂' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似组合', suggest:'只能做近似组合', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'PM 看"中途碰到没有"，最难配' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似组合反向', suggest:'只能做近似组合反向去配', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'做起来不干净' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Buy', book:'No ask', deribit:'勉强近似', suggest:'只能勉强近似', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'"没碰到"比"碰到"更难表达' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Sell', book:'No bid', deribit:'勉强近似反向', suggest:'只能勉强近似反向去配', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'不适合新手优先做' },
+  { id:1, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'K 附近窄上涨组合', suggest:'用 72,000 附近的窄 Call Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'最简单、最标准的一类' },
+  { id:2, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用 Call Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合做标准化监控' },
+  { id:3, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Buy', book:'No ask', deribit:'K 附近窄下跌组合', suggest:'用 72,000 附近的窄 Put Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'与单一价位判断最贴近' },
+  { id:4, type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用 Put Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合作为主监控对象' },
+  { id:5, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'窄上涨组合', suggest:'用一个很窄的上涨组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'方向简单，但起点和结算时间容易带来误差' },
+  { id:6, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用上涨组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'逻辑能成立，但卖出不是无条件可做' },
+  { id:7, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Buy', book:'No ask', deribit:'窄下跌组合', suggest:'用一个很窄的下跌组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'也算简单，但仍有起点和时间误差' },
+  { id:8, type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用下跌组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'结构能做，但同样受库存约束' },
+  { id:9, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'区间组合', suggest:'用"夹在中间"的区间组合去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'可以做，但比单一价位题更复杂' },
+  { id:10, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'区间组合反向', suggest:'用区间组合反向去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'能研究，但腿数更多' },
+  { id:11, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Buy', book:'No ask', deribit:'两翼组合', suggest:'用"两边都照顾到"的组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'要同时考虑区间上边和下边' },
+  { id:12, type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Sell', book:'No bid', deribit:'两翼组合反向', suggest:'用两翼组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'可以做，但执行更复杂' },
+  { id:13, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似组合', suggest:'只能做近似组合', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'PM 看"中途碰到没有"，最难配' },
+  { id:14, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似组合反向', suggest:'只能做近似组合反向去配', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'做起来不干净' },
+  { id:15, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Buy', book:'No ask', deribit:'勉强近似', suggest:'只能勉强近似', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'"没碰到"比"碰到"更难表达' },
+  { id:16, type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Sell', book:'No bid', deribit:'勉强近似反向', suggest:'只能勉强近似反向去配', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'不适合新手优先做' },
 ];
 
 let filterState = { type: 'all', op: 'all' };
@@ -560,7 +665,7 @@ function renderTable() {
     if (filterState.op !== 'all' && r.op.toLowerCase() !== filterState.op) return;
     const tr = document.createElement('tr');
     if (r.type === 'above') tr.classList.add('row-highlight');
-    tr.innerHTML = `<td>${r.ex}</td><td>${r.label}</td><td>${r.dir}</td><td>${r.op}</td><td>${r.book}</td><td>${r.deribit}</td><td style="font-size:0.8rem;">${r.suggest}</td><td><span class="badge ${r.badge}">${r.fit}</span></td><td style="font-size:0.8rem;color:var(--muted);">${r.reason}</td>`;
+    tr.innerHTML = `<td style="font-weight:700;color:var(--accent);">#${r.id}</td><td>${r.ex}</td><td>${r.label}</td><td>${r.dir}</td><td>${r.op}</td><td>${r.book}</td><td>${r.deribit}</td><td style="font-size:0.8rem;">${r.suggest}</td><td><span class="badge ${r.badge}">${r.fit}</span></td><td style="font-size:0.8rem;color:var(--muted);">${r.reason}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -572,12 +677,20 @@ function filterTable(dim, val, btn) {
 }
 renderTable();
 
-function switchTab(id, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+/* Strategy tab switching */
+function switchStratTab(id, el) {
+  document.querySelectorAll('.strat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.strat-tab-content').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('tab-' + id).classList.add('active');
+  document.getElementById('strat-' + id).classList.add('active');
+  // Redraw charts when switching to ensure they render correctly
+  if (id === 's1') { drawPayoff(); drawCompare(); drawCombo(); }
+  if (id === 's3') { drawPayoffB(); drawCompareB(); drawComboB(); }
 }
+
+/* ============================
+   Strategy #1: Above Buy Yes
+   ============================ */
 
 function applyPreset1() {
   document.getElementById('strikeSlider').value = 72000;
@@ -682,6 +795,117 @@ document.getElementById('strikeSlider3').addEventListener('input', e => { docume
 document.getElementById('widthSlider2').addEventListener('input', e => { document.getElementById('widthVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
 document.getElementById('pmPrice').addEventListener('input', e => { document.getElementById('pmPriceVal').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo(); });
 drawCombo();
+
+/* ============================
+   Strategy #3: Above Buy No
+   ============================ */
+
+let payoffTypeB = 'no';
+const payoffCtxB = document.getElementById('payoffChart2').getContext('2d');
+let payoffChart2;
+function setPayoffTypeB(t, btn) {
+  payoffTypeB = t;
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  drawPayoffB();
+}
+function drawPayoffB() {
+  const K = +document.getElementById('strikeSliderB').value;
+  const lo = K - 15000, hi = K + 15000;
+  const labels = [], yesData = [], noData = [];
+  for (let s = lo; s <= hi; s += 300) {
+    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
+    yesData.push(s >= K ? 1 : 0);
+    noData.push(s < K ? 1 : 0);
+  }
+  const datasets = [];
+  if (payoffTypeB === 'no' || payoffTypeB === 'both') datasets.push({ label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
+  if (payoffTypeB === 'yes' || payoffTypeB === 'both') datasets.push({ label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
+  if (payoffChart2) payoffChart2.destroy();
+  payoffChart2 = new Chart(payoffCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+}
+function applyPreset1B() {
+  document.getElementById('strikeSliderB').value = 72000;
+  document.getElementById('strikeValB').textContent = '$72,000';
+  payoffTypeB = 'both';
+  const btns = document.getElementById('payoffChart2').parentElement.parentElement.querySelectorAll('.toggle-group button');
+  btns.forEach(b => b.classList.remove('active'));
+  btns[2].classList.add('active');
+  drawPayoffB();
+}
+document.getElementById('strikeSliderB').addEventListener('input', e => { document.getElementById('strikeValB').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoffB(); });
+drawPayoffB();
+
+let compareModeB = 'both2';
+const compareCtxB = document.getElementById('compareChart2').getContext('2d');
+let compareChart2;
+function setCompareModeB(m, btn) { compareModeB = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompareB(); }
+function drawCompareB() {
+  const K = +document.getElementById('strikeSlider2B').value;
+  const dK = +document.getElementById('widthSliderB').value;
+  const lo = K - 15000, hi = K + 15000;
+  const labels = [], pmData = [], deribitData = [];
+  for (let s = lo; s <= hi; s += 200) {
+    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
+    pmData.push(s < K ? 1 : 0);
+    deribitData.push(Math.max(0, Math.min((K - s) / dK, 1)));
+  }
+  const datasets = [];
+  if (compareModeB !== 'deribit') datasets.push({ label: 'PM Binary（台阶 · Buy No）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
+  if (compareModeB !== 'pm') datasets.push({ label: `Deribit Put Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
+  if (compareChart2) compareChart2.destroy();
+  compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+}
+function applyPreset2B() {
+  document.getElementById('strikeSlider2B').value = 72000;
+  document.getElementById('strikeVal2B').textContent = '$72,000';
+  document.getElementById('widthSliderB').value = 1000;
+  document.getElementById('widthValB').textContent = '$1,000';
+  compareModeB = 'both2';
+  const btns = document.getElementById('compareChart2').parentElement.parentElement.querySelectorAll('.toggle-group button');
+  btns.forEach(b => b.classList.remove('active'));
+  btns[0].classList.add('active');
+  drawCompareB();
+}
+document.getElementById('strikeSlider2B').addEventListener('input', e => { document.getElementById('strikeVal2B').textContent = '$' + (+e.target.value).toLocaleString(); drawCompareB(); });
+document.getElementById('widthSliderB').addEventListener('input', e => { document.getElementById('widthValB').textContent = '$' + (+e.target.value).toLocaleString(); drawCompareB(); });
+drawCompareB();
+
+const comboCtxB = document.getElementById('comboChart2').getContext('2d');
+let comboChart2;
+function drawComboB() {
+  const K = +document.getElementById('strikeSlider3B').value;
+  const dK = +document.getElementById('widthSlider2B').value;
+  const pPrice = +document.getElementById('pmPriceB').value / 100;
+  const lo = K - 15000, hi = K + 15000;
+  const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
+  for (let s = lo; s <= hi; s += 200) {
+    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
+    const pm = (s < K ? 1 : 0) - pPrice; pmPnl.push(pm);
+    const db = pPrice - Math.max(0, Math.min((K - s) / dK, 1)); deribitPnl.push(db);
+    comboPnl.push(pm + db);
+  }
+  if (comboChart2) comboChart2.destroy();
+  comboChart2 = new Chart(comboCtxB, { type: 'line', data: { labels, datasets: [
+    { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 2, stepped: true },
+    { label: 'Deribit Sell Put Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2 },
+    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: true, pointRadius: 0, borderWidth: 3 },
+    { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
+}
+function applyPreset3B() {
+  document.getElementById('strikeSlider3B').value = 72000;
+  document.getElementById('strikeVal3B').textContent = '$72,000';
+  document.getElementById('widthSlider2B').value = 1000;
+  document.getElementById('widthVal2B').textContent = '$1,000';
+  document.getElementById('pmPriceB').value = 46;
+  document.getElementById('pmPriceValB').textContent = '$0.46';
+  drawComboB();
+}
+document.getElementById('strikeSlider3B').addEventListener('input', e => { document.getElementById('strikeVal3B').textContent = '$' + (+e.target.value).toLocaleString(); drawComboB(); });
+document.getElementById('widthSlider2B').addEventListener('input', e => { document.getElementById('widthVal2B').textContent = '$' + (+e.target.value).toLocaleString(); drawComboB(); });
+document.getElementById('pmPriceB').addEventListener('input', e => { document.getElementById('pmPriceValB').textContent = '$' + (e.target.value / 100).toFixed(2); drawComboB(); });
+drawComboB();
 </script>
 </body>
 </html>
