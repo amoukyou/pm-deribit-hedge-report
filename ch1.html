@@ -628,7 +628,7 @@ function applyPreset3() {
   drawCombo();
 }
 
-const segmentGreenRed = { borderColor: function(ctx) { return ctx.p0.parsed.y < 0 ? '#dc2626' : '#16a34a'; } };
+const segmentGreenRed = { borderColor: function(ctx) { return (ctx.p0.parsed.y <= 0 && ctx.p1.parsed.y <= 0) ? '#dc2626' : (ctx.p0.parsed.y > 0 && ctx.p1.parsed.y > 0) ? '#16a34a' : '#9ca3af'; } };
 const zeroLineGrid = { color: function(ctx){ return ctx.tick.value === 0 ? '#374151' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } };
 
 const payoffCtx = document.getElementById('payoffChart').getContext('2d');
@@ -654,16 +654,17 @@ let compareChart;
 function drawCompare() {
   const K = +document.getElementById('strikeSlider').value;
   const dK = +document.getElementById('widthSlider').value;
+  const p = +document.getElementById('pmPrice').value / 100;
   const lo = K - 15000, hi = K + 15000;
   const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    data.push(Math.max(0, Math.min((s - K) / dK, 1)));
+    data.push(p - Math.max(0, Math.min((s - K) / dK, 1)));
   }
   if (compareChart) compareChart.destroy();
   compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets: [
-    { label: `Deribit Bull Call Spread（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+    { label: `卖出 Bull Call Spread 损益`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
 drawCompare();
 
@@ -720,16 +721,17 @@ let compareChart2;
 function drawCompareB() {
   const K = +document.getElementById('strikeSliderB').value;
   const dK = +document.getElementById('widthSliderB').value;
+  const p = +document.getElementById('pmPriceB').value / 100;
   const lo = K - 15000, hi = K + 15000;
   const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    data.push(Math.max(0, Math.min((K - s) / dK, 1)));
+    data.push(p - Math.max(0, Math.min((K - s) / dK, 1)));
   }
   if (compareChart2) compareChart2.destroy();
   compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets: [
-    { label: `Deribit Bear Put Spread（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+    { label: `卖出 Bear Put Spread 损益`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
 drawCompareB();
 
@@ -795,16 +797,17 @@ function drawCompare9() {
   const K1 = +document.getElementById('strikeSlider9a').value;
   const K2 = +document.getElementById('strikeSlider9b').value;
   const dK = +document.getElementById('widthSlider9').value;
+  const p = +document.getElementById('pmPrice9').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
   const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    data.push(rangeSpread(s, K1, K2, dK));
+    data.push(p - rangeSpread(s, K1, K2, dK));
   }
   if (compareChart9) compareChart9.destroy();
   compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets: [
-    { label: `Deribit Iron Butterfly（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+    { label: `卖出 Iron Butterfly 损益`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
 drawCompare9();
 
@@ -868,16 +871,17 @@ function drawCompare11() {
   const K1 = +document.getElementById('strikeSlider11a').value;
   const K2 = +document.getElementById('strikeSlider11b').value;
   const dK = +document.getElementById('widthSlider11').value;
+  const p = +document.getElementById('pmPrice11').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
   const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    data.push(1 - rangeSpread(s, K1, K2, dK));
+    data.push(p - (1 - rangeSpread(s, K1, K2, dK)));
   }
   if (compareChart11) compareChart11.destroy();
   compareChart11 = new Chart(compareCtx11, { type: 'line', data: { labels, datasets: [
-    { label: `Deribit 反向 Iron Butterfly（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+    { label: `卖出反向 Iron Butterfly 损益`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
 document.getElementById('widthSlider11').addEventListener('input', e => { document.getElementById('widthVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); drawCombo11(); });
 drawCompare11();
