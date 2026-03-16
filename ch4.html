@@ -419,13 +419,12 @@ function toggleDetail(tr, r) {
     }
   }
 
-  // Build annotation config for breakeven lines
+  // Build annotation: just small dots on the zero line at breakeven points, no labels
   const annotations = {};
   breakevens.forEach((be, idx) => {
     annotations['be' + idx] = {
-      type: 'line', xMin: be.index, xMax: be.index,
-      borderColor: '#ef4444', borderWidth: 2, borderDash: [6, 3],
-      label: { display: true, content: '盈亏平衡 ' + be.label, position: 'start', backgroundColor: 'rgba(239,68,68,0.9)', color: 'white', font: { size: 10, weight: 'bold' }, padding: 4 }
+      type: 'point', xValue: be.index, yValue: 0,
+      backgroundColor: '#ef4444', borderColor: '#fff', borderWidth: 2, radius: 6
     };
   });
 
