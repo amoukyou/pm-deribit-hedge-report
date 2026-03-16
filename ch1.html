@@ -447,311 +447,65 @@
     <!-- ===== Strategy #1: Above Buy Yes ===== -->
     <div class="strat-tab-content active" id="strat-s1">
 
-      <!-- Chart 1: Payoff -->
-      <h3 style="font-size:1.1rem;margin-bottom:12px;">单腿盈亏图：Above / Below</h3>
-      <p style="color:var(--muted);margin-bottom:12px;">横轴是最后 BTC 价格，纵轴是这张票最后值多少。Above/Below 只看一个价位：有没有站上去。</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy Yes：高于 K → $1 | 对冲：卖出 Bull Call Spread</p>
       <div class="controls">
-        <div class="control-group">
-          <label>目标价位 (K)</label>
-          <input type="range" id="strikeSlider" min="60000" max="100000" value="85000" step="500">
-          <span class="val" id="strikeVal">$85,000</span>
-        </div>
-        <div class="toggle-group">
-          <button class="active" onclick="setPayoffType('yes',this)">Buy Yes</button>
-          <button onclick="setPayoffType('no',this)">Buy No</button>
-          <button onclick="setPayoffType('both',this)">两者对比</button>
-        </div>
-        <button class="preset-btn" onclick="applyPreset1()">真实案例：BTC &gt; $72,000</button>
+        <div class="control-group"><label>K</label><input type="range" id="strikeSlider" min="60000" max="100000" value="85000" step="500"><span class="val" id="strikeVal">$85,000</span></div>
+        <div class="control-group"><label>ΔK</label><input type="range" id="widthSlider" min="200" max="8000" value="3000" step="200"><span class="val" id="widthVal">$3,000</span></div>
+        <div class="control-group"><label>PM 买入价</label><input type="range" id="pmPrice" min="10" max="90" value="50" step="1"><span class="val" id="pmPriceVal">$0.50</span></div>
       </div>
-      <div class="chart-container"><canvas id="payoffChart"></canvas></div>
-
-      <!-- Chart 2: Compare -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">PM 台阶 vs Deribit 斜坡</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是一个台阶（到价就是 $1，没到就是 $0）。Deribit 用 Call Spread 近似，像一条陡斜坡。组合宽度越窄，斜坡越像台阶——但成本也越高。</p>
-        <div class="controls">
-          <div class="control-group">
-            <label>目标价位 (K)</label>
-            <input type="range" id="strikeSlider2" min="60000" max="100000" value="85000" step="500">
-            <span class="val" id="strikeVal2">$85,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
-            <input type="range" id="widthSlider" min="200" max="8000" value="3000" step="200">
-            <span class="val" id="widthVal">$3,000</span>
-          </div>
-          <div class="toggle-group">
-            <button class="active" onclick="setCompareMode('both2',this)">PM + Deribit</button>
-            <button onclick="setCompareMode('pm',this)">只看 PM</button>
-            <button onclick="setCompareMode('deribit',this)">只看 Deribit</button>
-          </div>
-          <button class="preset-btn" onclick="applyPreset2()">真实案例：K=$72,000 ΔK=$1,000</button>
-        </div>
-        <div class="chart-container"><canvas id="compareChart"></canvas></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 台阶 vs Deribit 斜坡</p><canvas id="compareChart"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">组合 PnL</p><canvas id="comboChart"></canvas></div>
       </div>
-
-      <!-- Chart 3: Combo -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">组合后结果：买 PM + 卖 Deribit Spread</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy Yes + 在 Deribit 上卖出对应的 Call Spread，组合后的盈亏长这样。理想情况下，组合后的整体形状会比单独持有一边更平一些，更接近中性。</p>
-        <div class="disclaimer" style="margin-bottom:16px;">但现实里仍然会受到时间点、价格来源、滑点、手续费和执行方式的影响，因此不能简单理解为真正无风险。下图展示的是简化模型下的理论效果。</div>
-        <div class="controls">
-          <div class="control-group">
-            <label>目标价位 (K)</label>
-            <input type="range" id="strikeSlider3" min="60000" max="100000" value="85000" step="500">
-            <span class="val" id="strikeVal3">$85,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK)</label>
-            <input type="range" id="widthSlider2" min="200" max="8000" value="3000" step="200">
-            <span class="val" id="widthVal2">$3,000</span>
-          </div>
-          <div class="control-group">
-            <label>PM 买入价</label>
-            <input type="range" id="pmPrice" min="10" max="90" value="50" step="1">
-            <span class="val" id="pmPriceVal">$0.50</span>
-          </div>
-          <button class="preset-btn" onclick="applyPreset3()">真实案例：K=$72,000 价格$0.54</button>
-        </div>
-        <div class="chart-container"><canvas id="comboChart"></canvas></div>
-      </div>
-
     </div><!-- end strat-s1 -->
 
     <!-- ===== Strategy #3: Above Buy No ===== -->
     <div class="strat-tab-content" id="strat-s3">
 
-      <!-- Chart 1b: Payoff (Buy No) -->
-      <h3 style="font-size:1.1rem;margin-bottom:12px;">单腿盈亏图：Above / Below · Buy No</h3>
-      <p style="color:var(--muted);margin-bottom:12px;">Buy No 的逻辑反过来：如果最后价格<b>没有</b>站上 K，这张票值 $1；站上了就值 $0。</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy No：低于 K → $1 | 对冲：卖出 Bear Put Spread</p>
       <div class="controls">
-        <div class="control-group">
-          <label>目标价位 (K)</label>
-          <input type="range" id="strikeSliderB" min="60000" max="100000" value="85000" step="500">
-          <span class="val" id="strikeValB">$85,000</span>
-        </div>
-        <div class="toggle-group">
-          <button class="active" onclick="setPayoffTypeB('no',this)">Buy No</button>
-          <button onclick="setPayoffTypeB('yes',this)">Buy Yes</button>
-          <button onclick="setPayoffTypeB('both',this)">两者对比</button>
-        </div>
-        <button class="preset-btn" onclick="applyPreset1B()">真实案例：BTC &gt; $72,000</button>
+        <div class="control-group"><label>K</label><input type="range" id="strikeSliderB" min="60000" max="100000" value="85000" step="500"><span class="val" id="strikeValB">$85,000</span></div>
+        <div class="control-group"><label>ΔK</label><input type="range" id="widthSliderB" min="200" max="8000" value="3000" step="200"><span class="val" id="widthValB">$3,000</span></div>
+        <div class="control-group"><label>PM 买入价</label><input type="range" id="pmPriceB" min="10" max="90" value="50" step="1"><span class="val" id="pmPriceValB">$0.50</span></div>
       </div>
-      <div class="chart-container"><canvas id="payoffChart2"></canvas></div>
-
-      <!-- Chart 2b: Compare (Put Spread) -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">PM 台阶 vs Deribit 斜坡（Put Spread）</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">Buy No 对应的台阶朝左：价格低于 K 时值 $1。Deribit 用 Put Spread 近似：max(0, min((K-S)/ΔK, 1))，同样是一条斜坡。</p>
-        <div class="controls">
-          <div class="control-group">
-            <label>目标价位 (K)</label>
-            <input type="range" id="strikeSlider2B" min="60000" max="100000" value="85000" step="500">
-            <span class="val" id="strikeVal2B">$85,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
-            <input type="range" id="widthSliderB" min="200" max="8000" value="3000" step="200">
-            <span class="val" id="widthValB">$3,000</span>
-          </div>
-          <div class="toggle-group">
-            <button class="active" onclick="setCompareModeB('both2',this)">PM + Deribit</button>
-            <button onclick="setCompareModeB('pm',this)">只看 PM</button>
-            <button onclick="setCompareModeB('deribit',this)">只看 Deribit</button>
-          </div>
-          <button class="preset-btn" onclick="applyPreset2B()">真实案例：K=$72,000 ΔK=$1,000</button>
-        </div>
-        <div class="chart-container"><canvas id="compareChart2"></canvas></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart2"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 台阶 vs Deribit 斜坡</p><canvas id="compareChart2"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">组合 PnL</p><canvas id="comboChart2"></canvas></div>
       </div>
-
-      <!-- Chart 3b: Combo (Buy No + Sell Put Spread) -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">组合后结果：买 PM No + 卖 Deribit Put Spread</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy No + 在 Deribit 上卖出对应的 Put Spread，组合后的盈亏长这样。</p>
-        <div class="disclaimer" style="margin-bottom:16px;">同样受到时间点、价格来源、滑点、手续费和执行方式的影响，不能简单理解为真正无风险。</div>
-        <div class="controls">
-          <div class="control-group">
-            <label>目标价位 (K)</label>
-            <input type="range" id="strikeSlider3B" min="60000" max="100000" value="85000" step="500">
-            <span class="val" id="strikeVal3B">$85,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK)</label>
-            <input type="range" id="widthSlider2B" min="200" max="8000" value="3000" step="200">
-            <span class="val" id="widthVal2B">$3,000</span>
-          </div>
-          <div class="control-group">
-            <label>PM 买入价</label>
-            <input type="range" id="pmPriceB" min="10" max="90" value="50" step="1">
-            <span class="val" id="pmPriceValB">$0.50</span>
-          </div>
-          <button class="preset-btn" onclick="applyPreset3B()">真实案例：K=$72,000 价格$0.46</button>
-        </div>
-        <div class="chart-container"><canvas id="comboChart2"></canvas></div>
-      </div>
-
     </div><!-- end strat-s3 -->
 
     <!-- ===== Strategy #9: Range Buy Yes ===== -->
     <div class="strat-tab-content" id="strat-s9">
-
-      <!-- Chart 1: Range Payoff -->
-      <h3 style="font-size:1.1rem;margin-bottom:12px;">单腿盈亏图：Price Range · Buy Yes</h3>
-      <p style="color:var(--muted);margin-bottom:12px;">Buy Yes = 如果最后 BTC 价格落在 K1 和 K2 之间，这张票值 $1；否则值 $0。</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy Yes：K1–K2 范围内 → $1 | 对冲：卖出 Iron Butterfly</p>
       <div class="controls">
-        <div class="control-group">
-          <label>下界 (K1)</label>
-          <input type="range" id="strikeSlider9a" min="60000" max="100000" value="82000" step="500">
-          <span class="val" id="strikeVal9a">$82,000</span>
-        </div>
-        <div class="control-group">
-          <label>上界 (K2)</label>
-          <input type="range" id="strikeSlider9b" min="60000" max="100000" value="86000" step="500">
-          <span class="val" id="strikeVal9b">$86,000</span>
-        </div>
+        <div class="control-group"><label>K1</label><input type="range" id="strikeSlider9a" min="60000" max="100000" value="82000" step="500"><span class="val" id="strikeVal9a">$82,000</span></div>
+        <div class="control-group"><label>K2</label><input type="range" id="strikeSlider9b" min="60000" max="100000" value="86000" step="500"><span class="val" id="strikeVal9b">$86,000</span></div>
+        <div class="control-group"><label>ΔK</label><input type="range" id="widthSlider9" min="200" max="8000" value="1000" step="200"><span class="val" id="widthVal9">$1,000</span></div>
+        <div class="control-group"><label>PM 买入价</label><input type="range" id="pmPrice9" min="10" max="90" value="30" step="1"><span class="val" id="pmPriceVal9">$0.30</span></div>
       </div>
-      <div class="chart-container"><canvas id="payoffChart9"></canvas></div>
-
-      <!-- Chart 2: Compare PM vs Deribit -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">PM 台阶 vs Deribit 斜坡（Iron Butterfly）</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是一个方波（在 K1–K2 范围内 $1，范围外 $0）。Deribit 用两组 Spread 近似：从 K1 斜坡上升，中间平坦，到 K2 斜坡下降。组合宽度越窄，斜坡越像台阶。</p>
-        <div class="controls">
-          <div class="control-group">
-            <label>下界 (K1)</label>
-            <input type="range" id="strikeSlider9c" min="60000" max="100000" value="82000" step="500">
-            <span class="val" id="strikeVal9c">$82,000</span>
-          </div>
-          <div class="control-group">
-            <label>上界 (K2)</label>
-            <input type="range" id="strikeSlider9d" min="60000" max="100000" value="86000" step="500">
-            <span class="val" id="strikeVal9d">$86,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
-            <input type="range" id="widthSlider9" min="200" max="8000" value="1000" step="200">
-            <span class="val" id="widthVal9">$1,000</span>
-          </div>
-          <div class="toggle-group">
-            <button class="active" onclick="setCompareMode9('both2',this)">PM + Deribit</button>
-            <button onclick="setCompareMode9('pm',this)">只看 PM</button>
-            <button onclick="setCompareMode9('deribit',this)">只看 Deribit</button>
-          </div>
-        </div>
-        <div class="chart-container"><canvas id="compareChart9"></canvas></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart9"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 方波 vs Deribit 斜坡</p><canvas id="compareChart9"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">组合 PnL</p><canvas id="comboChart9"></canvas></div>
       </div>
-
-      <!-- Chart 3: Combo PnL -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">组合后结果：买 PM Range Yes + 卖 Deribit Iron Butterfly</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy Yes（范围内）+ 在 Deribit 上卖出对应的 Spread 组合，组合后的盈亏长这样。</p>
-        <div class="disclaimer" style="margin-bottom:16px;">同样受到时间点、价格来源、滑点、手续费和执行方式的影响，不能简单理解为真正无风险。</div>
-        <div class="controls">
-          <div class="control-group">
-            <label>下界 (K1)</label>
-            <input type="range" id="strikeSlider9e" min="60000" max="100000" value="82000" step="500">
-            <span class="val" id="strikeVal9e">$82,000</span>
-          </div>
-          <div class="control-group">
-            <label>上界 (K2)</label>
-            <input type="range" id="strikeSlider9f" min="60000" max="100000" value="86000" step="500">
-            <span class="val" id="strikeVal9f">$86,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK)</label>
-            <input type="range" id="widthSlider9b" min="200" max="8000" value="1000" step="200">
-            <span class="val" id="widthVal9b">$1,000</span>
-          </div>
-          <div class="control-group">
-            <label>PM 买入价</label>
-            <input type="range" id="pmPrice9" min="10" max="90" value="30" step="1">
-            <span class="val" id="pmPriceVal9">$0.30</span>
-          </div>
-        </div>
-        <div class="chart-container"><canvas id="comboChart9"></canvas></div>
-      </div>
-
     </div><!-- end strat-s9 -->
 
     <!-- ===== Strategy #11: Range Buy No ===== -->
     <div class="strat-tab-content" id="strat-s11">
-
-      <!-- Chart 1: Range Buy No Payoff -->
-      <h3 style="font-size:1.1rem;margin-bottom:12px;">单腿盈亏图：Price Range · Buy No</h3>
-      <p style="color:var(--muted);margin-bottom:12px;">Buy No = 如果最后 BTC 价格<b>不在</b> K1–K2 范围内（低于 K1 或高于 K2），这张票值 $1；否则值 $0。</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy No：K1–K2 范围外 → $1 | 对冲：卖出反向 Iron Butterfly</p>
       <div class="controls">
-        <div class="control-group">
-          <label>下界 (K1)</label>
-          <input type="range" id="strikeSlider11a" min="60000" max="100000" value="82000" step="500">
-          <span class="val" id="strikeVal11a">$82,000</span>
-        </div>
-        <div class="control-group">
-          <label>上界 (K2)</label>
-          <input type="range" id="strikeSlider11b" min="60000" max="100000" value="86000" step="500">
-          <span class="val" id="strikeVal11b">$86,000</span>
-        </div>
+        <div class="control-group"><label>K1</label><input type="range" id="strikeSlider11a" min="60000" max="100000" value="82000" step="500"><span class="val" id="strikeVal11a">$82,000</span></div>
+        <div class="control-group"><label>K2</label><input type="range" id="strikeSlider11b" min="60000" max="100000" value="86000" step="500"><span class="val" id="strikeVal11b">$86,000</span></div>
+        <div class="control-group"><label>ΔK</label><input type="range" id="widthSlider11" min="200" max="8000" value="1000" step="200"><span class="val" id="widthVal11">$1,000</span></div>
+        <div class="control-group"><label>PM 买入价</label><input type="range" id="pmPrice11" min="10" max="90" value="70" step="1"><span class="val" id="pmPriceVal11">$0.70</span></div>
       </div>
-      <div class="chart-container"><canvas id="payoffChart11"></canvas></div>
-
-      <!-- Chart 2: Compare PM vs Deribit -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">PM 台阶 vs Deribit 斜坡（反向 Iron Butterfly）</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是范围外 $1、范围内 $0。Deribit 用 1 减去 Range Spread 来近似：两端为 1，中间从 K1 斜坡下降到 0，再从 K2 斜坡上升回 1。</p>
-        <div class="controls">
-          <div class="control-group">
-            <label>下界 (K1)</label>
-            <input type="range" id="strikeSlider11c" min="60000" max="100000" value="82000" step="500">
-            <span class="val" id="strikeVal11c">$82,000</span>
-          </div>
-          <div class="control-group">
-            <label>上界 (K2)</label>
-            <input type="range" id="strikeSlider11d" min="60000" max="100000" value="86000" step="500">
-            <span class="val" id="strikeVal11d">$86,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
-            <input type="range" id="widthSlider11" min="200" max="8000" value="1000" step="200">
-            <span class="val" id="widthVal11">$1,000</span>
-          </div>
-          <div class="toggle-group">
-            <button class="active" onclick="setCompareMode11('both2',this)">PM + Deribit</button>
-            <button onclick="setCompareMode11('pm',this)">只看 PM</button>
-            <button onclick="setCompareMode11('deribit',this)">只看 Deribit</button>
-          </div>
-        </div>
-        <div class="chart-container"><canvas id="compareChart11"></canvas></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart11"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">PM 方波 vs Deribit 斜坡</p><canvas id="compareChart11"></canvas></div>
+        <div class="chart-container" style="padding:14px;"><p style="font-size:0.78rem;color:var(--muted);margin-bottom:6px;">组合 PnL</p><canvas id="comboChart11"></canvas></div>
       </div>
-
-      <!-- Chart 3: Combo PnL -->
-      <div style="margin-top:36px;">
-        <h3 style="font-size:1.1rem;margin-bottom:12px;">组合后结果：买 PM Range No + 卖 Deribit 反向 Spread</h3>
-        <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy No（范围外）+ 在 Deribit 上卖出对应的反向 Spread 组合，组合后的盈亏长这样。</p>
-        <div class="disclaimer" style="margin-bottom:16px;">同样受到时间点、价格来源、滑点、手续费和执行方式的影响，不能简单理解为真正无风险。</div>
-        <div class="controls">
-          <div class="control-group">
-            <label>下界 (K1)</label>
-            <input type="range" id="strikeSlider11e" min="60000" max="100000" value="82000" step="500">
-            <span class="val" id="strikeVal11e">$82,000</span>
-          </div>
-          <div class="control-group">
-            <label>上界 (K2)</label>
-            <input type="range" id="strikeSlider11f" min="60000" max="100000" value="86000" step="500">
-            <span class="val" id="strikeVal11f">$86,000</span>
-          </div>
-          <div class="control-group">
-            <label>组合宽度 (ΔK)</label>
-            <input type="range" id="widthSlider11b" min="200" max="8000" value="1000" step="200">
-            <span class="val" id="widthVal11b">$1,000</span>
-          </div>
-          <div class="control-group">
-            <label>PM 买入价</label>
-            <input type="range" id="pmPrice11" min="10" max="90" value="70" step="1">
-            <span class="val" id="pmPriceVal11">$0.70</span>
-          </div>
-        </div>
-        <div class="chart-container"><canvas id="comboChart11"></canvas></div>
-      </div>
-
     </div><!-- end strat-s11 -->
 
   </div><!-- end chart section -->
@@ -874,58 +628,45 @@ function applyPreset3() {
   drawCombo();
 }
 
-let payoffType = 'yes';
 const payoffCtx = document.getElementById('payoffChart').getContext('2d');
 let payoffChart;
-function setPayoffType(t, btn) {
-  payoffType = t;
-  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  drawPayoff();
-}
 function drawPayoff() {
   const K = +document.getElementById('strikeSlider').value;
   const lo = K - 15000, hi = K + 15000;
-  const labels = [], yesData = [], noData = [];
+  const labels = [], yesData = [];
   for (let s = lo; s <= hi; s += 300) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
     yesData.push(s >= K ? 1 : 0);
-    noData.push(s < K ? 1 : 0);
   }
-  const datasets = [];
-  if (payoffType === 'yes' || payoffType === 'both') datasets.push({ label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
-  if (payoffType === 'no' || payoffType === 'both') datasets.push({ label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
   if (payoffChart) payoffChart.destroy();
-  payoffChart = new Chart(payoffCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  payoffChart = new Chart(payoffCtx, { type: 'line', data: { labels, datasets: [
+    { label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-document.getElementById('strikeSlider').addEventListener('input', e => { document.getElementById('strikeVal').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff(); });
 drawPayoff();
 
-let compareMode = 'both2';
 const compareCtx = document.getElementById('compareChart').getContext('2d');
 let compareChart;
-function setCompareMode(m, btn) { compareMode = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompare(); }
 function drawCompare() {
-  const K = +document.getElementById('strikeSlider2').value;
+  const K = +document.getElementById('strikeSlider').value;
   const dK = +document.getElementById('widthSlider').value;
   const lo = K - 15000, hi = K + 15000;
   const labels = [], pmData = [], deribitData = [];
   for (let s = lo; s <= hi; s += 200) { labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s); pmData.push(s >= K ? 1 : 0); deribitData.push(Math.max(0, Math.min((s - K) / dK, 1))); }
-  const datasets = [];
-  if (compareMode !== 'deribit') datasets.push({ label: 'PM Binary（台阶）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
-  if (compareMode !== 'pm') datasets.push({ label: `Deribit Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
+  const datasets = [
+    { label: 'PM Binary（台阶）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 },
+    { label: `Deribit Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
+  ];
   if (compareChart) compareChart.destroy();
   compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-document.getElementById('strikeSlider2').addEventListener('input', e => { document.getElementById('strikeVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); });
-document.getElementById('widthSlider').addEventListener('input', e => { document.getElementById('widthVal').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); });
 drawCompare();
 
 const comboCtx = document.getElementById('comboChart').getContext('2d');
 let comboChart;
 function drawCombo() {
-  const K = +document.getElementById('strikeSlider3').value;
-  const dK = +document.getElementById('widthSlider2').value;
+  const K = +document.getElementById('strikeSlider').value;
+  const dK = +document.getElementById('widthSlider').value;
   const pPrice = +document.getElementById('pmPrice').value / 100;
   const lo = K - 15000, hi = K + 15000;
   const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
@@ -943,8 +684,9 @@ function drawCombo() {
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
 }
-document.getElementById('strikeSlider3').addEventListener('input', e => { document.getElementById('strikeVal3').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
-document.getElementById('widthSlider2').addEventListener('input', e => { document.getElementById('widthVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
+// Shared listeners for #1
+document.getElementById('strikeSlider').addEventListener('input', e => { document.getElementById('strikeVal').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff(); drawCompare(); drawCombo(); });
+document.getElementById('widthSlider').addEventListener('input', e => { document.getElementById('widthVal').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); drawCombo(); });
 document.getElementById('pmPrice').addEventListener('input', e => { document.getElementById('pmPriceVal').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo(); });
 drawCombo();
 
@@ -952,48 +694,27 @@ drawCombo();
    Strategy #3: Above Buy No
    ============================ */
 
-let payoffTypeB = 'no';
 const payoffCtxB = document.getElementById('payoffChart2').getContext('2d');
 let payoffChart2;
-function setPayoffTypeB(t, btn) {
-  payoffTypeB = t;
-  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  drawPayoffB();
-}
 function drawPayoffB() {
   const K = +document.getElementById('strikeSliderB').value;
   const lo = K - 15000, hi = K + 15000;
-  const labels = [], yesData = [], noData = [];
+  const labels = [], noData = [];
   for (let s = lo; s <= hi; s += 300) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    yesData.push(s >= K ? 1 : 0);
     noData.push(s < K ? 1 : 0);
   }
-  const datasets = [];
-  if (payoffTypeB === 'no' || payoffTypeB === 'both') datasets.push({ label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
-  if (payoffTypeB === 'yes' || payoffTypeB === 'both') datasets.push({ label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
   if (payoffChart2) payoffChart2.destroy();
-  payoffChart2 = new Chart(payoffCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  payoffChart2 = new Chart(payoffCtxB, { type: 'line', data: { labels, datasets: [
+    { label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-function applyPreset1B() {
-  document.getElementById('strikeSliderB').value = 72000;
-  document.getElementById('strikeValB').textContent = '$72,000';
-  payoffTypeB = 'both';
-  const btns = document.getElementById('payoffChart2').parentElement.parentElement.querySelectorAll('.toggle-group button');
-  btns.forEach(b => b.classList.remove('active'));
-  btns[2].classList.add('active');
-  drawPayoffB();
-}
-document.getElementById('strikeSliderB').addEventListener('input', e => { document.getElementById('strikeValB').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoffB(); });
 drawPayoffB();
 
-let compareModeB = 'both2';
 const compareCtxB = document.getElementById('compareChart2').getContext('2d');
 let compareChart2;
-function setCompareModeB(m, btn) { compareModeB = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompareB(); }
 function drawCompareB() {
-  const K = +document.getElementById('strikeSlider2B').value;
+  const K = +document.getElementById('strikeSliderB').value;
   const dK = +document.getElementById('widthSliderB').value;
   const lo = K - 15000, hi = K + 15000;
   const labels = [], pmData = [], deribitData = [];
@@ -1002,32 +723,20 @@ function drawCompareB() {
     pmData.push(s < K ? 1 : 0);
     deribitData.push(Math.max(0, Math.min((K - s) / dK, 1)));
   }
-  const datasets = [];
-  if (compareModeB !== 'deribit') datasets.push({ label: 'PM Binary（台阶 · Buy No）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
-  if (compareModeB !== 'pm') datasets.push({ label: `Deribit Put Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
+  const datasets = [
+    { label: 'PM Binary（台阶 · Buy No）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 },
+    { label: `Deribit Put Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
+  ];
   if (compareChart2) compareChart2.destroy();
   compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-function applyPreset2B() {
-  document.getElementById('strikeSlider2B').value = 72000;
-  document.getElementById('strikeVal2B').textContent = '$72,000';
-  document.getElementById('widthSliderB').value = 1000;
-  document.getElementById('widthValB').textContent = '$1,000';
-  compareModeB = 'both2';
-  const btns = document.getElementById('compareChart2').parentElement.parentElement.querySelectorAll('.toggle-group button');
-  btns.forEach(b => b.classList.remove('active'));
-  btns[0].classList.add('active');
-  drawCompareB();
-}
-document.getElementById('strikeSlider2B').addEventListener('input', e => { document.getElementById('strikeVal2B').textContent = '$' + (+e.target.value).toLocaleString(); drawCompareB(); });
-document.getElementById('widthSliderB').addEventListener('input', e => { document.getElementById('widthValB').textContent = '$' + (+e.target.value).toLocaleString(); drawCompareB(); });
 drawCompareB();
 
 const comboCtxB = document.getElementById('comboChart2').getContext('2d');
 let comboChart2;
 function drawComboB() {
-  const K = +document.getElementById('strikeSlider3B').value;
-  const dK = +document.getElementById('widthSlider2B').value;
+  const K = +document.getElementById('strikeSliderB').value;
+  const dK = +document.getElementById('widthSliderB').value;
   const pPrice = +document.getElementById('pmPriceB').value / 100;
   const lo = K - 15000, hi = K + 15000;
   const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
@@ -1045,17 +754,9 @@ function drawComboB() {
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
 }
-function applyPreset3B() {
-  document.getElementById('strikeSlider3B').value = 72000;
-  document.getElementById('strikeVal3B').textContent = '$72,000';
-  document.getElementById('widthSlider2B').value = 1000;
-  document.getElementById('widthVal2B').textContent = '$1,000';
-  document.getElementById('pmPriceB').value = 46;
-  document.getElementById('pmPriceValB').textContent = '$0.46';
-  drawComboB();
-}
-document.getElementById('strikeSlider3B').addEventListener('input', e => { document.getElementById('strikeVal3B').textContent = '$' + (+e.target.value).toLocaleString(); drawComboB(); });
-document.getElementById('widthSlider2B').addEventListener('input', e => { document.getElementById('widthVal2B').textContent = '$' + (+e.target.value).toLocaleString(); drawComboB(); });
+// Shared listeners for #3
+document.getElementById('strikeSliderB').addEventListener('input', e => { document.getElementById('strikeValB').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoffB(); drawCompareB(); drawComboB(); });
+document.getElementById('widthSliderB').addEventListener('input', e => { document.getElementById('widthValB').textContent = '$' + (+e.target.value).toLocaleString(); drawCompareB(); drawComboB(); });
 document.getElementById('pmPriceB').addEventListener('input', e => { document.getElementById('pmPriceValB').textContent = '$' + (e.target.value / 100).toFixed(2); drawComboB(); });
 drawComboB();
 
@@ -1086,17 +787,13 @@ function drawPayoff9() {
     { label: 'Buy Yes：K1 ≤ S ≤ K2 → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-document.getElementById('strikeSlider9a').addEventListener('input', e => { document.getElementById('strikeVal9a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); });
-document.getElementById('strikeSlider9b').addEventListener('input', e => { document.getElementById('strikeVal9b').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); });
 drawPayoff9();
 
-let compareMode9 = 'both2';
 const compareCtx9 = document.getElementById('compareChart9').getContext('2d');
 let compareChart9;
-function setCompareMode9(m, btn) { compareMode9 = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompare9(); }
 function drawCompare9() {
-  const K1 = +document.getElementById('strikeSlider9c').value;
-  const K2 = +document.getElementById('strikeSlider9d').value;
+  const K1 = +document.getElementById('strikeSlider9a').value;
+  const K2 = +document.getElementById('strikeSlider9b').value;
   const dK = +document.getElementById('widthSlider9').value;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
   const labels = [], pmData = [], deribitData = [];
@@ -1106,22 +803,19 @@ function drawCompare9() {
     deribitData.push(rangeSpread(s, K1, K2, dK));
   }
   const datasets = [];
-  if (compareMode9 !== 'deribit') datasets.push({ label: 'PM Binary（方波）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
-  if (compareMode9 !== 'pm') datasets.push({ label: `Deribit Range Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
+  datasets.push({ label: 'PM Binary（方波）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
+  datasets.push({ label: `Deribit Range Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
   if (compareChart9) compareChart9.destroy();
   compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-document.getElementById('strikeSlider9c').addEventListener('input', e => { document.getElementById('strikeVal9c').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare9(); });
-document.getElementById('strikeSlider9d').addEventListener('input', e => { document.getElementById('strikeVal9d').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare9(); });
-document.getElementById('widthSlider9').addEventListener('input', e => { document.getElementById('widthVal9').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare9(); });
 drawCompare9();
 
 const comboCtx9 = document.getElementById('comboChart9').getContext('2d');
 let comboChart9;
 function drawCombo9() {
-  const K1 = +document.getElementById('strikeSlider9e').value;
-  const K2 = +document.getElementById('strikeSlider9f').value;
-  const dK = +document.getElementById('widthSlider9b').value;
+  const K1 = +document.getElementById('strikeSlider9a').value;
+  const K2 = +document.getElementById('strikeSlider9b').value;
+  const dK = +document.getElementById('widthSlider9').value;
   const pPrice = +document.getElementById('pmPrice9').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
   const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
@@ -1139,9 +833,10 @@ function drawCombo9() {
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
 }
-document.getElementById('strikeSlider9e').addEventListener('input', e => { document.getElementById('strikeVal9e').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo9(); });
-document.getElementById('strikeSlider9f').addEventListener('input', e => { document.getElementById('strikeVal9f').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo9(); });
-document.getElementById('widthSlider9b').addEventListener('input', e => { document.getElementById('widthVal9b').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo9(); });
+// Shared listeners for #9 - redraw all 3 charts
+document.getElementById('strikeSlider9a').addEventListener('input', e => { document.getElementById('strikeVal9a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); drawCompare9(); drawCombo9(); });
+document.getElementById('strikeSlider9b').addEventListener('input', e => { document.getElementById('strikeVal9b').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); drawCompare9(); drawCombo9(); });
+document.getElementById('widthSlider9').addEventListener('input', e => { document.getElementById('widthVal9').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare9(); drawCombo9(); });
 document.getElementById('pmPrice9').addEventListener('input', e => { document.getElementById('pmPriceVal9').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo9(); });
 drawCombo9();
 
@@ -1165,17 +860,16 @@ function drawPayoff11() {
     { label: 'Buy No：S < K1 或 S > K2 → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-document.getElementById('strikeSlider11a').addEventListener('input', e => { document.getElementById('strikeVal11a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff11(); });
-document.getElementById('strikeSlider11b').addEventListener('input', e => { document.getElementById('strikeVal11b').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff11(); });
+// Shared listeners for #11
+document.getElementById('strikeSlider11a').addEventListener('input', e => { document.getElementById('strikeVal11a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff11(); drawCompare11(); drawCombo11(); });
+document.getElementById('strikeSlider11b').addEventListener('input', e => { document.getElementById('strikeVal11b').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff11(); drawCompare11(); drawCombo11(); });
 drawPayoff11();
 
-let compareMode11 = 'both2';
 const compareCtx11 = document.getElementById('compareChart11').getContext('2d');
 let compareChart11;
-function setCompareMode11(m, btn) { compareMode11 = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompare11(); }
 function drawCompare11() {
-  const K1 = +document.getElementById('strikeSlider11c').value;
-  const K2 = +document.getElementById('strikeSlider11d').value;
+  const K1 = +document.getElementById('strikeSlider11a').value;
+  const K2 = +document.getElementById('strikeSlider11b').value;
   const dK = +document.getElementById('widthSlider11').value;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
   const labels = [], pmData = [], deribitData = [];
@@ -1184,23 +878,21 @@ function drawCompare11() {
     pmData.push((s < K1 || s > K2) ? 1 : 0);
     deribitData.push(1 - rangeSpread(s, K1, K2, dK));
   }
-  const datasets = [];
-  if (compareMode11 !== 'deribit') datasets.push({ label: 'PM Binary（反向方波）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
-  if (compareMode11 !== 'pm') datasets.push({ label: `Deribit 反向 Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
   if (compareChart11) compareChart11.destroy();
-  compareChart11 = new Chart(compareCtx11, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  compareChart11 = new Chart(compareCtx11, { type: 'line', data: { labels, datasets: [
+    { label: 'PM Binary（反向方波）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 },
+    { label: `Deribit 反向 Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
-document.getElementById('strikeSlider11c').addEventListener('input', e => { document.getElementById('strikeVal11c').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); });
-document.getElementById('strikeSlider11d').addEventListener('input', e => { document.getElementById('strikeVal11d').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); });
-document.getElementById('widthSlider11').addEventListener('input', e => { document.getElementById('widthVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); });
+document.getElementById('widthSlider11').addEventListener('input', e => { document.getElementById('widthVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); drawCombo11(); });
 drawCompare11();
 
 const comboCtx11 = document.getElementById('comboChart11').getContext('2d');
 let comboChart11;
 function drawCombo11() {
-  const K1 = +document.getElementById('strikeSlider11e').value;
-  const K2 = +document.getElementById('strikeSlider11f').value;
-  const dK = +document.getElementById('widthSlider11b').value;
+  const K1 = +document.getElementById('strikeSlider11a').value;
+  const K2 = +document.getElementById('strikeSlider11b').value;
+  const dK = +document.getElementById('widthSlider11').value;
   const pPrice = +document.getElementById('pmPrice11').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
   const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
@@ -1214,13 +906,10 @@ function drawCombo11() {
   comboChart11 = new Chart(comboCtx11, { type: 'line', data: { labels, datasets: [
     { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 2, stepped: true },
     { label: 'Deribit Sell 反向 Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2 },
-    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: true, pointRadius: 0, borderWidth: 3 },
+    { label: '组合 PnL', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: true, pointRadius: 0, borderWidth: 3 },
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
 }
-document.getElementById('strikeSlider11e').addEventListener('input', e => { document.getElementById('strikeVal11e').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo11(); });
-document.getElementById('strikeSlider11f').addEventListener('input', e => { document.getElementById('strikeVal11f').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo11(); });
-document.getElementById('widthSlider11b').addEventListener('input', e => { document.getElementById('widthVal11b').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo11(); });
 document.getElementById('pmPrice11').addEventListener('input', e => { document.getElementById('pmPriceVal11').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo11(); });
 drawCombo11();
 </script>
