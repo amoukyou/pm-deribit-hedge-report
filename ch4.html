@@ -381,7 +381,25 @@ function toggleDetail(tr, r) {
 
   const segGR = { borderColor: ctx => (ctx.p0.parsed.y <= 0 && ctx.p1.parsed.y <= 0) ? '#dc2626' : (ctx.p0.parsed.y > 0 && ctx.p1.parsed.y > 0) ? '#16a34a' : '#9ca3af' };
   const zeroGrid = { color: ctx => ctx.tick.value === 0 ? '#374151' : '#e5e7eb', lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1 };
-  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'index',intersect:false}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:{callbacks:{title:items=>items[0]?'BTC价格 '+items[0].label:'',label:item=>'损益: $'+item.parsed.y.toFixed(2)}}}, scales:{x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid}} });
+  const tipStyle = {
+    backgroundColor:'rgba(26,29,39,0.95)', titleColor:'#e4e4e7', bodyColor:'#e4e4e7',
+    borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:10, cornerRadius:6,
+    titleFont:{size:11,weight:'bold'}, bodyFont:{size:11},
+    callbacks:{
+      title: items => items[0] ? 'BTC ' + items[0].label : '',
+      label: item => {
+        const v = item.parsed.y;
+        const sign = v >= 0 ? '+' : '';
+        return '损益: ' + sign + '$' + v.toFixed(2);
+      },
+      labelColor: item => {
+        const v = item.parsed.y;
+        const c = v > 0 ? '#4ade80' : v < 0 ? '#f87171' : '#9ca3af';
+        return { borderColor: c, backgroundColor: c };
+      }
+    }
+  };
+  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'nearest',intersect:false,axis:'x'}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:tipStyle}, scales:{x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid}} });
 
   // Max/min
   const pmMax = Math.max(...pmPnl), pmMin = Math.min(...pmPnl);
@@ -456,15 +474,26 @@ function toggleDetail(tr, r) {
     interaction:{mode:'nearest',intersect:false,axis:'x'},
     plugins:{
       legend:{labels:{color:'#374151',font:{size:10}}},
-      tooltip:{callbacks:{
-        title:items=>items[0]?'BTC价格 '+items[0].label:'',
-        label:item=>{
-          const idx = item.dataIndex;
-          const isBE = beIndices.has(idx);
-          return (isBE ? '>>> 盈亏平衡点 <<< ' : '') + '损益: $' + item.parsed.y.toFixed(2);
-        },
-        labelColor:item=>({borderColor:beIndices.has(item.dataIndex)?'#1d4ed8':'#16a34a',backgroundColor:beIndices.has(item.dataIndex)?'#1d4ed8':'#16a34a'})
-      }},
+      tooltip:{
+        backgroundColor:'rgba(26,29,39,0.95)', titleColor:'#e4e4e7', bodyColor:'#e4e4e7',
+        borderColor:'rgba(255,255,255,0.1)', borderWidth:1, padding:10, cornerRadius:6,
+        titleFont:{size:11,weight:'bold'}, bodyFont:{size:11},
+        callbacks:{
+          title:items=>items[0]?'BTC '+items[0].label:'',
+          label:item=>{
+            const v = item.parsed.y;
+            const sign = v >= 0 ? '+' : '';
+            const isBE = beIndices.has(item.dataIndex);
+            return (isBE ? '[ 盈亏平衡点 ] ' : '') + '损益: ' + sign + '$' + v.toFixed(2);
+          },
+          labelColor:item=>{
+            const isBE = beIndices.has(item.dataIndex);
+            const v = item.parsed.y;
+            const c = isBE ? '#60a5fa' : v > 0 ? '#4ade80' : v < 0 ? '#f87171' : '#9ca3af';
+            return {borderColor:c, backgroundColor:c};
+          }
+        }
+      },
       annotation:{ annotations }
     },
     scales:{
