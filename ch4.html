@@ -128,7 +128,8 @@
   <button onclick="setDirFilter('Buy Yes',this)">Buy Yes</button>
   <button onclick="setDirFilter('Buy No',this)">Buy No</button>
   <span class="sep">|</span>
-  <button onclick="setSort('qp')">按 q-p 排序</button>
+  <button onclick="setSort('qp_desc')">q-p 高→低</button>
+  <button onclick="setSort('qp_asc')">q-p 低→高</button>
   <button onclick="setSort('time')">按时间差排序</button>
   <button onclick="setSort('pm_ask')">按 PM ask 排序</button>
   <span class="sep">|</span>
@@ -214,7 +215,8 @@ function renderTable() {
   if (hideNull) rows = rows.filter(r => r.qp !== null);
 
   // Sort
-  if (currentSort === 'qp') rows.sort((a, b) => (b.qp ?? -999) - (a.qp ?? -999));
+  if (currentSort === 'qp_desc') rows.sort((a, b) => (b.qp ?? -999) - (a.qp ?? -999));
+  else if (currentSort === 'qp_asc') rows.sort((a, b) => (a.qp ?? 999) - (b.qp ?? 999));
   else if (currentSort === 'time') rows.sort((a, b) => a.time_diff - b.time_diff);
   else if (currentSort === 'pm_ask') rows.sort((a, b) => (a.pm_ask ?? 999) - (b.pm_ask ?? 999));
 
