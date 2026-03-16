@@ -399,15 +399,16 @@ function toggleDetail(tr, r) {
       }
     }
   };
-  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'nearest',intersect:false,axis:'x'}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:tipStyle}, scales:{x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid}} });
+  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'nearest',intersect:false,axis:'x'}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:tipStyle}, scales:{x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid,suggestedMin:0,suggestedMax:0}} });
 
   // Max/min
   const pmMax = Math.max(...pmPnl), pmMin = Math.min(...pmPnl);
   const dbMax = Math.max(...dbPnl), dbMin = Math.min(...dbPnl);
   const coMax = Math.max(...comboPnl), coMin = Math.min(...comboPnl);
 
-  document.querySelector('#detailChart1').parentElement.querySelector('p').innerHTML = `PM ${r.direction}（${pmQty}张） <span style="color:var(--green);font-weight:600;">最大盈 +$${pmMax.toFixed(2)}</span> <span style="color:var(--red);font-weight:600;">最大亏 -$${Math.abs(pmMin).toFixed(2)}</span>`;
-  document.querySelector('#detailChart2').parentElement.querySelector('p').innerHTML = `Deribit ${r.deribit_desc}（0.1BTC） <span style="color:var(--green);font-weight:600;">最大盈 +$${dbMax.toFixed(2)}</span> <span style="color:var(--red);font-weight:600;">最大亏 -$${Math.abs(dbMin).toFixed(2)}</span>`;
+  const fmtPnl = (v) => { const c = v >= 0 ? 'var(--green)' : 'var(--red)'; const s = v >= 0 ? '+' : ''; return `<span style="color:${c};font-weight:600;">${s}$${v.toFixed(2)}</span>`; };
+  document.querySelector('#detailChart1').parentElement.querySelector('p').innerHTML = `PM ${r.direction}（${pmQty}张） 最大盈 ${fmtPnl(pmMax)} 最大亏 ${fmtPnl(pmMin)}`;
+  document.querySelector('#detailChart2').parentElement.querySelector('p').innerHTML = `Deribit ${r.deribit_desc}（0.1BTC） 最大盈 ${fmtPnl(dbMax)} 最大亏 ${fmtPnl(dbMin)}`;
   document.querySelector('#detailChart3').parentElement.querySelector('p').innerHTML = `组合损益 <span style="color:${coMin >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;">范围 $${coMin.toFixed(2)} ~ $${coMax.toFixed(2)}</span>`;
 
   // Find breakeven points for chart 1 and 2
@@ -465,7 +466,12 @@ function toggleDetail(tr, r) {
   const annotations = {};
 
   const zCoMax = Math.max(...zCombo), zCoMin = Math.min(...zCombo);
-  document.querySelector('#detailChart3').parentElement.querySelector('p').innerHTML = `组合损益（放大） <span style="color:${zCoMin >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;">$${zCoMin.toFixed(2)} ~ $${zCoMax.toFixed(2)}</span>` + (breakevens.length > 0 ? breakevens.map(b => ` <span style="color:var(--red);font-weight:600;">平衡点 ${b.label}</span>`).join('') : ' <span style="color:var(--green);font-weight:600;">全区间盈利</span>');
+  const allProfit = zCoMin > 0, allLoss = zCoMax < 0;
+  let ch3Status = '';
+  if (allProfit) ch3Status = ' <span style="color:var(--green);font-weight:600;">全区间盈利</span>';
+  else if (allLoss) ch3Status = ' <span style="color:var(--red);font-weight:600;">全区间亏损</span>';
+  else ch3Status = breakevens.map(b => ` <span style="color:var(--blue);font-weight:600;">平衡点 ${b.label}</span>`).join('');
+  document.querySelector('#detailChart3').parentElement.querySelector('p').innerHTML = `组合损益（放大） ${fmtPnl(zCoMin)} ~ ${fmtPnl(zCoMax)}` + ch3Status;
 
   new Chart(document.getElementById('detailChart3'), { type:'line', data:{ labels: zLabels, datasets:[
     { label:'组合', data:zCombo, borderColor:'#16a34a', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:zPointRadius, pointBackgroundColor:zPointBgColor, pointBorderColor:zPointBorderColor, pointBorderWidth:2, pointHoverRadius:10, borderWidth:3 }
@@ -498,7 +504,7 @@ function toggleDetail(tr, r) {
     },
     scales:{
       x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:10,font:{size:9}},grid:{color:'#e5e7eb'}},
-      y:{title:{display:true,text:'损益 (USD)',color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid}
+      y:{title:{display:true,text:'损益 (USD)',color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid,suggestedMin:0,suggestedMax:0}
     }
   }});
 }
