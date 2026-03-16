@@ -583,25 +583,28 @@
 
     <div class="table-wrap">
       <table>
-        <thead><tr><th>费用项</th><th>谁收的</th><th>费率</th><th>说明</th></tr></thead>
+        <thead><tr><th>费用项</th><th>谁收的</th><th>费率</th><th>基数</th><th>说明</th></tr></thead>
         <tbody>
           <tr>
             <td style="font-weight:600;">PM Taker 手续费</td>
             <td>Polymarket</td>
-            <td>最高约 1.56%（价格 ≈ $0.50 时）</td>
-            <td>按费率曲线计算，价格越接近 $0.50 越高，越接近 $0 或 $1 越低</td>
+            <td>最高约 1.56%</td>
+            <td>票面金额</td>
+            <td>按费率曲线，价格越接近 $0.50 越高</td>
           </tr>
           <tr>
-            <td style="font-weight:600;">Deribit 期权 Taker 手续费</td>
+            <td style="font-weight:600;">Deribit 期权手续费</td>
             <td>Deribit</td>
-            <td>0.03% of underlying</td>
-            <td>每条腿都收。#1/#3 有 2 条腿，#9/#11 有 4 条腿</td>
+            <td>0.03%</td>
+            <td><b>underlying（底层资产面值）</b></td>
+            <td>不是按权利金算的。1 BTC 合约 → 基数 = 1 × BTC 价格</td>
           </tr>
           <tr>
-            <td style="font-weight:600;">Deribit 期权 Maker 手续费</td>
+            <td style="font-weight:600;">Deribit 手续费上限</td>
             <td>Deribit</td>
-            <td>0.03% of underlying</td>
-            <td>如果你用限价单挂单成交，费率相同但可能有 rebate</td>
+            <td>12.5%</td>
+            <td><b>期权权利金</b></td>
+            <td>实际手续费 = min(0.03% × underlying, 12.5% × 权利金)。深度 OTM 期权权利金很低时，上限会把手续费压下来</td>
           </tr>
         </tbody>
       </table>
@@ -615,8 +618,8 @@
           <thead><tr><th>端</th><th>操作</th><th>数量</th><th>手续费</th></tr></thead>
           <tbody>
             <tr><td>PM</td><td>买入 300 张 Yes @ $0.50</td><td>花 $150</td><td>300 × $0.0078 = <b>$2.34</b></td></tr>
-            <tr><td>Deribit</td><td>买入 $85,000 Call × 0.1 BTC</td><td>—</td><td>0.03% × 0.1 × $85,000 = <b>$2.55</b></td></tr>
-            <tr><td>Deribit</td><td>卖出 $88,000 Call × 0.1 BTC</td><td>—</td><td>0.03% × 0.1 × $85,000 = <b>$2.55</b></td></tr>
+            <tr><td>Deribit</td><td>买入 $85,000 Call × 0.1 BTC</td><td>—</td><td>min(0.03%×0.1×$85k, 12.5%×权利金) ≈ <b>$2.55</b></td></tr>
+            <tr><td>Deribit</td><td>卖出 $88,000 Call × 0.1 BTC</td><td>—</td><td>min(0.03%×0.1×$85k, 12.5%×权利金) ≈ <b>$2.55</b></td></tr>
             <tr style="background:#f0fdf4;">
               <td colspan="2" style="font-weight:700;">总手续费</td>
               <td></td>
