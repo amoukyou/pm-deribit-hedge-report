@@ -132,8 +132,8 @@
   <button onclick="setSort('time')">按时间差排序</button>
   <button onclick="setSort('pm_ask')">按 PM ask 排序</button>
   <span class="sep">|</span>
-  <button onclick="toggleNull()">隐藏无期权组合</button>
-  <button onclick="toggleNoBook()">隐藏无盘口挂单</button>
+  <button onclick="toggleNull(this)">隐藏无期权组合</button>
+  <button onclick="toggleNoBook(this)">隐藏无盘口挂单</button>
 </div>
 
 <div class="table-wrap">
@@ -541,9 +541,9 @@ function toggleQPSort() {
   document.getElementById('qpHeader').textContent = 'q - p ' + (currentSort === 'qp_desc' ? '↓' : '↑');
   renderTable();
 }
-function toggleNull() { hideNull = !hideNull; renderTable(); }
+function toggleNull(btn) { hideNull = !hideNull; btn.classList.toggle('active'); renderTable(); }
 let hideNoBook = false;
-function toggleNoBook() { hideNoBook = !hideNoBook; renderTable(); }
+function toggleNoBook(btn) { hideNoBook = !hideNoBook; btn.classList.toggle('active'); renderTable(); }
 
 // Auto refresh every 60s, pause when detail is open
 let refreshTimer = null;
