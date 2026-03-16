@@ -447,8 +447,9 @@
     <!-- ===== Strategy #1: Above Buy Yes ===== -->
     <div class="strat-tab-content active" id="strat-s1">
 
-      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy Yes：高于 K → $1 | 对冲：卖出 Bull Call Spread</p>
-      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">K=$85,000 · PM 买入价 $0.50 · ΔK=$3,000</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">PM 问题：BTC 到期高于 $85,000？ → 买 Yes，花 $0.50</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">Deribit 对冲：卖出 Bull Call Spread = <b>买入 $85,000 Call + 卖出 $88,000 Call</b></p>
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">收到权利金 $0.55（比 PM 花的 $0.50 多 → 组合盈利 $0.05）</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart"></canvas></div>
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 台阶 vs Deribit 斜坡</p><canvas id="compareChart"></canvas></div>
@@ -459,8 +460,9 @@
     <!-- ===== Strategy #3: Above Buy No ===== -->
     <div class="strat-tab-content" id="strat-s3">
 
-      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy No：低于 K → $1 | 对冲：卖出 Bear Put Spread</p>
-      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">K=$85,000 · PM 买入价 $0.50 · ΔK=$3,000</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">PM 问题：BTC 到期高于 $85,000？ → 买 No，花 $0.50</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">Deribit 对冲：卖出 Bear Put Spread = <b>买入 $85,000 Put + 卖出 $82,000 Put</b></p>
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">收到权利金 $0.55（比 PM 花的 $0.50 多 → 组合盈利 $0.05）</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart2"></canvas></div>
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 台阶 vs Deribit 斜坡</p><canvas id="compareChart2"></canvas></div>
@@ -470,8 +472,9 @@
 
     <!-- ===== Strategy #9: Range Buy Yes ===== -->
     <div class="strat-tab-content" id="strat-s9">
-      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy Yes：K1–K2 范围内 → $1 | 对冲：卖出 Iron Butterfly（斜坡收在 PM 区间内）</p>
-      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">PM 范围 K1=$80,000 K2=$88,000 · PM 买入价 $0.30 · ΔK=$1,000</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">PM 问题：BTC 到期在 $80,000–$88,000 之间？ → 买 Yes，花 $0.30</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">Deribit 对冲：卖出 Iron Butterfly = <b>卖 $80,000 Put + 买 $81,000 Put + 买 $87,000 Call + 卖 $88,000 Call</b></p>
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">收到权利金 $0.35（比 PM 花的 $0.30 多 → 组合盈利 $0.05）</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart9"></canvas></div>
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 方波 vs Deribit 斜坡</p><canvas id="compareChart9"></canvas></div>
@@ -481,8 +484,9 @@
 
     <!-- ===== Strategy #11: Range Buy No ===== -->
     <div class="strat-tab-content" id="strat-s11">
-      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy No：K1–K2 范围外 → $1 | 对冲：买入 Iron Butterfly（斜坡收在 PM 区间内）</p>
-      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">PM 范围 K1=$80,000 K2=$88,000 · PM 买入价 $0.70 · ΔK=$1,000</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">PM 问题：BTC 到期在 $80,000–$88,000 之间？ → 买 No，花 $0.70</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:6px;">Deribit 对冲：买入 Iron Butterfly = <b>买 $79,000 Put + 卖 $80,000 Put + 卖 $88,000 Call + 买 $89,000 Call</b></p>
+      <p style="color:var(--muted);font-size:0.82rem;margin-bottom:12px;">花 $0.25 买入（PM No 到期赚的钱覆盖这个成本 → 组合盈利 $0.05）</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 单腿盈亏</p><canvas id="payoffChart11"></canvas></div>
         <div class="chart-container" style="padding:20px;"><p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;">PM 方波 vs Deribit 斜坡</p><canvas id="compareChart11"></canvas></div>
