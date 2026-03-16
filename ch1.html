@@ -632,16 +632,17 @@ const payoffCtx = document.getElementById('payoffChart').getContext('2d');
 let payoffChart;
 function drawPayoff() {
   const K = +document.getElementById('strikeSlider').value;
+  const p = +document.getElementById('pmPrice').value / 100;
   const lo = K - 15000, hi = K + 15000;
-  const labels = [], yesData = [];
+  const labels = [], pnlData = [];
   for (let s = lo; s <= hi; s += 300) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    yesData.push(s >= K ? 1 : 0);
+    pnlData.push((s >= K ? 1 : 0) - p);
   }
   if (payoffChart) payoffChart.destroy();
   payoffChart = new Chart(payoffCtx, { type: 'line', data: { labels, datasets: [
-    { label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', fill: false, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
+    { label: `PM Buy Yes 损益（成本 $${p.toFixed(2)}）`, data: pnlData, borderColor: '#16a34a', fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#374151' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 drawPayoff();
 
@@ -696,16 +697,17 @@ const payoffCtxB = document.getElementById('payoffChart2').getContext('2d');
 let payoffChart2;
 function drawPayoffB() {
   const K = +document.getElementById('strikeSliderB').value;
+  const p = +document.getElementById('pmPriceB').value / 100;
   const lo = K - 15000, hi = K + 15000;
-  const labels = [], noData = [];
+  const labels = [], pnlData = [];
   for (let s = lo; s <= hi; s += 300) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    noData.push(s < K ? 1 : 0);
+    pnlData.push((s < K ? 1 : 0) - p);
   }
   if (payoffChart2) payoffChart2.destroy();
   payoffChart2 = new Chart(payoffCtxB, { type: 'line', data: { labels, datasets: [
-    { label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', fill: false, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
+    { label: `PM Buy No 损益（成本 $${p.toFixed(2)}）`, data: pnlData, borderColor: '#dc2626', fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#374151' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 drawPayoffB();
 
@@ -772,16 +774,17 @@ let payoffChart9;
 function drawPayoff9() {
   const K1 = +document.getElementById('strikeSlider9a').value;
   const K2 = +document.getElementById('strikeSlider9b').value;
+  const p = +document.getElementById('pmPrice9').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
-  const labels = [], yesData = [];
+  const labels = [], pnlData = [];
   for (let s = lo; s <= hi; s += 300) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    yesData.push((s >= K1 && s <= K2) ? 1 : 0);
+    pnlData.push(((s >= K1 && s <= K2) ? 1 : 0) - p);
   }
   if (payoffChart9) payoffChart9.destroy();
   payoffChart9 = new Chart(payoffCtx9, { type: 'line', data: { labels, datasets: [
-    { label: 'Buy Yes：K1 ≤ S ≤ K2 → $1', data: yesData, borderColor: '#16a34a', fill: false, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
+    { label: `PM Buy Yes 损益（成本 $${p.toFixed(2)}）`, data: pnlData, borderColor: '#16a34a', fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#374151' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 drawPayoff9();
 
@@ -843,16 +846,17 @@ let payoffChart11;
 function drawPayoff11() {
   const K1 = +document.getElementById('strikeSlider11a').value;
   const K2 = +document.getElementById('strikeSlider11b').value;
+  const p = +document.getElementById('pmPrice11').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
-  const labels = [], noData = [];
+  const labels = [], pnlData = [];
   for (let s = lo; s <= hi; s += 300) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    noData.push((s < K1 || s > K2) ? 1 : 0);
+    pnlData.push(((s < K1 || s > K2) ? 1 : 0) - p);
   }
   if (payoffChart11) payoffChart11.destroy();
   payoffChart11 = new Chart(payoffCtx11, { type: 'line', data: { labels, datasets: [
-    { label: 'Buy No：S < K1 或 S > K2 → $1', data: noData, borderColor: '#dc2626', fill: false, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
+    { label: `PM Buy No 损益（成本 $${p.toFixed(2)}）`, data: pnlData, borderColor: '#dc2626', fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#374151' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 // Shared listeners for #11
 document.getElementById('strikeSlider11a').addEventListener('input', e => { document.getElementById('strikeVal11a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff11(); drawCompare11(); drawCombo11(); });
