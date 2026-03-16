@@ -128,8 +128,6 @@
   <button onclick="setDirFilter('Buy Yes',this)">Buy Yes</button>
   <button onclick="setDirFilter('Buy No',this)">Buy No</button>
   <span class="sep">|</span>
-  <button onclick="setSort('qp_desc')">q-p 高→低</button>
-  <button onclick="setSort('qp_asc')">q-p 低→高</button>
   <button onclick="setSort('time')">按时间差排序</button>
   <button onclick="setSort('pm_ask')">按 PM ask 排序</button>
   <span class="sep">|</span>
@@ -148,7 +146,7 @@
         <th>PM ask (p)</th>
         <th>Deribit 组合</th>
         <th>Deribit q</th>
-        <th style="background:#1e3a5f;">q - p</th>
+        <th style="background:#1e3a5f;cursor:pointer;" onclick="toggleQPSort()" id="qpHeader">q - p ↕</th>
         <th>时间差</th>
       </tr>
     </thead>
@@ -423,6 +421,11 @@ function setDirFilter(f, btn) {
 }
 
 function setSort(s) { currentSort = s; renderTable(); }
+function toggleQPSort() {
+  currentSort = currentSort === 'qp_desc' ? 'qp_asc' : 'qp_desc';
+  document.getElementById('qpHeader').textContent = 'q - p ' + (currentSort === 'qp_desc' ? '↓' : '↑');
+  renderTable();
+}
 function toggleNull() { hideNull = !hideNull; renderTable(); }
 
 // Auto refresh every 60s
