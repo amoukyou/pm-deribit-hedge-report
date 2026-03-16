@@ -266,16 +266,80 @@
   .topnav-inner a.nav-ch1:hover { border-bottom-color: var(--accent); color: var(--accent); }
   .topnav-inner a.nav-ch2 { border-bottom-color: transparent; }
   .topnav-inner a.nav-ch2:hover { border-bottom-color: var(--ch2); color: var(--ch2); }
+  .topnav-inner a.active-nav { color: var(--accent); border-bottom-color: var(--accent); }
+  .topnav-inner a.nav-ch2.active-nav { color: var(--ch2); border-bottom-color: var(--ch2); }
   .topnav-inner .nav-brand {
     color: var(--text); font-weight: 700; font-size: 0.9rem;
     margin-right: auto; padding-left: 0;
   }
+
+  /* Landing page chapter cards */
+  .chapter-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .chapter-link-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .chapter-link-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .chapter-link-card.ch1-card::before { background: var(--accent); }
+  .chapter-link-card.ch2-card::before { background: var(--ch2); }
+  .chapter-link-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .chapter-link-card.ch1-card:hover { border-color: var(--accent); }
+  .chapter-link-card.ch2-card:hover { border-color: var(--ch2); }
+  .chapter-link-card .ch-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .chapter-link-card.ch1-card .ch-label { color: var(--accent); }
+  .chapter-link-card.ch2-card .ch-label { color: var(--ch2); }
+  .chapter-link-card .ch-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .chapter-link-card .ch-desc {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .chapter-link-card .ch-arrow {
+    margin-top: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .chapter-link-card.ch1-card .ch-arrow { color: var(--accent); }
+  .chapter-link-card.ch2-card .ch-arrow { color: var(--ch2); }
 
   @media (max-width: 640px) {
     .hero h1 { font-size: 1.5rem; }
     .op-cards { grid-template-columns: 1fr; }
     .controls { flex-direction: column; align-items: flex-start; }
     .topnav-inner a { padding: 0 10px; font-size: 0.8rem; }
+    .chapter-cards { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -284,9 +348,10 @@
 <!-- ===== TOP NAV ===== -->
 <nav class="topnav">
   <div class="topnav-inner">
-    <a href="#" class="nav-brand">PM × Deribit</a>
-    <a href="#ch1" class="nav-ch1">第一章</a>
-    <a href="#ch2" class="nav-ch2">第二章</a>
+    <a href="index.html" class="nav-brand">PM × Deribit</a>
+    <a href="index.html" class="active-nav">首页</a>
+    <a href="ch1.html" class="nav-ch1">第一章</a>
+    <a href="ch2.html" class="nav-ch2">第二章</a>
   </div>
 </nav>
 
@@ -308,571 +373,23 @@
     </div>
   </div>
 
-  <!-- ================================================================ -->
-  <!--                          第一章                                   -->
-  <!-- ================================================================ -->
-  <div class="chapter-divider" id="ch1">
-    <h2 style="color:var(--accent);">第一章</h2>
-    <p class="ch-sub">先搞清楚：PM 加密市场的问题长什么样，以及从哪一类开始研究更合理</p>
-  </div>
-
-  <!-- 1.1 四类问题 -->
-  <div class="section">
-    <h2>PM 加密市场的 4 类问题</h2>
-    <p style="color:var(--muted);margin-bottom:16px;">PM 本身就把加密问题分成了 4 种固定格式。每个问题最终只有 Yes / No 两个结果，赢的一边可以兑换 1 美元，输的一边是 0。</p>
-    <div class="cards">
-      <div class="card">
-        <span class="tag mid">适配度：中</span>
-        <div class="title">Up / Down</div>
-        <div class="desc">到某个时间点，价格比起点<b>高</b>还是<b>低</b>？</div>
-        <div class="example">例：BTC 1H Up or Down</div>
-      </div>
-      <div class="card" style="border-color:var(--accent);box-shadow:0 2px 8px rgba(79,70,229,0.1);">
-        <span class="tag high">适配度：高 — 核心研究对象</span>
-        <div class="title">Above / Below</div>
-        <div class="desc">到最后，价格有没有<b>站上</b>某个明确价位？</div>
-        <div class="example">例：BTC 到某日高于 72,000？</div>
-      </div>
-      <div class="card">
-        <span class="tag mid">适配度：中上</span>
-        <div class="title">Price Range</div>
-        <div class="desc">到最后，价格有没有<b>落在</b>某个区间里？</div>
-        <div class="example">例：BTC 在 72,000–74,000 之间？</div>
-      </div>
-      <div class="card">
-        <span class="tag low">适配度：低</span>
-        <div class="title">Hit Price</div>
-        <div class="desc">这段时间里，价格有没有<b>碰到过</b>某个价位？</div>
-        <div class="example">例：BTC 本周碰到 80,000？</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 1.2 四个基础操作 -->
-  <div class="section">
-    <h2>4 个基础操作</h2>
-    <p style="color:var(--muted);margin-bottom:16px;">每类问题都有 4 种操作方式。Buy = 拿钱买票，Sell = 手里有票才能卖。</p>
-    <div class="op-cards">
-      <div class="op-card" style="border-color:var(--green);">
-        <div class="op-name" style="color:var(--green);">Buy Yes</div>
-        <div class="op-desc">买"这件事会发生"的票<br>看 Yes ask 盘口</div>
-      </div>
-      <div class="op-card" style="border-color:var(--red);">
-        <div class="op-name" style="color:var(--red);">Sell Yes</div>
-        <div class="op-desc">卖"这件事会发生"的票<br>看 Yes bid 盘口 · 需要库存</div>
-      </div>
-      <div class="op-card" style="border-color:var(--green);">
-        <div class="op-name" style="color:var(--green);">Buy No</div>
-        <div class="op-desc">买"这件事不会发生"的票<br>看 No ask 盘口</div>
-      </div>
-      <div class="op-card" style="border-color:var(--red);">
-        <div class="op-name" style="color:var(--red);">Sell No</div>
-        <div class="op-desc">卖"这件事不会发生"的票<br>看 No bid 盘口 · 需要库存</div>
-      </div>
-    </div>
-    <div class="callout">
-      <b>为什么 Sell 需要库存？</b><br>
-      Buy 很像"拿钱直接买一张票"——你只需要有 USDC，就可以下单买入。但 Sell 在 PM 里不是普通意义上的"空手卖出"。你必须先持有对应的结果代币（Yes 票或 No 票），才能挂卖单。虽然 PM 也支持"把 1 美元拆成一张 Yes 票 + 一张 No 票"，但那已经不是空手起步，而是"先准备库存，再卖"。<br><br>
-      所以在<b>无库存起手</b>的前提下，Buy 是最自然、最直接的操作路径，这也是后面优先级偏向 Buy 的核心原因。
-    </div>
-  </div>
-
-  <!-- 1.3 16 个玩法总表 -->
-  <div class="section">
-    <h2 id="table16">16 个玩法统计总表</h2>
-    <p style="color:var(--muted);margin-bottom:6px;">4 类问题 × Yes/No 两个方向 × Buy/Sell 两种操作 = 16 条独立路径。默认展示全部 16 行，也可以用下面的按钮筛选。</p>
-    <p style="color:var(--accent);font-size:0.85rem;margin-bottom:16px;font-weight:600;">紫色高亮行 = Above / Below（核心研究对象）</p>
-    <div class="filters">
-      <span style="color:var(--muted);font-size:0.85rem;line-height:32px;">问题类型：</span>
-      <button class="active" onclick="filterTable('type','all',this)">全部</button>
-      <button onclick="filterTable('type','above',this)">Above/Below</button>
-      <button onclick="filterTable('type','updown',this)">Up/Down</button>
-      <button onclick="filterTable('type','range',this)">Price Range</button>
-      <button onclick="filterTable('type','hit',this)">Hit Price</button>
-    </div>
-    <div class="filters">
-      <span style="color:var(--muted);font-size:0.85rem;line-height:32px;">操作：</span>
-      <button class="active" onclick="filterTable('op','all',this)">全部</button>
-      <button onclick="filterTable('op','buy',this)">Buy</button>
-      <button onclick="filterTable('op','sell',this)">Sell</button>
-    </div>
-    <div class="table-wrap">
-      <table id="mainTable">
-        <thead><tr>
-          <th>实例问题</th><th>问题类型</th><th>方向</th><th>操作</th>
-          <th>PM 盘口</th><th>Deribit 近似</th><th>建议配合方式</th>
-          <th>适配度</th><th>原因</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 1.4 研究优先顺序 -->
-  <div class="section">
-    <h2 id="priority">研究优先顺序</h2>
-    <p style="color:var(--muted);margin-bottom:16px;">先按题型适配度排（Above > Up/Down > Range > Hit），再按操作可行性排（Buy > Sell）。当前报告的核心结论建立在<b>"无库存起手"</b>前提下。</p>
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('nostock',this)">无库存起手</div>
-      <div class="tab" onclick="switchTab('stock',this)">有库存做市</div>
-    </div>
-    <div class="tab-content active" id="tab-nostock">
-      <ol class="priority-list">
-        <li><span class="rank">1</span><div><div class="p-title">Above / Below — Buy Yes / Buy No</div><div class="p-note">题型最简单、最标准，无库存可直接做，与 Deribit 适配度最高</div></div></li>
-        <li><span class="rank">2</span><div><div class="p-title">Up / Down — Buy Yes / Buy No</div><div class="p-note">方向简单，但多一层起点和时点误差</div></div></li>
-        <li><span class="rank">3</span><div><div class="p-title">Price Range — Buy Yes / Buy No</div><div class="p-note">较复杂，但仍可用 Deribit 组合近似</div></div></li>
-        <li><span class="rank dim">4</span><div><div class="p-title">Above / Below — Sell Yes / Sell No</div><div class="p-note">题型好，但需要先拆分代币准备库存</div></div></li>
-        <li><span class="rank dim">5</span><div><div class="p-title">Up / Down — Sell Yes / Sell No</div><div class="p-note">需库存 + 起点误差</div></div></li>
-        <li><span class="rank dim">6</span><div><div class="p-title">Price Range — Sell Yes / Sell No</div><div class="p-note">需库存 + 多腿组合</div></div></li>
-        <li><span class="rank dim">7</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"最难对冲，暂不优先</div></div></li>
-      </ol>
-      <div class="disclaimer" style="margin-top:16px;">
-        如果只从 Deribit 一侧看，买对冲结构通常更舒服；但一旦把 PM 不能裸卖、卖出通常需要先有对应结果代币这个现实约束加进来，就不能直接得出 Sell No / Sell Yes 更优的结论。因此，在无库存起手的前提下，第一阶段仍应优先研究 Buy Yes 和 Buy No。
-      </div>
-    </div>
-    <div class="tab-content" id="tab-stock">
-      <div class="prose" style="margin-bottom:16px;">
-        <p><b>有库存做市</b>意味着你已经有了自动拆分 USDC 为 Yes/No 结果代币、挂双边订单、以及自动合并回收的系统。在这种情况下，Sell 操作和 Buy 操作同样顺畅，优先级不再偏向一边。</p>
-        <p>排序逻辑变为<b>纯粹按题型适配度</b>：</p>
-      </div>
-      <ol class="priority-list">
-        <li><span class="rank">1</span><div><div class="p-title">Above / Below — 全部 4 种操作</div><div class="p-note">适配度最高，双边做市利润最优</div></div></li>
-        <li><span class="rank">2</span><div><div class="p-title">Up / Down — 全部 4 种操作</div><div class="p-note">适配度中等，仍有起点误差</div></div></li>
-        <li><span class="rank">3</span><div><div class="p-title">Price Range — 全部 4 种操作</div><div class="p-note">需要多腿组合，操作更复杂</div></div></li>
-        <li><span class="rank dim">4</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"仍然最难对冲</div></div></li>
-      </ol>
-      <div class="disclaimer">注意：有库存做市需要额外的自动化系统（代币拆分、库存管理、双边挂单），本报告暂未深入展开这部分内容。</div>
-    </div>
-  </div>
-
-  <!-- 1.5 图表区 -->
-  <div class="section">
-    <h2 id="charts">单腿盈亏图：Above / Below</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">横轴是最后 BTC 价格，纵轴是这张票最后值多少。Above/Below 只看一个价位：有没有站上去。</p>
-    <div class="controls">
-      <div class="control-group">
-        <label>目标价位 (K)</label>
-        <input type="range" id="strikeSlider" min="60000" max="100000" value="85000" step="500">
-        <span class="val" id="strikeVal">$85,000</span>
-      </div>
-      <div class="toggle-group">
-        <button class="active" onclick="setPayoffType('yes',this)">Buy Yes</button>
-        <button onclick="setPayoffType('no',this)">Buy No</button>
-        <button onclick="setPayoffType('both',this)">两者对比</button>
-      </div>
-      <button class="preset-btn" onclick="applyPreset1()">真实案例：BTC &gt; $72,000</button>
-    </div>
-    <div class="chart-container"><canvas id="payoffChart"></canvas></div>
-  </div>
-
-  <div class="section">
-    <h2>PM 台阶 vs Deribit 斜坡</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是一个台阶（到价就是 $1，没到就是 $0）。Deribit 用 Call Spread 近似，像一条陡斜坡。组合宽度越窄，斜坡越像台阶——但成本也越高。</p>
-    <div class="controls">
-      <div class="control-group">
-        <label>目标价位 (K)</label>
-        <input type="range" id="strikeSlider2" min="60000" max="100000" value="85000" step="500">
-        <span class="val" id="strikeVal2">$85,000</span>
-      </div>
-      <div class="control-group">
-        <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
-        <input type="range" id="widthSlider" min="200" max="8000" value="3000" step="200">
-        <span class="val" id="widthVal">$3,000</span>
-      </div>
-      <div class="toggle-group">
-        <button class="active" onclick="setCompareMode('both2',this)">PM + Deribit</button>
-        <button onclick="setCompareMode('pm',this)">只看 PM</button>
-        <button onclick="setCompareMode('deribit',this)">只看 Deribit</button>
-      </div>
-      <button class="preset-btn" onclick="applyPreset2()">真实案例：K=$72,000 ΔK=$1,000</button>
-    </div>
-    <div class="chart-container"><canvas id="compareChart"></canvas></div>
-  </div>
-
-  <div class="section">
-    <h2>组合后结果：买 PM + 卖 Deribit Spread</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy Yes + 在 Deribit 上卖出对应的 Call Spread，组合后的盈亏长这样。理想情况下，组合后的整体形状会比单独持有一边更平一些，更接近中性。</p>
-    <div class="disclaimer" style="margin-bottom:16px;">但现实里仍然会受到时间点、价格来源、滑点、手续费和执行方式的影响，因此不能简单理解为真正无风险。下图展示的是简化模型下的理论效果。</div>
-    <div class="controls">
-      <div class="control-group">
-        <label>目标价位 (K)</label>
-        <input type="range" id="strikeSlider3" min="60000" max="100000" value="85000" step="500">
-        <span class="val" id="strikeVal3">$85,000</span>
-      </div>
-      <div class="control-group">
-        <label>组合宽度 (ΔK)</label>
-        <input type="range" id="widthSlider2" min="200" max="8000" value="3000" step="200">
-        <span class="val" id="widthVal2">$3,000</span>
-      </div>
-      <div class="control-group">
-        <label>PM 买入价</label>
-        <input type="range" id="pmPrice" min="10" max="90" value="50" step="1">
-        <span class="val" id="pmPriceVal">$0.50</span>
-      </div>
-      <button class="preset-btn" onclick="applyPreset3()">真实案例：K=$72,000 价格$0.54</button>
-    </div>
-    <div class="chart-container"><canvas id="comboChart"></canvas></div>
-  </div>
-
-  <!-- 1.6 漏斗图 -->
-  <div class="section">
-    <h2>研究优先级漏斗</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">从最大范围一步步收窄，直到锁定第一优先研究对象。</p>
-    <div class="funnel">
-      <div class="funnel-step" style="width:100%;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);">所有 PM 加密市场<div class="funnel-sub">5000+ 活跃市场</div></div>
-      <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:82%;background:rgba(99,102,241,0.13);border:1px solid rgba(99,102,241,0.35);">只看 BTC（流动性最好）<div class="funnel-sub">筛掉长尾小币种</div></div>
-      <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:64%;background:rgba(99,102,241,0.20);border:1px solid rgba(99,102,241,0.45);">只看 Above / Below（适配度最高）<div class="funnel-sub">筛掉 Up/Down、Range、Hit Price</div></div>
-      <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:48%;background:rgba(99,102,241,0.28);border:1px solid rgba(99,102,241,0.55);">只看 1H / 4H / Daily（可对冲）<div class="funnel-sub">筛掉 5min/15min（波动太剧烈）和周线（资金效率低）</div></div>
-      <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:34%;background:rgba(99,102,241,0.40);border:1px solid var(--accent);">价格在 40%–60%（收益权重最大）<div class="funnel-sub">这个区间分到的 Maker Rebate 最多</div></div>
-      <div class="funnel-arrow">▼</div>
-      <div class="funnel-step" style="width:24%;background:var(--accent);color:white;font-size:1.05rem;">Buy Yes / Buy No 优先<div class="funnel-sub" style="color:rgba(255,255,255,0.75);">无库存起手，最直接可执行</div></div>
-    </div>
-  </div>
-
-  <!-- ===== 第一章结论 ===== -->
-  <div class="summary-box">
-    <h2>第一章结论</h2>
-    <p>第一章的工作，是把 PM 加密问题整理成可研究的结构：先分成 4 类问题，再展开为 16 个执行方向，最后在无库存起手的前提下排出优先顺序。</p>
-    <p style="margin-top:12px;">完成这些梳理后，我们确认：<strong>Above / Below 是最适合作为第一阶段入口的题型</strong>。它与 Deribit 的适配度最高、结构最简单、最容易标准化。在操作层面，Buy Yes 和 Buy No 是无库存起手时最自然的两条路径。</p>
-    <p style="margin-top:12px;">因此，第二章将不再平均讨论 4 类问题，而是<strong>顺着这个结论，专门围绕 Above / Below 展开</strong>——先认识这个方向里的现实风险，再从中筛出第一批值得观察的实盘问题。</p>
-  </div>
-
-  <!-- ================================================================ -->
-  <!--                          第二章                                   -->
-  <!-- ================================================================ -->
-  <div class="chapter-divider ch2" id="ch2">
-    <h2 style="color:var(--ch2);">第二章</h2>
-    <p class="ch-sub">认识风险，并筛出第一批值得监控的实盘问题</p>
-  </div>
-
-  <!-- 2.0 承接 -->
-  <div class="section ch2">
-    <h2>第二章从哪里开始</h2>
-    <div class="prose">
-      <p>第一章已经帮我们选出了题型：<b>Above / Below</b>。第二章不会再回头讨论其他三类问题，而是只围绕 Above / Below 往下走。</p>
-      <p>但选对题型并不意味着可以直接开始监控。在真正进入实盘观察之前，第二章需要先做两件事：</p>
-      <p style="margin-top:8px;"><b>1.</b> 认识这个方向里最直接的现实风险<br><b>2.</b> 在此基础上，筛出第一批更值得观察的实盘问题</p>
-      <p>把这两步走完之后，第三章才正式进入监控。</p>
-    </div>
-  </div>
-
-  <!-- 2.0b 第二章研究动机 -->
-  <div class="section ch2">
-    <h2>为什么没有在这里停下来</h2>
-    <div class="prose">
-      <p>当我发现 PM 和 Deribit 的截止时间并不对等时，我知道很多人会在这里停下来。因为一旦时间不对齐，比较就不再完美，结构也不再工整，看起来像是一个"不值得继续"的问题。</p>
-      <p>但对我来说，这种感觉反而并不陌生。过去 12 年里，我在很多跨市场结构里做过类似的事：从最早俄罗斯、中国、日本、韩国之间的 BTC 价格差与山寨币三角套利，到后来数字货币 ETF 和加密股票之间的含量套利，每一次真正值得研究的机会，几乎都伴随着某种"不标准""不对等"或"不完全可比"的风险。</p>
-      <p>也正因为如此，我很少把这类问题理解成"这里有缺陷，所以不能做"，而更习惯把它理解成"这里有风险，所以值得继续研究"。因为很多时候，市场里真正隐藏利润的地方，本来就不是标准化最完美、所有人都一眼看懂的地方，而恰恰是那些存在错位、存在摩擦、存在不一致的地方。</p>
-      <p>所以第二章并不是在告诉自己"这个风险太麻烦了，算了"，而是在继续沿着同一条思路往前走：先发现风险，再解决风险，最后判断这是不是一个值得拥抱的风险。</p>
-    </div>
-  </div>
-
-  <!-- 2.1 核心风险：时间差 -->
-  <div class="section ch2">
-    <h2 id="timerisk">核心风险：两边的时间对不上</h2>
-    <div class="prose">
-      <p>即使你已经找到了一个 PM 问题和一个 Deribit 组合，它们看上去在问的同一件事——比如"BTC 到某个时间点有没有站上 72,000"——但它们<b>结束的时间不一定是同一个时间点</b>。</p>
-      <p>PM 每个问题的结束时间是由 PM 自己定的，不完全统一。有些问题到纽约时间某一天的某个整点结束，有些到 UTC 的 00:00，有些到其他时间。</p>
-      <p>而 Deribit 的标准期权到期时间相对固定：通常是 UTC 08:00。</p>
-      <p>这就造成了一个很现实的问题：<b>PM 问题结束的那一刻，和 Deribit 期权到期的那一刻，中间可能差几个小时甚至更多</b>。</p>
-      <p>在这段时间差里，BTC 的价格可能会变化。这意味着：即使你在两边做了"看起来对称"的操作，最终结果仍然可能因为时间差而出现偏差。</p>
-      <p>这就是第二章要面对的核心风险。它不复杂，但很直接：<b>两边的钟不同步</b>。</p>
-    </div>
-  </div>
-
-  <!-- 2.2 方法1 -->
-  <div class="section ch2">
-    <h2 id="methods">两种最现实的处理方法</h2>
-
-    <div class="method-card">
-      <h3>方法 1：优先选择结束时间接近的问题</h3>
-      <p>这是一种"事前筛选"的思路。</p>
-      <p>与其在进入之后再去想怎么补救时间差，不如<b>一开始就尽量挑两边结束时间更接近的组合</b>。如果 PM 问题的结束时间和 Deribit 期权的到期时间只差一两个小时，那这段时间差带来的风险就已经被压到很小了。</p>
-      <p>这不需要任何复杂技巧，只需要在观察市场的时候多看一眼时间。</p>
-      <div class="method-conclusion">第一种方法，不是去战胜时间差，而是先尽量避开时间差。</div>
-    </div>
-
-    <div class="method-card">
-      <h3>方法 2：在合适的时候提前平仓</h3>
-      <p>这是一种"事后处理"的思路。</p>
-      <p>不是所有问题都必须拿到最后正式结束。如果你进场之后，BTC 价格已经大幅偏离目标价位，结果基本已经确定——比如问的是"高于 72,000"，而 BTC 已经涨到了 78,000——那这张票的价值已经非常接近 $1，主要机会已经兑现。</p>
-      <p>这时候继续持有到最后，并不会多赚多少，反而会白白暴露在最后阶段的时间差风险里。提前结束，不是"没坚持到底"，而是<b>主动控制最后阶段的不确定性</b>。</p>
-      <div class="method-conclusion">第二种方法，不是硬扛时间差，而是在主要机会已经出现后，主动结束。</div>
-    </div>
-  </div>
-
-  <!-- 2.3 两种方法的关系 -->
-  <div class="section ch2">
-    <h2>这两种方法不是对立的，而是前后配合的</h2>
-    <div class="relation-box">
-      <p>第一种方法用在<b>进入之前</b>——帮你筛选，尽量挑时间差小的问题。</p>
-      <p>第二种方法用在<b>进入之后</b>——帮你处理，在主要机会兑现后主动退出。</p>
-      <p class="highlight">先把问题挑简单一点，再把退出时机掌握主动一点。</p>
-      <p style="margin-top:10px;">两步叠加在一起，才是第二章完整的风险应对思路。</p>
-    </div>
-  </div>
-
-  <!-- 2.4 为什么先筛这几个问题 -->
-  <div class="section ch2">
-    <h2>为什么第二章先筛出这几个问题</h2>
-    <div class="prose">
-      <p>第一章已经把题型收敛到 Above / Below。第二章识别出了时间差这个关键风险，并提出了两种处理方法。</p>
-      <p>因此，第二章不会平均观察所有 Above / Below 问题，而是<b>有筛选逻辑地</b>挑出一批样本。筛选标准是：</p>
-      <p style="margin-top:8px;">
-        &bull; 时间关系更直接（两边结束时间尽量接近）<br>
-        &bull; 规则更简单（只看一个明确价位）<br>
-        &bull; 更适合用前面两种方法处理<br>
-        &bull; 更适合作为第三章的第一批监控样本
-      </p>
-      <p style="margin-top:10px;">下面这张表，就是按这个逻辑筛出来的。</p>
-    </div>
-  </div>
-
-  <!-- 2.5 实盘问题筛选表 -->
-  <div class="section ch2">
-    <h2 id="samples">第一批观察样本</h2>
-    <p style="color:var(--muted);margin-bottom:12px;">只列 Above / Below，只用 BTC 举例。重点是解释时间关系和为什么值得先观察。</p>
-    <div class="table-wrap">
-      <table class="ch2">
-        <thead><tr>
-          <th>PM 实盘问题（示意）</th>
-          <th>Deribit 对应组合</th>
-          <th>时间关系</th>
-          <th>核心风险</th>
-          <th>为什么值得先观察</th>
-          <th>更适合的处理方式</th>
-        </tr></thead>
-        <tbody>
-          <tr>
-            <td>BTC 在 3/21 08:00 UTC 高于 $84,000？</td>
-            <td>3/21 到期、84,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-teal">几乎同时</span></td>
-            <td>时间差极小，风险最低</td>
-            <td>两边结束时间几乎重合，最适合第一批样本</td>
-            <td>方法 1（时间已经接近）</td>
-          </tr>
-          <tr>
-            <td>BTC 在 3/21 12:00 UTC 高于 $85,000？</td>
-            <td>3/21 到期（08:00 UTC）、85,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-midhigh">PM 晚 4 小时</span></td>
-            <td>Deribit 先到期，PM 还有 4 小时价格变化</td>
-            <td>时间差不大，结构简单，适合观察 Deribit 到期后的价格走势</td>
-            <td>方法 1 + 方法 2（如果 Deribit 到期时结果已明显，可提前平仓）</td>
-          </tr>
-          <tr>
-            <td>BTC 在 3/21 00:00 UTC 高于 $83,000？</td>
-            <td>3/21 到期（08:00 UTC）、83,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-midhigh">PM 早 8 小时</span></td>
-            <td>PM 先结束，Deribit 还有 8 小时未到期</td>
-            <td>PM 先结算，需要在 PM 结算后处理 Deribit 剩余仓位</td>
-            <td>方法 2（PM 结算后，Deribit 仓位可选择立即平仓）</td>
-          </tr>
-          <tr>
-            <td>BTC Daily 高于 $86,000？（到纽约收盘）</td>
-            <td>同日到期、86,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-mid">差 ~12 小时</span></td>
-            <td>纽约收盘 21:00 UTC vs Deribit 08:00 UTC，差半天</td>
-            <td>时间差明显，但如果中途价格已远离目标价，仍可观察</td>
-            <td>方法 2 为主（密切关注价格远离后提前结束）</td>
-          </tr>
-          <tr>
-            <td>BTC 4H 高于 $82,000？（某个 4 小时窗口结束）</td>
-            <td>最近到期、82,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-mid">不完全对齐</span></td>
-            <td>4H 窗口结束时间不一定与 Deribit 到期对齐</td>
-            <td>时间框架短，观察价格快速远离目标价时的行为</td>
-            <td>方法 1（优先挑窗口接近 08:00 UTC 的）+ 方法 2</td>
-          </tr>
-          <tr>
-            <td>BTC 周五高于 $80,000？</td>
-            <td>周五到期、80,000 附近窄 Call Spread</td>
-            <td><span class="badge badge-teal">通常接近</span></td>
-            <td>Deribit 周五期权 08:00 UTC 到期，PM 周线问题也常在周五结束</td>
-            <td>周线问题时间框架长，给了更多观察窗口</td>
-            <td>方法 1（周五到期天然接近）+ 方法 2（周中价格已远离可提前）</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="callout" style="margin-top:16px;">
-      <b>说明：</b>上面的问题和价格都是示意用的，不是实时行情。实际观察时需要去 PM 和 Deribit 上查看当前活跃的具体问题和到期时间。这张表的意义在于展示<b>筛选逻辑</b>，而不是给出现成的交易机会。
-    </div>
-  </div>
-
-  <!-- ===== 第二章结论 ===== -->
-  <div class="summary-box ch2">
-    <h2 style="color:var(--ch2);">第二章结论</h2>
-    <p>第一章帮我们选出了 Above / Below。第二章进一步认识到：这个方向里最直接的现实风险之一，是<strong>PM 问题结束时间与 Deribit 期权到期时间不一致</strong>。</p>
-    <p style="margin-top:12px;">为了面对这个风险，第二章只保留了两种最现实的方法：<strong>优先选择结束时间接近的问题</strong>（事前筛选），以及<strong>在合适的时候提前平仓</strong>（事后处理）。两种方法前后配合，先把问题挑简单一点，再把退出时机掌握主动一点。</p>
-    <p style="margin-top:12px;">在此基础上，第二章已经筛出了一批更直接的实盘问题，作为下一阶段的观察样本。这些样本的共同特点是：时间关系相对清晰、规则简单、更适合用上述两种方法处理。</p>
-
-    <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(13,148,136,0.25);">
-      <p style="font-weight:700;color:var(--ch2);margin-bottom:8px;">第三章预告</p>
-      <p>第三章将不再重新讨论题型和风险，而是正式进入监控层：基于第二章筛出的样本，搭建实际的数据观察和价格对比工具。</p>
-    </div>
-
-    <p style="margin-top:20px;font-size:0.9rem;color:var(--muted);font-weight:600;">如果第一章解决的是"研究哪一类问题"，第二章解决的就是"在这个方向里，哪些问题最值得先观察，以及为什么"。第三章将顺着这个结果，正式进入监控。</p>
+  <!-- ===== 章节导航卡片 ===== -->
+  <div class="chapter-cards">
+    <a href="ch1.html" class="chapter-link-card ch1-card">
+      <div class="ch-label">第一章</div>
+      <div class="ch-title">先搞清楚：PM 加密市场的问题长什么样</div>
+      <div class="ch-desc">把 PM 加密问题整理成可研究的结构：先分成 4 类问题，再展开为 16 个执行方向，最后在无库存起手的前提下排出优先顺序。</div>
+      <div class="ch-arrow">阅读第一章 →</div>
+    </a>
+    <a href="ch2.html" class="chapter-link-card ch2-card">
+      <div class="ch-label">第二章</div>
+      <div class="ch-title">认识风险，并筛出第一批值得监控的实盘问题</div>
+      <div class="ch-desc">识别 Above / Below 方向里最直接的现实风险——时间差，提出两种处理方法，并筛出第一批观察样本。</div>
+      <div class="ch-arrow">阅读第二章 →</div>
+    </a>
   </div>
 
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script>
-const tableData = [
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'K 附近窄上涨组合', suggest:'用 72,000 附近的窄 Call Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'最简单、最标准的一类' },
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用 Call Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合做标准化监控' },
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Buy', book:'No ask', deribit:'K 附近窄下跌组合', suggest:'用 72,000 附近的窄 Put Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'与单一价位判断最贴近' },
-  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用 Put Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合作为主监控对象' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'窄上涨组合', suggest:'用一个很窄的上涨组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'方向简单，但起点和结算时间容易带来误差' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用上涨组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'逻辑能成立，但卖出不是无条件可做' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Buy', book:'No ask', deribit:'窄下跌组合', suggest:'用一个很窄的下跌组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'也算简单，但仍有起点和时间误差' },
-  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用下跌组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'结构能做，但同样受库存约束' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'区间组合', suggest:'用"夹在中间"的区间组合去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'可以做，但比单一价位题更复杂' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'区间组合反向', suggest:'用区间组合反向去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'能研究，但腿数更多' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Buy', book:'No ask', deribit:'两翼组合', suggest:'用"两边都照顾到"的组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'要同时考虑区间上边和下边' },
-  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Sell', book:'No bid', deribit:'两翼组合反向', suggest:'用两翼组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'可以做，但执行更复杂' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似组合', suggest:'只能做近似组合', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'PM 看"中途碰到没有"，最难配' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似组合反向', suggest:'只能做近似组合反向去配', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'做起来不干净' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Buy', book:'No ask', deribit:'勉强近似', suggest:'只能勉强近似', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'"没碰到"比"碰到"更难表达' },
-  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Sell', book:'No bid', deribit:'勉强近似反向', suggest:'只能勉强近似反向去配', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'不适合新手优先做' },
-];
-
-let filterState = { type: 'all', op: 'all' };
-function renderTable() {
-  const tbody = document.querySelector('#mainTable tbody');
-  tbody.innerHTML = '';
-  tableData.forEach(r => {
-    if (filterState.type !== 'all' && r.type !== filterState.type) return;
-    if (filterState.op !== 'all' && r.op.toLowerCase() !== filterState.op) return;
-    const tr = document.createElement('tr');
-    if (r.type === 'above') tr.classList.add('row-highlight');
-    tr.innerHTML = `<td>${r.ex}</td><td>${r.label}</td><td>${r.dir}</td><td>${r.op}</td><td>${r.book}</td><td>${r.deribit}</td><td style="font-size:0.8rem;">${r.suggest}</td><td><span class="badge ${r.badge}">${r.fit}</span></td><td style="font-size:0.8rem;color:var(--muted);">${r.reason}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-function filterTable(dim, val, btn) {
-  filterState[dim] = val;
-  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderTable();
-}
-renderTable();
-
-function switchTab(id, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tab-' + id).classList.add('active');
-}
-
-function applyPreset1() {
-  document.getElementById('strikeSlider').value = 72000;
-  document.getElementById('strikeVal').textContent = '$72,000';
-  payoffType = 'both';
-  const btns = document.getElementById('payoffChart').parentElement.parentElement.querySelectorAll('.toggle-group button');
-  btns.forEach(b => b.classList.remove('active'));
-  btns[2].classList.add('active');
-  drawPayoff();
-}
-function applyPreset2() {
-  document.getElementById('strikeSlider2').value = 72000;
-  document.getElementById('strikeVal2').textContent = '$72,000';
-  document.getElementById('widthSlider').value = 1000;
-  document.getElementById('widthVal').textContent = '$1,000';
-  compareMode = 'both2';
-  const btns = document.getElementById('compareChart').parentElement.parentElement.querySelectorAll('.toggle-group button');
-  btns.forEach(b => b.classList.remove('active'));
-  btns[0].classList.add('active');
-  drawCompare();
-}
-function applyPreset3() {
-  document.getElementById('strikeSlider3').value = 72000;
-  document.getElementById('strikeVal3').textContent = '$72,000';
-  document.getElementById('widthSlider2').value = 1000;
-  document.getElementById('widthVal2').textContent = '$1,000';
-  document.getElementById('pmPrice').value = 54;
-  document.getElementById('pmPriceVal').textContent = '$0.54';
-  drawCombo();
-}
-
-let payoffType = 'yes';
-const payoffCtx = document.getElementById('payoffChart').getContext('2d');
-let payoffChart;
-function setPayoffType(t, btn) {
-  payoffType = t;
-  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  drawPayoff();
-}
-function drawPayoff() {
-  const K = +document.getElementById('strikeSlider').value;
-  const lo = K - 15000, hi = K + 15000;
-  const labels = [], yesData = [], noData = [];
-  for (let s = lo; s <= hi; s += 300) {
-    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    yesData.push(s >= K ? 1 : 0);
-    noData.push(s < K ? 1 : 0);
-  }
-  const datasets = [];
-  if (payoffType === 'yes' || payoffType === 'both') datasets.push({ label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
-  if (payoffType === 'no' || payoffType === 'both') datasets.push({ label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
-  if (payoffChart) payoffChart.destroy();
-  payoffChart = new Chart(payoffCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
-}
-document.getElementById('strikeSlider').addEventListener('input', e => { document.getElementById('strikeVal').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff(); });
-drawPayoff();
-
-let compareMode = 'both2';
-const compareCtx = document.getElementById('compareChart').getContext('2d');
-let compareChart;
-function setCompareMode(m, btn) { compareMode = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompare(); }
-function drawCompare() {
-  const K = +document.getElementById('strikeSlider2').value;
-  const dK = +document.getElementById('widthSlider').value;
-  const lo = K - 15000, hi = K + 15000;
-  const labels = [], pmData = [], deribitData = [];
-  for (let s = lo; s <= hi; s += 200) { labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s); pmData.push(s >= K ? 1 : 0); deribitData.push(Math.max(0, Math.min((s - K) / dK, 1))); }
-  const datasets = [];
-  if (compareMode !== 'deribit') datasets.push({ label: 'PM Binary（台阶）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
-  if (compareMode !== 'pm') datasets.push({ label: `Deribit Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
-  if (compareChart) compareChart.destroy();
-  compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
-}
-document.getElementById('strikeSlider2').addEventListener('input', e => { document.getElementById('strikeVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); });
-document.getElementById('widthSlider').addEventListener('input', e => { document.getElementById('widthVal').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); });
-drawCompare();
-
-const comboCtx = document.getElementById('comboChart').getContext('2d');
-let comboChart;
-function drawCombo() {
-  const K = +document.getElementById('strikeSlider3').value;
-  const dK = +document.getElementById('widthSlider2').value;
-  const pPrice = +document.getElementById('pmPrice').value / 100;
-  const lo = K - 15000, hi = K + 15000;
-  const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
-  for (let s = lo; s <= hi; s += 200) {
-    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    const pm = (s >= K ? 1 : 0) - pPrice; pmPnl.push(pm);
-    const db = pPrice - Math.max(0, Math.min((s - K) / dK, 1)); deribitPnl.push(db);
-    comboPnl.push(pm + db);
-  }
-  if (comboChart) comboChart.destroy();
-  comboChart = new Chart(comboCtx, { type: 'line', data: { labels, datasets: [
-    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 2, stepped: true },
-    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2 },
-    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: true, pointRadius: 0, borderWidth: 3 },
-    { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
-}
-document.getElementById('strikeSlider3').addEventListener('input', e => { document.getElementById('strikeVal3').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
-document.getElementById('widthSlider2').addEventListener('input', e => { document.getElementById('widthVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
-document.getElementById('pmPrice').addEventListener('input', e => { document.getElementById('pmPriceVal').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo(); });
-drawCombo();
-</script>
 </body>
 </html>

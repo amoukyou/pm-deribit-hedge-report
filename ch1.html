@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第一章 — PM × Deribit 对冲研究报告</title>
+<style>
+  :root {
+    --bg: #f8f9fc;
+    --card: #ffffff;
+    --border: #e2e5ed;
+    --text: #1a1d27;
+    --muted: #6b7280;
+    --accent: #4f46e5;
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #ca8a04;
+    --blue: #2563eb;
+    --highlight-row: #f0f0ff;
+    --ch2: #0d9488;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 56px; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0 0 60px;
+  }
+  .hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+  }
+  .hero h1 { font-size: 2rem; margin-bottom: 8px; }
+  .hero .sub { color: var(--muted); font-size: 1rem; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* Chapter divider */
+  .chapter-divider {
+    margin-top: 64px;
+    padding: 32px 0 0;
+    border-top: 3px solid var(--accent);
+    text-align: center;
+  }
+  .chapter-divider.ch2 { border-top-color: var(--ch2); }
+  .chapter-divider h2 {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+    border-bottom: none;
+    display: block;
+  }
+  .chapter-divider .ch-sub { color: var(--muted); font-size: 0.95rem; }
+
+  .section { margin-top: 48px; }
+  .section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
+  }
+  .section.ch2 h2 { border-bottom-color: var(--ch2); }
+
+  .prose {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .prose p + p { margin-top: 14px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(79,70,229,0.1); }
+  .card .tag {
+    display: inline-block; font-size: 0.75rem; padding: 2px 10px;
+    border-radius: 20px; margin-bottom: 8px; font-weight: 600;
+  }
+  .card .tag.high { background: rgba(22,163,74,0.1); color: var(--green); }
+  .card .tag.mid { background: rgba(202,138,4,0.1); color: var(--yellow); }
+  .card .tag.low { background: rgba(220,38,38,0.1); color: var(--red); }
+  .card .title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+  .card .desc { font-size: 0.9rem; color: var(--muted); }
+  .card .example { font-size: 0.85rem; color: var(--blue); margin-top: 8px; font-style: italic; }
+
+  .op-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 600px; }
+  .op-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .op-card .op-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .op-card .op-desc { font-size: 0.85rem; color: var(--muted); }
+
+  .callout {
+    background: #fefce8; border: 1px solid #fde68a; border-radius: 10px;
+    padding: 16px 20px; margin-top: 16px; font-size: 0.9rem;
+    line-height: 1.8; color: #92400e;
+  }
+  .callout b { color: #78350f; }
+
+  .table-wrap { overflow-x: auto; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th, td { padding: 9px 10px; border: 1px solid var(--border); text-align: left; }
+  th { background: var(--card); color: var(--accent); font-weight: 600; position: sticky; top: 0; z-index: 1; }
+  .ch2 th { color: var(--ch2); }
+  tr:nth-child(even) { background: #f1f5f9; }
+  tr.row-highlight { background: var(--highlight-row) !important; }
+  .fit-high { color: var(--green); font-weight: 700; }
+  .fit-mid { color: var(--yellow); }
+  .fit-midhigh { color: #65a30d; font-weight: 600; }
+  .fit-low { color: var(--red); }
+  .fit-vlow { color: var(--red); font-style: italic; }
+  .badge {
+    display: inline-block; font-size: 0.7rem; padding: 1px 8px;
+    border-radius: 10px; font-weight: 600;
+  }
+  .badge-high { background: rgba(22,163,74,0.12); color: var(--green); }
+  .badge-midhigh { background: rgba(101,163,13,0.12); color: #65a30d; }
+  .badge-mid { background: rgba(202,138,4,0.12); color: var(--yellow); }
+  .badge-low { background: rgba(220,38,38,0.1); color: var(--red); }
+  .badge-teal { background: rgba(13,148,136,0.12); color: var(--ch2); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .filters button {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 16px; border-radius: 20px; cursor: pointer;
+    font-size: 0.85rem; transition: all 0.2s;
+  }
+  .filters button:hover { border-color: var(--accent); }
+  .filters button.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+  .tab {
+    padding: 10px 24px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .funnel { display: flex; flex-direction: column; align-items: center; gap: 0; margin-top: 20px; }
+  .funnel-step {
+    padding: 14px 0; text-align: center; font-weight: 600;
+    font-size: 0.95rem; border-radius: 8px; position: relative;
+  }
+  .funnel-step .funnel-sub { font-size: 0.8rem; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .funnel-arrow { color: var(--muted); font-size: 1.2rem; margin: 2px 0; }
+
+  .chart-container {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-top: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  canvas { width: 100% !important; max-height: 360px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 16px; }
+  .control-group { display: flex; flex-direction: column; gap: 4px; }
+  .control-group label { font-size: 0.8rem; color: var(--muted); }
+  .control-group input[type="range"] { width: 180px; accent-color: var(--accent); }
+  .control-group .val { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+
+  .toggle-group { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .toggle-group button {
+    background: var(--card); border: none; border-right: 1px solid var(--border);
+    color: var(--muted); padding: 8px 16px; cursor: pointer;
+    font-size: 0.85rem; transition: all 0.2s;
+  }
+  .toggle-group button:last-child { border-right: none; }
+  .toggle-group button.active { background: var(--accent); color: white; }
+
+  .preset-btn {
+    background: rgba(79,70,229,0.08); border: 1px solid var(--accent);
+    color: var(--accent); padding: 6px 16px; border-radius: 8px;
+    cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
+  }
+  .preset-btn:hover { background: var(--accent); color: white; }
+
+  .priority-list { list-style: none; }
+  .priority-list li {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 18px; margin-bottom: 8px; display: flex;
+    align-items: center; gap: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .priority-list .rank {
+    width: 32px; height: 32px; background: var(--accent); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+  }
+  .priority-list .rank.dim { background: var(--border); color: var(--muted); }
+  .priority-list .p-title { font-weight: 600; }
+  .priority-list .p-note { font-size: 0.85rem; color: var(--muted); }
+
+  .summary-box {
+    background: linear-gradient(135deg, #eef2ff, #f0fdf4);
+    border: 2px solid var(--accent); border-radius: 14px;
+    padding: 28px 32px; margin-top: 48px;
+  }
+  .summary-box.ch2 { border-color: var(--ch2); background: linear-gradient(135deg, #f0fdfa, #f0fdf4); }
+  .summary-box h2 { border-bottom: none; display: block; margin-bottom: 12px; }
+  .summary-box p { font-size: 0.95rem; line-height: 1.9; }
+
+  .disclaimer {
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
+    padding: 14px 20px; font-size: 0.82rem; color: #9a3412;
+    line-height: 1.7; margin-top: 12px;
+  }
+
+  /* Method cards */
+  .method-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px 28px; margin-top: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .method-card h3 {
+    font-size: 1.1rem; margin-bottom: 12px; color: var(--ch2);
+  }
+  .method-card p { font-size: 0.92rem; line-height: 1.8; }
+  .method-card p + p { margin-top: 10px; }
+  .method-card .method-conclusion {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+    font-weight: 700; color: var(--ch2); font-size: 0.9rem;
+  }
+
+  /* Relation box */
+  .relation-box {
+    background: rgba(13,148,136,0.06); border: 1px solid rgba(13,148,136,0.25);
+    border-radius: 12px; padding: 20px 24px; margin-top: 24px;
+  }
+  .relation-box p { font-size: 0.92rem; line-height: 1.8; }
+  .relation-box .highlight { font-weight: 700; color: var(--ch2); font-size: 0.95rem; margin-top: 10px; }
+
+  /* Top nav */
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+  .topnav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; gap: 0;
+    height: 48px; overflow-x: auto;
+  }
+  .topnav-inner a {
+    color: var(--muted); text-decoration: none; font-size: 0.85rem;
+    font-weight: 600; padding: 0 16px; height: 48px; display: flex;
+    align-items: center; white-space: nowrap; border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .topnav-inner a:hover { color: var(--text); }
+  .topnav-inner a.nav-ch1 { border-bottom-color: transparent; }
+  .topnav-inner a.nav-ch1:hover { border-bottom-color: var(--accent); color: var(--accent); }
+  .topnav-inner a.nav-ch2 { border-bottom-color: transparent; }
+  .topnav-inner a.nav-ch2:hover { border-bottom-color: var(--ch2); color: var(--ch2); }
+  .topnav-inner a.nav-ch1.active-nav { color: var(--accent); border-bottom-color: var(--accent); }
+  .topnav-inner a.nav-ch2.active-nav { color: var(--ch2); border-bottom-color: var(--ch2); }
+  .topnav-inner .nav-brand {
+    color: var(--text); font-weight: 700; font-size: 0.9rem;
+    margin-right: auto; padding-left: 0;
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.5rem; }
+    .op-cards { grid-template-columns: 1fr; }
+    .controls { flex-direction: column; align-items: flex-start; }
+    .topnav-inner a { padding: 0 10px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="index.html" class="nav-brand">PM × Deribit</a>
+    <a href="index.html">首页</a>
+    <a href="ch1.html" class="nav-ch1 active-nav">第一章</a>
+    <a href="ch2.html" class="nav-ch2">第二章</a>
+  </div>
+</nav>
+
+<!-- ===== CHAPTER 1 HERO ===== -->
+<div class="hero">
+  <h1 style="color:var(--accent);">第一章</h1>
+  <p class="sub">先搞清楚：PM 加密市场的问题长什么样，以及从哪一类开始研究更合理</p>
+</div>
+
+<div class="container">
+
+  <!-- 1.1 四类问题 -->
+  <div class="section">
+    <h2>PM 加密市场的 4 类问题</h2>
+    <p style="color:var(--muted);margin-bottom:16px;">PM 本身就把加密问题分成了 4 种固定格式。每个问题最终只有 Yes / No 两个结果，赢的一边可以兑换 1 美元，输的一边是 0。</p>
+    <div class="cards">
+      <div class="card">
+        <span class="tag mid">适配度：中</span>
+        <div class="title">Up / Down</div>
+        <div class="desc">到某个时间点，价格比起点<b>高</b>还是<b>低</b>？</div>
+        <div class="example">例：BTC 1H Up or Down</div>
+      </div>
+      <div class="card" style="border-color:var(--accent);box-shadow:0 2px 8px rgba(79,70,229,0.1);">
+        <span class="tag high">适配度：高 — 核心研究对象</span>
+        <div class="title">Above / Below</div>
+        <div class="desc">到最后，价格有没有<b>站上</b>某个明确价位？</div>
+        <div class="example">例：BTC 到某日高于 72,000？</div>
+      </div>
+      <div class="card">
+        <span class="tag mid">适配度：中上</span>
+        <div class="title">Price Range</div>
+        <div class="desc">到最后，价格有没有<b>落在</b>某个区间里？</div>
+        <div class="example">例：BTC 在 72,000–74,000 之间？</div>
+      </div>
+      <div class="card">
+        <span class="tag low">适配度：低</span>
+        <div class="title">Hit Price</div>
+        <div class="desc">这段时间里，价格有没有<b>碰到过</b>某个价位？</div>
+        <div class="example">例：BTC 本周碰到 80,000？</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1.2 四个基础操作 -->
+  <div class="section">
+    <h2>4 个基础操作</h2>
+    <p style="color:var(--muted);margin-bottom:16px;">每类问题都有 4 种操作方式。Buy = 拿钱买票，Sell = 手里有票才能卖。</p>
+    <div class="op-cards">
+      <div class="op-card" style="border-color:var(--green);">
+        <div class="op-name" style="color:var(--green);">Buy Yes</div>
+        <div class="op-desc">买"这件事会发生"的票<br>看 Yes ask 盘口</div>
+      </div>
+      <div class="op-card" style="border-color:var(--red);">
+        <div class="op-name" style="color:var(--red);">Sell Yes</div>
+        <div class="op-desc">卖"这件事会发生"的票<br>看 Yes bid 盘口 · 需要库存</div>
+      </div>
+      <div class="op-card" style="border-color:var(--green);">
+        <div class="op-name" style="color:var(--green);">Buy No</div>
+        <div class="op-desc">买"这件事不会发生"的票<br>看 No ask 盘口</div>
+      </div>
+      <div class="op-card" style="border-color:var(--red);">
+        <div class="op-name" style="color:var(--red);">Sell No</div>
+        <div class="op-desc">卖"这件事不会发生"的票<br>看 No bid 盘口 · 需要库存</div>
+      </div>
+    </div>
+    <div class="callout">
+      <b>为什么 Sell 需要库存？</b><br>
+      Buy 很像"拿钱直接买一张票"——你只需要有 USDC，就可以下单买入。但 Sell 在 PM 里不是普通意义上的"空手卖出"。你必须先持有对应的结果代币（Yes 票或 No 票），才能挂卖单。虽然 PM 也支持"把 1 美元拆成一张 Yes 票 + 一张 No 票"，但那已经不是空手起步，而是"先准备库存，再卖"。<br><br>
+      所以在<b>无库存起手</b>的前提下，Buy 是最自然、最直接的操作路径，这也是后面优先级偏向 Buy 的核心原因。
+    </div>
+  </div>
+
+  <!-- 1.3 16 个玩法总表 -->
+  <div class="section">
+    <h2 id="table16">16 个玩法统计总表</h2>
+    <p style="color:var(--muted);margin-bottom:6px;">4 类问题 × Yes/No 两个方向 × Buy/Sell 两种操作 = 16 条独立路径。默认展示全部 16 行，也可以用下面的按钮筛选。</p>
+    <p style="color:var(--accent);font-size:0.85rem;margin-bottom:16px;font-weight:600;">紫色高亮行 = Above / Below（核心研究对象）</p>
+    <div class="filters">
+      <span style="color:var(--muted);font-size:0.85rem;line-height:32px;">问题类型：</span>
+      <button class="active" onclick="filterTable('type','all',this)">全部</button>
+      <button onclick="filterTable('type','above',this)">Above/Below</button>
+      <button onclick="filterTable('type','updown',this)">Up/Down</button>
+      <button onclick="filterTable('type','range',this)">Price Range</button>
+      <button onclick="filterTable('type','hit',this)">Hit Price</button>
+    </div>
+    <div class="filters">
+      <span style="color:var(--muted);font-size:0.85rem;line-height:32px;">操作：</span>
+      <button class="active" onclick="filterTable('op','all',this)">全部</button>
+      <button onclick="filterTable('op','buy',this)">Buy</button>
+      <button onclick="filterTable('op','sell',this)">Sell</button>
+    </div>
+    <div class="table-wrap">
+      <table id="mainTable">
+        <thead><tr>
+          <th>实例问题</th><th>问题类型</th><th>方向</th><th>操作</th>
+          <th>PM 盘口</th><th>Deribit 近似</th><th>建议配合方式</th>
+          <th>适配度</th><th>原因</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 1.4 研究优先顺序 -->
+  <div class="section">
+    <h2 id="priority">研究优先顺序</h2>
+    <p style="color:var(--muted);margin-bottom:16px;">先按题型适配度排（Above > Up/Down > Range > Hit），再按操作可行性排（Buy > Sell）。当前报告的核心结论建立在<b>"无库存起手"</b>前提下。</p>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('nostock',this)">无库存起手</div>
+      <div class="tab" onclick="switchTab('stock',this)">有库存做市</div>
+    </div>
+    <div class="tab-content active" id="tab-nostock">
+      <ol class="priority-list">
+        <li><span class="rank">1</span><div><div class="p-title">Above / Below — Buy Yes / Buy No</div><div class="p-note">题型最简单、最标准，无库存可直接做，与 Deribit 适配度最高</div></div></li>
+        <li><span class="rank">2</span><div><div class="p-title">Up / Down — Buy Yes / Buy No</div><div class="p-note">方向简单，但多一层起点和时点误差</div></div></li>
+        <li><span class="rank">3</span><div><div class="p-title">Price Range — Buy Yes / Buy No</div><div class="p-note">较复杂，但仍可用 Deribit 组合近似</div></div></li>
+        <li><span class="rank dim">4</span><div><div class="p-title">Above / Below — Sell Yes / Sell No</div><div class="p-note">题型好，但需要先拆分代币准备库存</div></div></li>
+        <li><span class="rank dim">5</span><div><div class="p-title">Up / Down — Sell Yes / Sell No</div><div class="p-note">需库存 + 起点误差</div></div></li>
+        <li><span class="rank dim">6</span><div><div class="p-title">Price Range — Sell Yes / Sell No</div><div class="p-note">需库存 + 多腿组合</div></div></li>
+        <li><span class="rank dim">7</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"最难对冲，暂不优先</div></div></li>
+      </ol>
+      <div class="disclaimer" style="margin-top:16px;">
+        如果只从 Deribit 一侧看，买对冲结构通常更舒服；但一旦把 PM 不能裸卖、卖出通常需要先有对应结果代币这个现实约束加进来，就不能直接得出 Sell No / Sell Yes 更优的结论。因此，在无库存起手的前提下，第一阶段仍应优先研究 Buy Yes 和 Buy No。
+      </div>
+    </div>
+    <div class="tab-content" id="tab-stock">
+      <div class="prose" style="margin-bottom:16px;">
+        <p><b>有库存做市</b>意味着你已经有了自动拆分 USDC 为 Yes/No 结果代币、挂双边订单、以及自动合并回收的系统。在这种情况下，Sell 操作和 Buy 操作同样顺畅，优先级不再偏向一边。</p>
+        <p>排序逻辑变为<b>纯粹按题型适配度</b>：</p>
+      </div>
+      <ol class="priority-list">
+        <li><span class="rank">1</span><div><div class="p-title">Above / Below — 全部 4 种操作</div><div class="p-note">适配度最高，双边做市利润最优</div></div></li>
+        <li><span class="rank">2</span><div><div class="p-title">Up / Down — 全部 4 种操作</div><div class="p-note">适配度中等，仍有起点误差</div></div></li>
+        <li><span class="rank">3</span><div><div class="p-title">Price Range — 全部 4 种操作</div><div class="p-note">需要多腿组合，操作更复杂</div></div></li>
+        <li><span class="rank dim">4</span><div><div class="p-title">Hit Price — 全部 4 种操作</div><div class="p-note">"中途碰到"仍然最难对冲</div></div></li>
+      </ol>
+      <div class="disclaimer">注意：有库存做市需要额外的自动化系统（代币拆分、库存管理、双边挂单），本报告暂未深入展开这部分内容。</div>
+    </div>
+  </div>
+
+  <!-- 1.5 图表区 -->
+  <div class="section">
+    <h2 id="charts">单腿盈亏图：Above / Below</h2>
+    <p style="color:var(--muted);margin-bottom:12px;">横轴是最后 BTC 价格，纵轴是这张票最后值多少。Above/Below 只看一个价位：有没有站上去。</p>
+    <div class="controls">
+      <div class="control-group">
+        <label>目标价位 (K)</label>
+        <input type="range" id="strikeSlider" min="60000" max="100000" value="85000" step="500">
+        <span class="val" id="strikeVal">$85,000</span>
+      </div>
+      <div class="toggle-group">
+        <button class="active" onclick="setPayoffType('yes',this)">Buy Yes</button>
+        <button onclick="setPayoffType('no',this)">Buy No</button>
+        <button onclick="setPayoffType('both',this)">两者对比</button>
+      </div>
+      <button class="preset-btn" onclick="applyPreset1()">真实案例：BTC &gt; $72,000</button>
+    </div>
+    <div class="chart-container"><canvas id="payoffChart"></canvas></div>
+  </div>
+
+  <div class="section">
+    <h2>PM 台阶 vs Deribit 斜坡</h2>
+    <p style="color:var(--muted);margin-bottom:12px;">PM 的结果是一个台阶（到价就是 $1，没到就是 $0）。Deribit 用 Call Spread 近似，像一条陡斜坡。组合宽度越窄，斜坡越像台阶——但成本也越高。</p>
+    <div class="controls">
+      <div class="control-group">
+        <label>目标价位 (K)</label>
+        <input type="range" id="strikeSlider2" min="60000" max="100000" value="85000" step="500">
+        <span class="val" id="strikeVal2">$85,000</span>
+      </div>
+      <div class="control-group">
+        <label>组合宽度 (ΔK) — 拖动看斜坡怎么变成台阶</label>
+        <input type="range" id="widthSlider" min="200" max="8000" value="3000" step="200">
+        <span class="val" id="widthVal">$3,000</span>
+      </div>
+      <div class="toggle-group">
+        <button class="active" onclick="setCompareMode('both2',this)">PM + Deribit</button>
+        <button onclick="setCompareMode('pm',this)">只看 PM</button>
+        <button onclick="setCompareMode('deribit',this)">只看 Deribit</button>
+      </div>
+      <button class="preset-btn" onclick="applyPreset2()">真实案例：K=$72,000 ΔK=$1,000</button>
+    </div>
+    <div class="chart-container"><canvas id="compareChart"></canvas></div>
+  </div>
+
+  <div class="section">
+    <h2>组合后结果：买 PM + 卖 Deribit Spread</h2>
+    <p style="color:var(--muted);margin-bottom:12px;">如果你同时在 PM 上 Buy Yes + 在 Deribit 上卖出对应的 Call Spread，组合后的盈亏长这样。理想情况下，组合后的整体形状会比单独持有一边更平一些，更接近中性。</p>
+    <div class="disclaimer" style="margin-bottom:16px;">但现实里仍然会受到时间点、价格来源、滑点、手续费和执行方式的影响，因此不能简单理解为真正无风险。下图展示的是简化模型下的理论效果。</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>目标价位 (K)</label>
+        <input type="range" id="strikeSlider3" min="60000" max="100000" value="85000" step="500">
+        <span class="val" id="strikeVal3">$85,000</span>
+      </div>
+      <div class="control-group">
+        <label>组合宽度 (ΔK)</label>
+        <input type="range" id="widthSlider2" min="200" max="8000" value="3000" step="200">
+        <span class="val" id="widthVal2">$3,000</span>
+      </div>
+      <div class="control-group">
+        <label>PM 买入价</label>
+        <input type="range" id="pmPrice" min="10" max="90" value="50" step="1">
+        <span class="val" id="pmPriceVal">$0.50</span>
+      </div>
+      <button class="preset-btn" onclick="applyPreset3()">真实案例：K=$72,000 价格$0.54</button>
+    </div>
+    <div class="chart-container"><canvas id="comboChart"></canvas></div>
+  </div>
+
+  <!-- 1.6 漏斗图 -->
+  <div class="section">
+    <h2>研究优先级漏斗</h2>
+    <p style="color:var(--muted);margin-bottom:12px;">从最大范围一步步收窄，直到锁定第一优先研究对象。</p>
+    <div class="funnel">
+      <div class="funnel-step" style="width:100%;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);">所有 PM 加密市场<div class="funnel-sub">5000+ 活跃市场</div></div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="width:82%;background:rgba(99,102,241,0.13);border:1px solid rgba(99,102,241,0.35);">只看 BTC（流动性最好）<div class="funnel-sub">筛掉长尾小币种</div></div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="width:64%;background:rgba(99,102,241,0.20);border:1px solid rgba(99,102,241,0.45);">只看 Above / Below（适配度最高）<div class="funnel-sub">筛掉 Up/Down、Range、Hit Price</div></div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="width:48%;background:rgba(99,102,241,0.28);border:1px solid rgba(99,102,241,0.55);">只看 1H / 4H / Daily（可对冲）<div class="funnel-sub">筛掉 5min/15min（波动太剧烈）和周线（资金效率低）</div></div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="width:34%;background:rgba(99,102,241,0.40);border:1px solid var(--accent);">价格在 40%–60%（收益权重最大）<div class="funnel-sub">这个区间分到的 Maker Rebate 最多</div></div>
+      <div class="funnel-arrow">▼</div>
+      <div class="funnel-step" style="width:24%;background:var(--accent);color:white;font-size:1.05rem;">Buy Yes / Buy No 优先<div class="funnel-sub" style="color:rgba(255,255,255,0.75);">无库存起手，最直接可执行</div></div>
+    </div>
+  </div>
+
+  <!-- ===== 第一章结论 ===== -->
+  <div class="summary-box">
+    <h2>第一章结论</h2>
+    <p>第一章的工作，是把 PM 加密问题整理成可研究的结构：先分成 4 类问题，再展开为 16 个执行方向，最后在无库存起手的前提下排出优先顺序。</p>
+    <p style="margin-top:12px;">完成这些梳理后，我们确认：<strong>Above / Below 是最适合作为第一阶段入口的题型</strong>。它与 Deribit 的适配度最高、结构最简单、最容易标准化。在操作层面，Buy Yes 和 Buy No 是无库存起手时最自然的两条路径。</p>
+    <p style="margin-top:12px;">因此，第二章将不再平均讨论 4 类问题，而是<strong>顺着这个结论，专门围绕 Above / Below 展开</strong>——先认识这个方向里的现实风险，再从中筛出第一批值得观察的实盘问题。</p>
+    <p style="margin-top:20px;"><a href="ch2.html" style="color:var(--ch2);font-weight:700;font-size:1rem;text-decoration:none;">阅读下一章：第二章 →</a></p>
+  </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+const tableData = [
+  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'K 附近窄上涨组合', suggest:'用 72,000 附近的窄 Call Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'最简单、最标准的一类' },
+  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用 Call Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合做标准化监控' },
+  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Buy', book:'No ask', deribit:'K 附近窄下跌组合', suggest:'用 72,000 附近的窄 Put Spread 去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'与单一价位判断最贴近' },
+  { type:'above', label:'Above / Below', ex:'BTC 到某日高于 72,000？', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用 Put Spread 反向去配', fit:'高', fitClass:'fit-high', badge:'badge-high', reason:'适合作为主监控对象' },
+  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'窄上涨组合', suggest:'用一个很窄的上涨组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'方向简单，但起点和结算时间容易带来误差' },
+  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'上涨组合反向', suggest:'用上涨组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'逻辑能成立，但卖出不是无条件可做' },
+  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Buy', book:'No ask', deribit:'窄下跌组合', suggest:'用一个很窄的下跌组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'也算简单，但仍有起点和时间误差' },
+  { type:'updown', label:'Up / Down', ex:'BTC 1H Up or Down', dir:'No', op:'Sell', book:'No bid', deribit:'下跌组合反向', suggest:'用下跌组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'结构能做，但同样受库存约束' },
+  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'区间组合', suggest:'用"夹在中间"的区间组合去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'可以做，但比单一价位题更复杂' },
+  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'区间组合反向', suggest:'用区间组合反向去配', fit:'中上', fitClass:'fit-midhigh', badge:'badge-midhigh', reason:'能研究，但腿数更多' },
+  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Buy', book:'No ask', deribit:'两翼组合', suggest:'用"两边都照顾到"的组合去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'要同时考虑区间上边和下边' },
+  { type:'range', label:'Price Range', ex:'BTC 在 72k–74k 之间？', dir:'No', op:'Sell', book:'No bid', deribit:'两翼组合反向', suggest:'用两翼组合反向去配', fit:'中', fitClass:'fit-mid', badge:'badge-mid', reason:'可以做，但执行更复杂' },
+  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Buy', book:'Yes ask', deribit:'近似组合', suggest:'只能做近似组合', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'PM 看"中途碰到没有"，最难配' },
+  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'Yes', op:'Sell', book:'Yes bid', deribit:'近似组合反向', suggest:'只能做近似组合反向去配', fit:'低', fitClass:'fit-low', badge:'badge-low', reason:'做起来不干净' },
+  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Buy', book:'No ask', deribit:'勉强近似', suggest:'只能勉强近似', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'"没碰到"比"碰到"更难表达' },
+  { type:'hit', label:'Hit Price', ex:'BTC 本周碰到 80,000？', dir:'No', op:'Sell', book:'No bid', deribit:'勉强近似反向', suggest:'只能勉强近似反向去配', fit:'很低', fitClass:'fit-vlow', badge:'badge-low', reason:'不适合新手优先做' },
+];
+
+let filterState = { type: 'all', op: 'all' };
+function renderTable() {
+  const tbody = document.querySelector('#mainTable tbody');
+  tbody.innerHTML = '';
+  tableData.forEach(r => {
+    if (filterState.type !== 'all' && r.type !== filterState.type) return;
+    if (filterState.op !== 'all' && r.op.toLowerCase() !== filterState.op) return;
+    const tr = document.createElement('tr');
+    if (r.type === 'above') tr.classList.add('row-highlight');
+    tr.innerHTML = `<td>${r.ex}</td><td>${r.label}</td><td>${r.dir}</td><td>${r.op}</td><td>${r.book}</td><td>${r.deribit}</td><td style="font-size:0.8rem;">${r.suggest}</td><td><span class="badge ${r.badge}">${r.fit}</span></td><td style="font-size:0.8rem;color:var(--muted);">${r.reason}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function filterTable(dim, val, btn) {
+  filterState[dim] = val;
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+renderTable();
+
+function switchTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+function applyPreset1() {
+  document.getElementById('strikeSlider').value = 72000;
+  document.getElementById('strikeVal').textContent = '$72,000';
+  payoffType = 'both';
+  const btns = document.getElementById('payoffChart').parentElement.parentElement.querySelectorAll('.toggle-group button');
+  btns.forEach(b => b.classList.remove('active'));
+  btns[2].classList.add('active');
+  drawPayoff();
+}
+function applyPreset2() {
+  document.getElementById('strikeSlider2').value = 72000;
+  document.getElementById('strikeVal2').textContent = '$72,000';
+  document.getElementById('widthSlider').value = 1000;
+  document.getElementById('widthVal').textContent = '$1,000';
+  compareMode = 'both2';
+  const btns = document.getElementById('compareChart').parentElement.parentElement.querySelectorAll('.toggle-group button');
+  btns.forEach(b => b.classList.remove('active'));
+  btns[0].classList.add('active');
+  drawCompare();
+}
+function applyPreset3() {
+  document.getElementById('strikeSlider3').value = 72000;
+  document.getElementById('strikeVal3').textContent = '$72,000';
+  document.getElementById('widthSlider2').value = 1000;
+  document.getElementById('widthVal2').textContent = '$1,000';
+  document.getElementById('pmPrice').value = 54;
+  document.getElementById('pmPriceVal').textContent = '$0.54';
+  drawCombo();
+}
+
+let payoffType = 'yes';
+const payoffCtx = document.getElementById('payoffChart').getContext('2d');
+let payoffChart;
+function setPayoffType(t, btn) {
+  payoffType = t;
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  drawPayoff();
+}
+function drawPayoff() {
+  const K = +document.getElementById('strikeSlider').value;
+  const lo = K - 15000, hi = K + 15000;
+  const labels = [], yesData = [], noData = [];
+  for (let s = lo; s <= hi; s += 300) {
+    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
+    yesData.push(s >= K ? 1 : 0);
+    noData.push(s < K ? 1 : 0);
+  }
+  const datasets = [];
+  if (payoffType === 'yes' || payoffType === 'both') datasets.push({ label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
+  if (payoffType === 'no' || payoffType === 'both') datasets.push({ label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 });
+  if (payoffChart) payoffChart.destroy();
+  payoffChart = new Chart(payoffCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+}
+document.getElementById('strikeSlider').addEventListener('input', e => { document.getElementById('strikeVal').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff(); });
+drawPayoff();
+
+let compareMode = 'both2';
+const compareCtx = document.getElementById('compareChart').getContext('2d');
+let compareChart;
+function setCompareMode(m, btn) { compareMode = m; btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active')); btn.classList.add('active'); drawCompare(); }
+function drawCompare() {
+  const K = +document.getElementById('strikeSlider2').value;
+  const dK = +document.getElementById('widthSlider').value;
+  const lo = K - 15000, hi = K + 15000;
+  const labels = [], pmData = [], deribitData = [];
+  for (let s = lo; s <= hi; s += 200) { labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s); pmData.push(s >= K ? 1 : 0); deribitData.push(Math.max(0, Math.min((s - K) / dK, 1))); }
+  const datasets = [];
+  if (compareMode !== 'deribit') datasets.push({ label: 'PM Binary（台阶）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
+  if (compareMode !== 'pm') datasets.push({ label: `Deribit Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
+  if (compareChart) compareChart.destroy();
+  compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+}
+document.getElementById('strikeSlider2').addEventListener('input', e => { document.getElementById('strikeVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); });
+document.getElementById('widthSlider').addEventListener('input', e => { document.getElementById('widthVal').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare(); });
+drawCompare();
+
+const comboCtx = document.getElementById('comboChart').getContext('2d');
+let comboChart;
+function drawCombo() {
+  const K = +document.getElementById('strikeSlider3').value;
+  const dK = +document.getElementById('widthSlider2').value;
+  const pPrice = +document.getElementById('pmPrice').value / 100;
+  const lo = K - 15000, hi = K + 15000;
+  const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
+  for (let s = lo; s <= hi; s += 200) {
+    labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
+    const pm = (s >= K ? 1 : 0) - pPrice; pmPnl.push(pm);
+    const db = pPrice - Math.max(0, Math.min((s - K) / dK, 1)); deribitPnl.push(db);
+    comboPnl.push(pm + db);
+  }
+  if (comboChart) comboChart.destroy();
+  comboChart = new Chart(comboCtx, { type: 'line', data: { labels, datasets: [
+    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 2, stepped: true },
+    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2 },
+    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: true, pointRadius: 0, borderWidth: 3 },
+    { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
+}
+document.getElementById('strikeSlider3').addEventListener('input', e => { document.getElementById('strikeVal3').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
+document.getElementById('widthSlider2').addEventListener('input', e => { document.getElementById('widthVal2').textContent = '$' + (+e.target.value).toLocaleString(); drawCombo(); });
+document.getElementById('pmPrice').addEventListener('input', e => { document.getElementById('pmPriceVal').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo(); });
+drawCombo();
+</script>
+</body>
+</html>
