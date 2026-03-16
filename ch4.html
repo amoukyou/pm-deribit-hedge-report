@@ -9,18 +9,36 @@
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,'PingFang SC',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
 
-  /* Header */
-  .header { background:var(--blue); color:white; padding:16px 24px; display:flex; align-items:center; gap:16px; }
-  .header h1 { font-size:1.2rem; font-weight:700; }
-  .header .status { margin-left:auto; font-size:0.82rem; opacity:0.8; }
-  .header .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
-  .header .dot.live { background:#4ade80; animation:pulse 2s infinite; }
-  .header .dot.loading { background:#fbbf24; }
-  .header .dot.error { background:#f87171; }
+  /* Top nav - same as other pages */
+  .topnav {
+    position:sticky; top:0; z-index:100;
+    background:rgba(255,255,255,0.92); backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border); padding:0 20px;
+  }
+  .topnav-inner {
+    max-width:1100px; margin:0 auto;
+    display:flex; align-items:center; gap:0; height:48px; overflow-x:auto;
+  }
+  .topnav-inner a {
+    color:var(--muted); text-decoration:none; font-size:0.85rem;
+    font-weight:600; padding:0 16px; height:48px; display:flex;
+    align-items:center; white-space:nowrap; border-bottom:2px solid transparent;
+    transition:all 0.2s;
+  }
+  .topnav-inner a:hover { color:var(--text); }
+  .topnav-inner a.nav-ch4 { border-bottom-color:transparent; }
+  .topnav-inner a.nav-ch4:hover { border-bottom-color:var(--blue); color:var(--blue); }
+  .topnav-inner a.nav-ch4.active-nav { color:var(--blue); border-bottom-color:var(--blue); }
+  .topnav-inner .nav-brand { color:var(--text); font-weight:700; font-size:0.9rem; margin-right:auto; padding-left:0; }
+
+  /* Status indicator */
+  .status-bar { display:flex; align-items:center; gap:8px; padding:8px 24px; background:var(--card); border-bottom:1px solid var(--border); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+  .dot.live { background:#4ade80; animation:pulse 2s infinite; }
+  .dot.loading { background:#fbbf24; }
+  .dot.error { background:#f87171; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-  .header nav a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.82rem; font-weight:600; }
-  .header nav a:hover { color:white; }
-  .header nav a.active { color:white; border-bottom:2px solid white; padding-bottom:2px; }
+  .status-bar .status-text { font-size:0.82rem; color:var(--muted); }
 
   /* Stats bar */
   .stats { display:flex; gap:12px; padding:16px 24px; flex-wrap:wrap; }
@@ -34,16 +52,16 @@
   .controls { padding:8px 24px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .controls button { background:var(--card); border:1px solid var(--border); color:var(--text); padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.82rem; transition:all 0.15s; }
   .controls button:hover { border-color:var(--blue); }
-  .controls button.active { background:var(--blue); border-color:var(--blue); color:white; }
+  .controls button.active { background:var(--accent); border-color:var(--accent); color:white; }
   .controls .sep { color:var(--border); margin:0 4px; }
-  .controls .refresh-btn { background:var(--blue); color:white; border-color:var(--blue); }
+  .controls .refresh-btn { background:var(--accent); color:white; border-color:var(--accent); }
   .controls .refresh-btn:hover { opacity:0.9; }
 
   /* Table */
   .table-wrap { padding:0 24px 24px; overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:0.8rem; }
-  th { background:var(--blue); color:white; padding:8px 10px; text-align:left; position:sticky; top:0; z-index:1; cursor:pointer; white-space:nowrap; }
-  th:hover { background:#1e40af; }
+  th { background:#f0f4ff; color:var(--blue); padding:8px 10px; text-align:left; position:sticky; top:48px; z-index:1; cursor:pointer; white-space:nowrap; border-bottom:2px solid var(--blue); font-weight:600; }
+  th:hover { background:#dbeafe; }
   td { padding:7px 10px; border-bottom:1px solid var(--border); }
   tr:hover { background:#f0f4ff; }
   .qp-pos { color:var(--green); font-weight:700; }
@@ -64,19 +82,20 @@
 </head>
 <body>
 
-<div class="header">
-  <h1>PM × Deribit 监控仪表盘</h1>
-  <nav>
-    <a href="index.html">首页</a> &nbsp;
-    <a href="ch1.html">Ch1</a> &nbsp;
-    <a href="ch2.html">Ch2</a> &nbsp;
-    <a href="ch3.html">Ch3</a> &nbsp;
-    <a href="ch4.html" class="active">Ch4</a>
-  </nav>
-  <div class="status">
-    <span class="dot loading" id="statusDot"></span>
-    <span id="statusText">连接中...</span>
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="index.html" class="nav-brand">PM × Deribit</a>
+    <a href="index.html">首页</a>
+    <a href="ch1.html">第一章</a>
+    <a href="ch2.html">第二章</a>
+    <a href="ch3.html">第三章</a>
+    <a href="ch4.html" class="nav-ch4 active-nav">第四章</a>
   </div>
+</nav>
+
+<div class="status-bar">
+  <span class="dot loading" id="statusDot"></span>
+  <span class="status-text" id="statusText">连接中...</span>
 </div>
 
 <div class="stats" id="statsBar">
