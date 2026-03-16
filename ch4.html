@@ -133,6 +133,7 @@
   <button onclick="setSort('pm_ask')">按 PM ask 排序</button>
   <span class="sep">|</span>
   <button onclick="toggleNull()">隐藏无期权组合</button>
+  <button onclick="toggleNoBook()">隐藏无盘口挂单</button>
 </div>
 
 <div class="table-wrap">
@@ -211,6 +212,7 @@ function renderTable() {
   if (currentFilter !== 'all') rows = rows.filter(r => r.type === currentFilter);
   if (currentDirFilter !== 'all') rows = rows.filter(r => r.direction === currentDirFilter);
   if (hideNull) rows = rows.filter(r => r.qp !== null);
+  if (hideNoBook) rows = rows.filter(r => r.leg1_price != null && r.leg1_price !== 0 && r.leg2_price != null && r.leg2_price !== 0);
 
   // Sort
   if (currentSort === 'qp_desc') rows.sort((a, b) => (b.qp ?? -999) - (a.qp ?? -999));
@@ -540,6 +542,8 @@ function toggleQPSort() {
   renderTable();
 }
 function toggleNull() { hideNull = !hideNull; renderTable(); }
+let hideNoBook = false;
+function toggleNoBook() { hideNoBook = !hideNoBook; renderTable(); }
 
 // Auto refresh every 60s, pause when detail is open
 let refreshTimer = null;
