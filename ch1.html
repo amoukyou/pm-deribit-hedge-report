@@ -678,8 +678,8 @@ function drawCombo() {
   }
   if (comboChart) comboChart.destroy();
   comboChart = new Chart(comboCtx, { type: 'line', data: { labels, datasets: [
-    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.3)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [4,3] },
-    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.3)', pointRadius: 0, borderWidth: 1.5, borderDash: [4,3] },
+    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.5)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
+    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.5)', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
     { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
@@ -748,8 +748,8 @@ function drawComboB() {
   }
   if (comboChart2) comboChart2.destroy();
   comboChart2 = new Chart(comboCtxB, { type: 'line', data: { labels, datasets: [
-    { label: 'PM Buy No PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.3)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [4,3] },
-    { label: 'Deribit Sell Put Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.3)', pointRadius: 0, borderWidth: 1.5, borderDash: [4,3] },
+    { label: 'PM Buy No PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.5)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
+    { label: 'Deribit Sell Put Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.5)', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
     { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
@@ -827,8 +827,8 @@ function drawCombo9() {
   }
   if (comboChart9) comboChart9.destroy();
   comboChart9 = new Chart(comboCtx9, { type: 'line', data: { labels, datasets: [
-    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.3)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [4,3] },
-    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.3)', pointRadius: 0, borderWidth: 1.5, borderDash: [4,3] },
+    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.5)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
+    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.5)', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
     { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
@@ -904,8 +904,8 @@ function drawCombo11() {
   }
   if (comboChart11) comboChart11.destroy();
   comboChart11 = new Chart(comboCtx11, { type: 'line', data: { labels, datasets: [
-    { label: 'PM Buy No PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.3)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [4,3] },
-    { label: 'Deribit Sell 反向 Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.3)', pointRadius: 0, borderWidth: 1.5, borderDash: [4,3] },
+    { label: 'PM Buy No PnL', data: pmPnl, borderColor: 'rgba(79,70,229,0.5)', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
+    { label: 'Deribit Sell 反向 Spread PnL', data: deribitPnl, borderColor: 'rgba(202,138,4,0.5)', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
     { label: '组合 PnL', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
     { label: '零线', data: Array(labels.length).fill(0), borderColor: '#9ca3af', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
