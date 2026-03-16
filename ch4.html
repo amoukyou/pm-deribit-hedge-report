@@ -132,8 +132,7 @@
   <button onclick="setSort('time')">按时间差排序</button>
   <button onclick="setSort('pm_ask')">按 PM ask 排序</button>
   <span class="sep">|</span>
-  <button onclick="toggleNull()">隐藏无数据行</button>
-  <button class="refresh-btn" onclick="fetchData()">刷新数据</button>
+  <button onclick="toggleNull()">隐藏无期权组合</button>
 </div>
 
 <div class="table-wrap">
@@ -284,20 +283,25 @@ function toggleDetail(tr, r) {
   const pmCostPerTicket = p;
   const pmTotalCost = pmQty * pmCostPerTicket;
 
-  // Deribit legs
+  // Deribit legs — check for no-market condition
   const leg1p = r.leg1_price;
   const leg2p = r.leg2_price;
-  const leg1usd = leg1p != null ? (leg1p * ul).toFixed(2) : '--';
-  const leg2usd = leg2p != null ? (leg2p * ul).toFixed(2) : '--';
-  const dbTotalBTC = (leg1p != null && leg2p != null) ? (r.leg1_action === 'Sell' ? leg1p - leg2p : leg2p - leg1p) : null;
+  const leg1noMarket = leg1p == null || leg1p === 0;
+  const leg2noMarket = leg2p == null || leg2p === 0;
+  const anyNoMarket = leg1noMarket || leg2noMarket;
+  const leg1usd = leg1noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg1p * ul).toFixed(2);
+  const leg2usd = leg2noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg2p * ul).toFixed(2);
+  const leg1btc = leg1noMarket ? '无挂单' : leg1p.toFixed(4) + ' BTC';
+  const leg2btc = leg2noMarket ? '无挂单' : leg2p.toFixed(4) + ' BTC';
+
+  const dbTotalBTC = (!anyNoMarket) ? (r.leg1_action === 'Sell' ? leg1p - leg2p : leg2p - leg1p) : null;
   const dbTotalUSD = dbTotalBTC != null ? (dbTotalBTC * ul * 0.1).toFixed(2) : '--';
-  const dbNetPerTicket = dbTotalBTC != null ? (dbTotalBTC * ul / sw).toFixed(4) : '--';
 
   // Combined
-  const combinedCost = (pmTotalCost != null && dbTotalBTC != null) ? (pmTotalCost - dbTotalBTC * ul * 0.1).toFixed(2) : '--';
   const pnlPerTicket = r.qp != null ? r.qp.toFixed(4) : '--';
   const pnlTotal = r.qp != null ? (r.qp * pmQty).toFixed(2) : '--';
   const pnlColor = r.qp > 0 ? 'var(--green)' : 'var(--red)';
+  const executable = !anyNoMarket && r.pm_ask != null;
 
   td.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
@@ -312,19 +316,20 @@ function toggleDetail(tr, r) {
       <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;">
         <div style="font-weight:700;margin-bottom:8px;color:var(--blue);">Deribit 端（${r.deribit_desc}）</div>
         <table style="width:100%;font-size:0.8rem;">
-          <tr><td style="color:var(--muted);">${r.leg1_action || 'Sell'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;">${leg1p != null ? leg1p.toFixed(4)+' BTC' : '--'} = $${leg1usd}</td></tr>
-          <tr><td style="color:var(--muted);">${r.leg2_action || 'Buy'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;">${leg2p != null ? leg2p.toFixed(4)+' BTC' : '--'} = $${leg2usd}</td></tr>
+          <tr><td style="color:var(--muted);">${r.leg1_action || 'Sell'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;">${leg1btc} = ${leg1usd}</td></tr>
+          <tr><td style="color:var(--muted);">${r.leg2_action || 'Buy'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;">${leg2btc} = ${leg2usd}</td></tr>
           <tr><td style="color:var(--muted);">合约数量</td><td class="mono" style="text-align:right;">0.1 BTC / 每腿</td></tr>
-          <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">Deribit 净收入 (q × ${pmQty})</td><td class="mono" style="text-align:right;font-weight:700;">$${dbTotalUSD}</td></tr>
+          <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">Deribit 净收入</td><td class="mono" style="text-align:right;font-weight:700;">${anyNoMarket ? '<span style="color:var(--red);">无法执行（盘口缺失）</span>' : '$'+dbTotalUSD}</td></tr>
         </table>
       </div>
     </div>
-    <div style="background:var(--card);border:2px solid ${r.qp > 0 ? 'var(--green)' : 'var(--border)'};border-radius:8px;padding:14px;margin-bottom:16px;">
+    <div style="background:var(--card);border:2px solid ${!executable ? 'var(--red)' : r.qp > 0 ? 'var(--green)' : 'var(--border)'};border-radius:8px;padding:14px;margin-bottom:16px;">
+      ${!executable ? '<div style="color:var(--red);font-weight:700;font-size:1rem;margin-bottom:8px;">无法执行 — Deribit 盘口缺失</div>' : ''}
       <table style="width:100%;font-size:0.85rem;">
-        <tr><td style="width:50%;">PM 成本</td><td class="mono">$${pmTotalCost.toFixed(2)}</td></tr>
-        <tr><td>Deribit 净收入</td><td class="mono">$${dbTotalUSD}</td></tr>
-        <tr style="border-top:2px solid var(--border);"><td style="font-weight:700;">预计到期损益（q-p × ${pmQty} 张）</td><td class="mono" style="font-weight:700;font-size:1.1rem;color:${pnlColor};">${r.qp > 0 ? '+' : ''}$${pnlTotal}</td></tr>
-        <tr><td style="color:var(--muted);">每张票损益</td><td class="mono" style="color:${pnlColor};">${r.qp > 0 ? '+' : ''}${pnlPerTicket}</td></tr>
+        <tr><td style="width:50%;">PM 成本</td><td class="mono">${r.pm_ask != null ? '$'+pmTotalCost.toFixed(2) : '--'}</td></tr>
+        <tr><td>Deribit 净收入</td><td class="mono">${anyNoMarket ? '<span style="color:var(--red);">盘口缺失</span>' : '$'+dbTotalUSD}</td></tr>
+        <tr style="border-top:2px solid var(--border);"><td style="font-weight:700;">预计到期损益（q-p × ${pmQty} 张）</td><td class="mono" style="font-weight:700;font-size:1.1rem;color:${executable ? pnlColor : 'var(--muted)'};">${executable ? (r.qp > 0 ? '+' : '') + '$' + pnlTotal : '无法计算'}</td></tr>
+        ${executable ? `<tr><td style="color:var(--muted);">每张票损益</td><td class="mono" style="color:${pnlColor};">${r.qp > 0 ? '+' : ''}${pnlPerTicket}</td></tr>` : ''}
       </table>
     </div>
     <div class="detail-charts">

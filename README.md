@@ -2,9 +2,28 @@
 
 研究 Polymarket 加密二元市场 + Deribit 期权对冲套利的可行性。
 
-## 在线查看
+## 在线查看（静态报告）
 
 https://amoukyou.github.io/pm-deribit-hedge-report/
+
+> 第一至三章为纯静态页面，可直接在线查看。第四章（监控仪表盘）需要本地运行后端。
+
+## 本地运行（含监控仪表盘）
+
+```bash
+cd ~/Desktop/PM-Deribit对冲套利研究
+
+# 1. 首次：抓取市场元数据
+python3 fetch_data.py
+
+# 2. 启动后端（自动每30秒刷新实时数据）
+node server.js
+
+# 3. 打开仪表盘
+open http://localhost:3456/ch4.html
+```
+
+要求：Node.js 25+（内置 SQLite），Python 3，无需 npm install。
 
 ## 报告结构
 
@@ -12,44 +31,44 @@ https://amoukyou.github.io/pm-deribit-hedge-report/
 - 研究动机与背景
 
 ### 第一章：问题分类与策略推导
-- PM 加密市场 4 类问题（Up/Down、Above/Below、Price Range、Hit Price）
-- 4 类 × Yes/No × Buy/Sell = 16 种策略（编号 #1–#16），含近似期权组合和建议对冲方式
-- 研究优先顺序：筛出 #1、#3、#9、#11（适配度高 + 无库存可做）
-- 4 种优先策略的理论损益图（标准期权损益图风格，红绿分区）
-- 全绿条件推导：从 PM 的 K 推导 Deribit 行权价 K1'/K2'，确定张数，验证 q > p
-- 手续费分析：PM 非线性 taker fee + Deribit min(0.03% underlying, 12.5% 权利金)
-- 手续费规律：票价接近 $0/$1 时两边手续费同时最低
-- 补充收入：PM Maker Rebates + Liquidity Rewards（独立于 taker fee）
-- 研究优先级漏斗：逐步推导找出套利机会
+- PM 加密市场 4 类问题 → 16 种策略（#1–#16）
+- 优先策略：#1、#3、#9、#11（适配度高 + 无库存可做）
+- 4 种策略的理论损益图（红绿分区）
+- 全绿条件：从 PM 的 K 推导 Deribit 行权价 K1'/K2'，确定张数，验证 q > p
+- 手续费：PM 非线性 taker fee + Deribit min(0.03% underlying, 12.5% 权利金)
+- 补充收入：PM Maker Rebates + Liquidity Rewards
 
 ### 第二章：认识风险，筛出观察样本
-- 核心风险：PM 16:00 UTC 结束 vs Deribit 08:00 UTC 到期，固定差 8 小时
-- 多交易所时间匹配：Deribit/OKX/Binance 均 08:00 UTC，IBIT 20:00 UTC（差 4h 但暂不考虑）
-- 两种处理方法：事前挑时间接近的 + 事后主动提前平仓
-- 完整实盘数据表：45 个 Above + 11 个 Range = 56 个 BTC 问题 × Deribit 匹配期权（含超链接）
-- 平仓顺序问题：两边流动性均有限，哪边先平尚无定论
+- 核心风险：PM 16:00 UTC vs Deribit 08:00 UTC，固定差 8h
+- 多交易所对比：Deribit/OKX/Binance 8h，IBIT 4h（暂不考虑）
+- 完整实盘数据：97 个 BTC 问题 × Deribit 匹配期权（含超链接）
+- 平仓顺序：两边流动性有限，尚无定论
 
 ### 第三章：我打算赚谁的钱
-- 核心问题：如果这套研究成立，利润从哪里来
-- 三类潜在利润来源：① PM 与期权市场的定价差 ② 噪音订单带来的价差回归 ③ PM 平台补贴激励
-- 三类来源可能叠加，不是互斥的
-- 从利润来源推导监控字段：定价差→比价、噪音→盘口跳动、补贴→活动覆盖
-- 利润来源与观察字段对应表
+- 三类利润来源：定价差、噪音回归、平台补贴
+- 从利润来源推导监控字段
 
-### 第四章：开始监控——先看 Buy 方 ask 价格
-- 承接前三章：只看 Buy 方 ask，只看第二章筛出的样本
-- 监控主表：56 个样本的 PM ask vs Deribit ask 对照（含差值、观察结论）
-- 差值解读：PM 更贵 / Deribit 更贵 / 差值不明显
-- 样本 ask 对比图：横向柱状图展示 Top 10 差值样本
-- 时间差 × 价格差散点图：找出时间差小但差值大的最优样本
+### 第四章：监控仪表盘（需本地后端）
+- 194 行实时监控（97 市场 × Buy Yes + Buy No）
+- 实时拉取 PM CLOB best ask + Deribit option bid/ask
+- 每行计算 q-p（Deribit 权利金 - PM 票价）
+- 点击展开：每条腿价格、PM/Deribit 成本明细、预计到期损益、3 张损益图
+- 盘口缺失时标注"无法执行"
+
+## 技术栈
+
+- 前端：HTML/CSS/JS + Chart.js + chartjs-plugin-annotation
+- 后端：Node.js 25（原生 SQLite）
+- 数据：PM Gamma API + CLOB API、Deribit Public API
 
 ## 数据来源
 
-- PM 市场数据：[Polymarket Gamma API](https://gamma-api.polymarket.com)
-- Deribit 期权数据：[Deribit Public API](https://www.deribit.com/api/v2/public)
-- OKX 期权数据：[OKX Public API](https://www.okx.com/api/v5/public/instruments)
-- Binance 期权数据：[Binance eAPI](https://eapi.binance.com/eapi/v1/exchangeInfo)
-- IBIT 期权数据：[CBOE API](https://cdn.cboe.com/api/global/delayed_quotes/options/IBIT.json)
-- PM 手续费规则：[Polymarket Maker Rebates](https://docs.polymarket.com/market-makers/maker-rebates)
-- PM 流动性奖励：[Polymarket Liquidity Rewards](https://docs.polymarket.com/market-makers/liquidity-rewards)
-- Deribit 手续费规则：[Deribit Fees](https://support.deribit.com/hc/en-us/articles/25944746248989-Fees)
+- [Polymarket Gamma API](https://gamma-api.polymarket.com)
+- [Polymarket CLOB API](https://clob.polymarket.com)
+- [Deribit Public API](https://www.deribit.com/api/v2/public)
+- [OKX API](https://www.okx.com/api/v5/public/instruments)
+- [Binance eAPI](https://eapi.binance.com/eapi/v1/exchangeInfo)
+- [CBOE IBIT Options](https://cdn.cboe.com/api/global/delayed_quotes/options/IBIT.json)
+- [PM Maker Rebates](https://docs.polymarket.com/market-makers/maker-rebates)
+- [PM Liquidity Rewards](https://docs.polymarket.com/market-makers/liquidity-rewards)
+- [Deribit Fees](https://support.deribit.com/hc/en-us/articles/25944746248989-Fees)
