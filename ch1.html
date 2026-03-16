@@ -478,12 +478,11 @@
 
     <!-- ===== Strategy #9: Range Buy Yes ===== -->
     <div class="strat-tab-content" id="strat-s9">
-      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy Yes：K1–K2 范围内 → $1 | 对冲：卖出更宽的 Iron Butterfly（K3–K4）</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy Yes：K1–K2 范围内 → $1 | 对冲：卖出 Iron Butterfly（斜坡收在 PM 区间内）</p>
       <div class="controls">
         <div class="control-group"><label>PM 范围 K1</label><input type="range" id="strikeSlider9a" min="60000" max="100000" value="80000" step="500"><span class="val" id="strikeVal9a">$80,000</span></div>
         <div class="control-group"><label>PM 范围 K2</label><input type="range" id="strikeSlider9b" min="60000" max="100000" value="88000" step="500"><span class="val" id="strikeVal9b">$88,000</span></div>
-        <div class="control-group"><label>Deribit 外扩</label><input type="range" id="expand9" min="500" max="10000" value="3000" step="500"><span class="val" id="expandVal9">$3,000</span></div>
-        <div class="control-group"><label>ΔK（斜坡宽度）</label><input type="range" id="widthSlider9" min="200" max="4000" value="500" step="100"><span class="val" id="widthVal9">$500</span></div>
+        <div class="control-group"><label>ΔK（斜坡宽度）</label><input type="range" id="widthSlider9" min="200" max="4000" value="1000" step="100"><span class="val" id="widthVal9">$1,000</span></div>
         <div class="control-group"><label>PM 买入价</label><input type="range" id="pmPrice9" min="10" max="90" value="30" step="1"><span class="val" id="pmPriceVal9">$0.30</span></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -495,12 +494,11 @@
 
     <!-- ===== Strategy #11: Range Buy No ===== -->
     <div class="strat-tab-content" id="strat-s11">
-      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy No：K1–K2 范围外 → $1 | 对冲：买入更宽的 Iron Butterfly（K3–K4）</p>
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:10px;">PM Buy No：K1–K2 范围外 → $1 | 对冲：买入 Iron Butterfly（斜坡收在 PM 区间内）</p>
       <div class="controls">
         <div class="control-group"><label>PM 范围 K1</label><input type="range" id="strikeSlider11a" min="60000" max="100000" value="80000" step="500"><span class="val" id="strikeVal11a">$80,000</span></div>
         <div class="control-group"><label>PM 范围 K2</label><input type="range" id="strikeSlider11b" min="60000" max="100000" value="88000" step="500"><span class="val" id="strikeVal11b">$88,000</span></div>
-        <div class="control-group"><label>Deribit 外扩</label><input type="range" id="expand11" min="500" max="10000" value="3000" step="500"><span class="val" id="expandVal11">$3,000</span></div>
-        <div class="control-group"><label>ΔK（斜坡宽度）</label><input type="range" id="widthSlider11" min="200" max="4000" value="500" step="100"><span class="val" id="widthVal11">$500</span></div>
+        <div class="control-group"><label>ΔK（斜坡宽度）</label><input type="range" id="widthSlider11" min="200" max="4000" value="1000" step="100"><span class="val" id="widthVal11">$1,000</span></div>
         <div class="control-group"><label>PM 买入价</label><input type="range" id="pmPrice11" min="10" max="90" value="70" step="1"><span class="val" id="pmPriceVal11">$0.70</span></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -795,22 +793,24 @@ drawPayoff9();
 
 const compareCtx9 = document.getElementById('compareChart9').getContext('2d');
 let compareChart9;
+// #9: Deribit ramps INSIDE PM range: rangeSpread(s, K1, K2-dK, dK)
+// Up-ramp: K1 to K1+dK (inside), Flat: K1+dK to K2-dK, Down-ramp: K2-dK to K2 (inside)
+// Everywhere PM=1 covers Deribit ramp → combo = q-p (flat positive)
 function drawCompare9() {
   const K1 = +document.getElementById('strikeSlider9a').value;
   const K2 = +document.getElementById('strikeSlider9b').value;
-  const expand = +document.getElementById('expand9').value;
   const dK = +document.getElementById('widthSlider9').value;
-  const K3 = K1 - expand, K4 = K2 + expand;
-  const q = +document.getElementById('pmPrice9').value / 100 * (K4 - K3) / (K2 - K1);
-  const lo = K3 - 10000, hi = K4 + 10000;
+  const p = +document.getElementById('pmPrice9').value / 100;
+  const q = p + 0.05;
+  const lo = K1 - 10000, hi = K2 + 10000;
   const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    data.push(q - rangeSpread(s, K3, K4, dK));
+    data.push(q - rangeSpread(s, K1, K2 - dK, dK));
   }
   if (compareChart9) compareChart9.destroy();
   compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets: [
-    { label: `卖出 Iron Butterfly（K3=$${K3.toLocaleString()} K4=$${K4.toLocaleString()}）`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
+    { label: `卖出 Iron Butterfly 损益`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
 drawCompare9();
@@ -820,18 +820,18 @@ let comboChart9;
 function drawCombo9() {
   const K1 = +document.getElementById('strikeSlider9a').value;
   const K2 = +document.getElementById('strikeSlider9b').value;
-  const expand = +document.getElementById('expand9').value;
   const dK = +document.getElementById('widthSlider9').value;
-  const K3 = K1 - expand, K4 = K2 + expand;
-  const pPrice = +document.getElementById('pmPrice9').value / 100;
-  const q = pPrice * (K4 - K3) / (K2 - K1);
-  const lo = K3 - 10000, hi = K4 + 10000;
+  const p = +document.getElementById('pmPrice9').value / 100;
+  const q = p + 0.05;
+  const lo = K1 - 10000, hi = K2 + 10000;
   const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    const pm = ((s >= K1 && s <= K2) ? 1 : 0) - pPrice; pmPnl.push(pm);
-    const db = q - rangeSpread(s, K3, K4, dK); deribitPnl.push(db);
-    comboPnl.push(pm + db);
+    const pmPayoff = (s >= K1 && s <= K2) ? 1 : 0;
+    const dbPayoff = rangeSpread(s, K1, K2 - dK, dK);
+    pmPnl.push(pmPayoff - p);
+    deribitPnl.push(q - dbPayoff);
+    comboPnl.push((pmPayoff - p) + (q - dbPayoff));
   }
   if (comboChart9) comboChart9.destroy();
   comboChart9 = new Chart(comboCtx9, { type: 'line', data: { labels, datasets: [
@@ -843,7 +843,6 @@ function drawCombo9() {
 // Shared listeners for #9
 document.getElementById('strikeSlider9a').addEventListener('input', e => { document.getElementById('strikeVal9a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); drawCompare9(); drawCombo9(); });
 document.getElementById('strikeSlider9b').addEventListener('input', e => { document.getElementById('strikeVal9b').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); drawCompare9(); drawCombo9(); });
-document.getElementById('expand9').addEventListener('input', e => { document.getElementById('expandVal9').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare9(); drawCombo9(); });
 document.getElementById('widthSlider9').addEventListener('input', e => { document.getElementById('widthVal9').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare9(); drawCombo9(); });
 document.getElementById('pmPrice9').addEventListener('input', e => { document.getElementById('pmPriceVal9').textContent = '$' + (e.target.value / 100).toFixed(2); drawPayoff9(); drawCompare9(); drawCombo9(); });
 drawCombo9();
@@ -876,26 +875,25 @@ drawPayoff11();
 
 const compareCtx11 = document.getElementById('compareChart11').getContext('2d');
 let compareChart11;
+// #11: Buy No = pays $1 OUTSIDE K1-K2. Deribit: buy Iron Butterfly (pays 1 inside K3-K4)
+// Ramps inside K1-K2 → where PM=0, Deribit ramp covers it; outside both=mirror
 function drawCompare11() {
   const K1 = +document.getElementById('strikeSlider11a').value;
   const K2 = +document.getElementById('strikeSlider11b').value;
-  const expand = +document.getElementById('expand11').value;
   const dK = +document.getElementById('widthSlider11').value;
-  const K3 = K1 - expand, K4 = K2 + expand;
   const p = +document.getElementById('pmPrice11').value / 100;
-  const q = (1 - p) * (K4 - K3) / (K2 - K1);
-  const lo = K3 - 10000, hi = K4 + 10000;
+  const q = p + 0.05;
+  const lo = K1 - 10000, hi = K2 + 10000;
   const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    data.push(q - (1 - rangeSpread(s, K3, K4, dK)));
+    data.push(q - (1 - rangeSpread(s, K1, K2 - dK, dK)));
   }
   if (compareChart11) compareChart11.destroy();
   compareChart11 = new Chart(compareCtx11, { type: 'line', data: { labels, datasets: [
-    { label: `卖出反向 Iron Butterfly（K3=$${K3.toLocaleString()} K4=$${K4.toLocaleString()}）`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
+    { label: `买入 Iron Butterfly 损益`, data, borderColor: '#ca8a04', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 2.5 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
-document.getElementById('expand11').addEventListener('input', e => { document.getElementById('expandVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); drawCombo11(); });
 document.getElementById('widthSlider11').addEventListener('input', e => { document.getElementById('widthVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); drawCombo11(); });
 drawCompare11();
 
@@ -904,23 +902,23 @@ let comboChart11;
 function drawCombo11() {
   const K1 = +document.getElementById('strikeSlider11a').value;
   const K2 = +document.getElementById('strikeSlider11b').value;
-  const expand = +document.getElementById('expand11').value;
   const dK = +document.getElementById('widthSlider11').value;
-  const K3 = K1 - expand, K4 = K2 + expand;
-  const pPrice = +document.getElementById('pmPrice11').value / 100;
-  const q = (1 - pPrice) * (K4 - K3) / (K2 - K1);
-  const lo = K3 - 10000, hi = K4 + 10000;
+  const p = +document.getElementById('pmPrice11').value / 100;
+  const q = p + 0.05;
+  const lo = K1 - 10000, hi = K2 + 10000;
   const labels = [], pmPnl = [], deribitPnl = [], comboPnl = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    const pm = ((s < K1 || s > K2) ? 1 : 0) - pPrice; pmPnl.push(pm);
-    const db = q - (1 - rangeSpread(s, K3, K4, dK)); deribitPnl.push(db);
-    comboPnl.push(pm + db);
+    const pmPayoff = (s < K1 || s > K2) ? 1 : 0;
+    const dbPayoff = 1 - rangeSpread(s, K1, K2 - dK, dK);
+    pmPnl.push(pmPayoff - p);
+    deribitPnl.push(q - dbPayoff);
+    comboPnl.push((pmPayoff - p) + (q - dbPayoff));
   }
   if (comboChart11) comboChart11.destroy();
   comboChart11 = new Chart(comboCtx11, { type: 'line', data: { labels, datasets: [
     { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
-    { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
+    { label: 'Deribit Buy Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
     { label: '组合 PnL', data: comboPnl, borderColor: '#16a34a', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, pointRadius: 0, borderWidth: 3 }
   ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
 }
