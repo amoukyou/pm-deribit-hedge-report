@@ -428,9 +428,16 @@ function toggleQPSort() {
 }
 function toggleNull() { hideNull = !hideNull; renderTable(); }
 
-// Auto refresh every 60s
+// Auto refresh every 60s, pause when detail is open
+let refreshTimer = null;
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    if (!openDetail) fetchData();
+  }, 60000);
+}
 fetchData();
-setInterval(fetchData, 60000);
+startAutoRefresh();
 </script>
 </body>
 </html>
