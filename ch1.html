@@ -654,20 +654,16 @@ let compareChart;
 function drawCompare() {
   const K = +document.getElementById('strikeSlider').value;
   const dK = +document.getElementById('widthSlider').value;
-  const pPrice = +document.getElementById('pmPrice').value / 100;
   const lo = K - 15000, hi = K + 15000;
-  const labels = [], pmPnl = [], deribitPnl = [];
+  const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    pmPnl.push((s >= K ? 1 : 0) - pPrice);
-    deribitPnl.push(pPrice - Math.max(0, Math.min((s - K) / dK, 1)));
+    data.push(Math.max(0, Math.min((s - K) / dK, 1)));
   }
-  const datasets = [
-    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: '#16a34a', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 },
-    { label: `Deribit Sell Spread PnL（ΔK=$${dK.toLocaleString()}）`, data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
-  ];
   if (compareChart) compareChart.destroy();
-  compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
+  compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets: [
+    { label: `Deribit Bull Call Spread（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
 drawCompare();
 
@@ -724,20 +720,16 @@ let compareChart2;
 function drawCompareB() {
   const K = +document.getElementById('strikeSliderB').value;
   const dK = +document.getElementById('widthSliderB').value;
-  const pPrice = +document.getElementById('pmPriceB').value / 100;
   const lo = K - 15000, hi = K + 15000;
-  const labels = [], pmPnl = [], deribitPnl = [];
+  const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    pmPnl.push((s < K ? 1 : 0) - pPrice);
-    deribitPnl.push(pPrice - Math.max(0, Math.min((K - s) / dK, 1)));
+    data.push(Math.max(0, Math.min((K - s) / dK, 1)));
   }
-  const datasets = [
-    { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#16a34a', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 },
-    { label: `Deribit Sell Put Spread PnL（ΔK=$${dK.toLocaleString()}）`, data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
-  ];
   if (compareChart2) compareChart2.destroy();
-  compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
+  compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets: [
+    { label: `Deribit Bear Put Spread（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
 drawCompareB();
 
@@ -803,20 +795,16 @@ function drawCompare9() {
   const K1 = +document.getElementById('strikeSlider9a').value;
   const K2 = +document.getElementById('strikeSlider9b').value;
   const dK = +document.getElementById('widthSlider9').value;
-  const pPrice = +document.getElementById('pmPrice9').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
-  const labels = [], pmPnl = [], deribitPnl = [];
+  const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    pmPnl.push(((s >= K1 && s <= K2) ? 1 : 0) - pPrice);
-    deribitPnl.push(pPrice - rangeSpread(s, K1, K2, dK));
+    data.push(rangeSpread(s, K1, K2, dK));
   }
-  const datasets = [
-    { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: '#16a34a', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 },
-    { label: `Deribit Sell Spread PnL（ΔK=$${dK.toLocaleString()}）`, data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
-  ];
   if (compareChart9) compareChart9.destroy();
-  compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
+  compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets: [
+    { label: `Deribit Iron Butterfly（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
 drawCompare9();
 
@@ -880,19 +868,16 @@ function drawCompare11() {
   const K1 = +document.getElementById('strikeSlider11a').value;
   const K2 = +document.getElementById('strikeSlider11b').value;
   const dK = +document.getElementById('widthSlider11').value;
-  const pPrice = +document.getElementById('pmPrice11').value / 100;
   const lo = Math.min(K1, K2) - 15000, hi = Math.max(K1, K2) + 15000;
-  const labels = [], pmPnl = [], deribitPnl = [];
+  const labels = [], data = [];
   for (let s = lo; s <= hi; s += 200) {
     labels.push(s >= 1000 ? (s/1000).toFixed(1)+'k' : s);
-    pmPnl.push(((s < K1 || s > K2) ? 1 : 0) - pPrice);
-    deribitPnl.push(pPrice - (1 - rangeSpread(s, K1, K2, dK)));
+    data.push(1 - rangeSpread(s, K1, K2, dK));
   }
   if (compareChart11) compareChart11.destroy();
   compareChart11 = new Chart(compareCtx11, { type: 'line', data: { labels, datasets: [
-    { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#16a34a', segment: segmentGreenRed, fill: { target: 'origin', above: 'rgba(22,163,74,0.15)', below: 'rgba(220,38,38,0.15)' }, stepped: true, pointRadius: 0, borderWidth: 2.5 },
-    { label: `Deribit Sell 反向 Spread PnL（ΔK=$${dK.toLocaleString()}）`, data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: zeroLineGrid } } } });
+    { label: `Deribit 反向 Iron Butterfly（ΔK=$${dK.toLocaleString()}）`, data, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5, fill: false }
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
 }
 document.getElementById('widthSlider11').addEventListener('input', e => { document.getElementById('widthVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); drawCombo11(); });
 drawCompare11();
