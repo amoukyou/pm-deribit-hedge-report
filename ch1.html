@@ -641,7 +641,7 @@ function drawPayoff() {
   if (payoffChart) payoffChart.destroy();
   payoffChart = new Chart(payoffCtx, { type: 'line', data: { labels, datasets: [
     { label: 'Buy Yes：高于 K → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 drawPayoff();
 
@@ -658,7 +658,7 @@ function drawCompare() {
     { label: `Deribit Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
   ];
   if (compareChart) compareChart.destroy();
-  compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  compareChart = new Chart(compareCtx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 drawCompare();
 
@@ -680,9 +680,7 @@ function drawCombo() {
   comboChart = new Chart(comboCtx, { type: 'line', data: { labels, datasets: [
     { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
     { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
-    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
-    { data: Array(labels.length).fill(0), borderColor: '#d1d5db', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
+    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 }  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280', callback: function(v){ return v === 0 ? '— 0 —' : v; } }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#ef4444' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 // Shared listeners for #1
 document.getElementById('strikeSlider').addEventListener('input', e => { document.getElementById('strikeVal').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff(); drawCompare(); drawCombo(); });
@@ -707,7 +705,7 @@ function drawPayoffB() {
   if (payoffChart2) payoffChart2.destroy();
   payoffChart2 = new Chart(payoffCtxB, { type: 'line', data: { labels, datasets: [
     { label: 'Buy No：低于 K → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 drawPayoffB();
 
@@ -728,7 +726,7 @@ function drawCompareB() {
     { label: `Deribit Put Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
   ];
   if (compareChart2) compareChart2.destroy();
-  compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  compareChart2 = new Chart(compareCtxB, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 drawCompareB();
 
@@ -750,9 +748,7 @@ function drawComboB() {
   comboChart2 = new Chart(comboCtxB, { type: 'line', data: { labels, datasets: [
     { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
     { label: 'Deribit Sell Put Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
-    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
-    { data: Array(labels.length).fill(0), borderColor: '#d1d5db', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
+    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 }  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280', callback: function(v){ return v === 0 ? '— 0 —' : v; } }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#ef4444' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 // Shared listeners for #3
 document.getElementById('strikeSliderB').addEventListener('input', e => { document.getElementById('strikeValB').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoffB(); drawCompareB(); drawComboB(); });
@@ -785,7 +781,7 @@ function drawPayoff9() {
   if (payoffChart9) payoffChart9.destroy();
   payoffChart9 = new Chart(payoffCtx9, { type: 'line', data: { labels, datasets: [
     { label: 'Buy Yes：K1 ≤ S ≤ K2 → $1', data: yesData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 drawPayoff9();
 
@@ -806,7 +802,7 @@ function drawCompare9() {
   datasets.push({ label: 'PM Binary（方波）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 });
   datasets.push({ label: `Deribit Range Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 });
   if (compareChart9) compareChart9.destroy();
-  compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  compareChart9 = new Chart(compareCtx9, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 drawCompare9();
 
@@ -829,9 +825,7 @@ function drawCombo9() {
   comboChart9 = new Chart(comboCtx9, { type: 'line', data: { labels, datasets: [
     { label: 'PM Buy Yes PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
     { label: 'Deribit Sell Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
-    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
-    { data: Array(labels.length).fill(0), borderColor: '#d1d5db', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
+    { label: '组合 PnL（波动被部分抵消）', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 }  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280', callback: function(v){ return v === 0 ? '— 0 —' : v; } }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#ef4444' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 // Shared listeners for #9 - redraw all 3 charts
 document.getElementById('strikeSlider9a').addEventListener('input', e => { document.getElementById('strikeVal9a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff9(); drawCompare9(); drawCombo9(); });
@@ -858,7 +852,7 @@ function drawPayoff11() {
   if (payoffChart11) payoffChart11.destroy();
   payoffChart11 = new Chart(payoffCtx11, { type: 'line', data: { labels, datasets: [
     { label: 'Buy No：S < K1 或 S > K2 → $1', data: noData, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.12)', fill: true, stepped: true, pointRadius: 0, borderWidth: 2 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: '票最后值多少 ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 // Shared listeners for #11
 document.getElementById('strikeSlider11a').addEventListener('input', e => { document.getElementById('strikeVal11a').textContent = '$' + (+e.target.value).toLocaleString(); drawPayoff11(); drawCompare11(); drawCombo11(); });
@@ -882,7 +876,7 @@ function drawCompare11() {
   compareChart11 = new Chart(compareCtx11, { type: 'line', data: { labels, datasets: [
     { label: 'PM Binary（反向方波）', data: pmData, borderColor: '#4f46e5', stepped: true, pointRadius: 0, borderWidth: 2.5 },
     { label: `Deribit 反向 Spread（ΔK=$${dK.toLocaleString()}）`, data: deribitData, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 2.5 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' }, min: -0.1, max: 1.15 } } } });
+  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'Payoff ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#9ca3af' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 1.5 : 1; } }, min: -0.1, max: 1.15 } } } });
 }
 document.getElementById('widthSlider11').addEventListener('input', e => { document.getElementById('widthVal11').textContent = '$' + (+e.target.value).toLocaleString(); drawCompare11(); drawCombo11(); });
 drawCompare11();
@@ -906,9 +900,7 @@ function drawCombo11() {
   comboChart11 = new Chart(comboCtx11, { type: 'line', data: { labels, datasets: [
     { label: 'PM Buy No PnL', data: pmPnl, borderColor: '#4f46e5', pointRadius: 0, borderWidth: 1.5, stepped: true, borderDash: [5,3] },
     { label: 'Deribit Sell 反向 Spread PnL', data: deribitPnl, borderColor: '#ca8a04', pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] },
-    { label: '组合 PnL', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 },
-    { data: Array(labels.length).fill(0), borderColor: '#d1d5db', borderDash: [5,5], pointRadius: 0, borderWidth: 1 }
-  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: '#e5e7eb' } } } } });
+    { label: '组合 PnL', data: comboPnl, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.12)', fill: true, pointRadius: 0, borderWidth: 4 }  ] }, options: { responsive: true, plugins: { legend: { labels: { color: '#374151' } } }, scales: { x: { title: { display: true, text: '最后 BTC 价格', color: '#6b7280' }, ticks: { color: '#6b7280', maxTicksLimit: 10 }, grid: { color: '#e5e7eb' } }, y: { title: { display: true, text: 'PnL ($)', color: '#6b7280' }, ticks: { color: '#6b7280', callback: function(v){ return v === 0 ? '— 0 —' : v; } }, grid: { color: function(ctx){ return ctx.tick.value === 0 ? '#ef4444' : '#e5e7eb'; }, lineWidth: function(ctx){ return ctx.tick.value === 0 ? 2 : 1; } } } } } });
 }
 document.getElementById('pmPrice11').addEventListener('input', e => { document.getElementById('pmPriceVal11').textContent = '$' + (e.target.value / 100).toFixed(2); drawCombo11(); });
 drawCombo11();
