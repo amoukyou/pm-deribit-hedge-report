@@ -455,14 +455,12 @@ btcAbove.forEach(r => {
   else if (diffH > 12) badgeClass = 'badge-mid';
   else if (diffH > 0) badgeClass = 'badge-midhigh';
 
-  // PM link: extract price (k) and day
+  // PM link: event-level URL (all price levels on one page)
   const pm = r[0];
-  const priceMatch = pm.match(/\$([\d,]+)/);
   const dayMatch = pm.match(/Mar (\d+)/);
   let pmLink = '#';
-  if (priceMatch && dayMatch) {
-    const pk = parseInt(priceMatch[1].replace(/,/g,'')) / 1000;
-    pmLink = `https://polymarket.com/event/bitcoin-above-${pk}k-on-march-${dayMatch[1]}`;
+  if (dayMatch) {
+    pmLink = `https://polymarket.com/event/bitcoin-above-on-march-${dayMatch[1]}`;
   }
 
   // Deribit link: extract instrument name (without /P suffix)
