@@ -360,9 +360,9 @@ function toggleDetail(tr, r) {
     let dbPayoff;
     if (r.type === 'Above') {
       if (isYes) {
-        dbPayoff = Math.max(0, Math.min((s - K) / spread, 1));
+        dbPayoff = Math.max(0, Math.min((s - K) / sw, 1));
       } else {
-        dbPayoff = Math.max(0, Math.min((K - s) / spread, 1));
+        dbPayoff = Math.max(0, Math.min((K - s) / sw, 1));
       }
     } else {
       dbPayoff = pmPayoff; // simplified for Range
