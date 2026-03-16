@@ -339,11 +339,16 @@ function toggleDetail(tr, r) {
   openDetail = { tr, detailRow };
 
   // Draw charts — all values in TOTAL USD (× pmQty tickets)
-  const lo = K - 15000, hi = K + 15000;
+  // Dynamic range: spread zone + 30% padding on each side
+  const actionWidth = sw * 2; // the spread transition zone
+  const pad = Math.max(actionWidth * 0.3, sw); // at least 1x spread width padding
+  const lo = Math.round(K - actionWidth - pad);
+  const hi = Math.round(K + actionWidth + pad);
+  const step = Math.max(50, Math.round((hi - lo) / 100)); // ~100 data points
   const labels = [], pmPnl = [], dbPnl = [], comboPnl = [];
 
-  for (let s = lo; s <= hi; s += 300) {
-    labels.push('$' + (s/1000).toFixed(0) + 'k');
+  for (let s = lo; s <= hi; s += step) {
+    labels.push('$' + (s >= 1000 ? (s/1000).toFixed(1) + 'k' : s));
 
     // PM payoff per ticket
     let pmPayoff;
@@ -409,12 +414,12 @@ function toggleDetail(tr, r) {
     { label:`Deribit ×0.1BTC`, data:dbPnl, borderColor:'#ca8a04', segment:segGR, fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'}, pointRadius:dbPt.r, pointBackgroundColor:dbPt.bg, pointBorderColor:dbPt.bc, pointBorderWidth:2, pointHoverRadius:10, borderWidth:2 }
   ]}, options:chartOpts('损益 (USD)') });
 
-  // Chart 3: Zoomed into the action area around K, with breakeven annotations
-  // Find the interesting range: where combo PnL changes (not flat)
-  const zoomPad = sw * 3; // 3x spread width padding
-  const zoomLo = K - zoomPad, zoomHi = K + zoomPad;
+  // Chart 3: Zoomed tighter into the transition zone
+  const z3pad = Math.max(sw * 1.5, actionWidth * 0.5);
+  const zoomLo = Math.round(K - sw - z3pad), zoomHi = Math.round(K + sw + z3pad);
+  const zStep = Math.max(20, Math.round((zoomHi - zoomLo) / 120));
   const zLabels = [], zCombo = [];
-  for (let s = zoomLo; s <= zoomHi; s += 100) {
+  for (let s = zoomLo; s <= zoomHi; s += zStep) {
     zLabels.push('$' + (s/1000).toFixed(1) + 'k');
     let pmPay;
     if (r.type === 'Above') { pmPay = isYes ? (s >= K ? 1 : 0) : (s < K ? 1 : 0); }
