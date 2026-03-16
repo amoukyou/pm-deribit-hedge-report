@@ -454,7 +454,23 @@ btcAbove.forEach(r => {
   if (diffH > 100) badgeClass = 'badge-low';
   else if (diffH > 12) badgeClass = 'badge-mid';
   else if (diffH > 0) badgeClass = 'badge-midhigh';
-  tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td style="font-family:monospace;font-size:0.8rem;">${r[2]}</td><td>${r[3]}</td><td><span class="badge ${badgeClass}">${diffH}h</span></td><td>${r[5]}</td>`;
+
+  // PM link: extract price (k) and day
+  const pm = r[0];
+  const priceMatch = pm.match(/\$([\d,]+)/);
+  const dayMatch = pm.match(/Mar (\d+)/);
+  let pmLink = '#';
+  if (priceMatch && dayMatch) {
+    const pk = parseInt(priceMatch[1].replace(/,/g,'')) / 1000;
+    pmLink = `https://polymarket.com/event/bitcoin-above-${pk}k-on-march-${dayMatch[1]}`;
+  }
+
+  // Deribit link: extract instrument name (without /P suffix)
+  const dbName = r[2].replace('-C/P','');
+  const dbCallLink = `https://www.deribit.com/options/BTC/${dbName}-C`;
+  const dbPutLink = `https://www.deribit.com/options/BTC/${dbName}-P`;
+
+  tr.innerHTML = `<td><a href="${pmLink}" target="_blank" style="color:var(--accent);text-decoration:none;">${pm}</a></td><td>${r[1]}</td><td style="font-family:monospace;font-size:0.8rem;"><a href="${dbCallLink}" target="_blank" style="color:var(--ch2);text-decoration:none;">${dbName}-C</a> / <a href="${dbPutLink}" target="_blank" style="color:var(--ch2);text-decoration:none;">P</a></td><td>${r[3]}</td><td><span class="badge ${badgeClass}">${diffH}h</span></td><td>${r[5]}</td>`;
   tbody.appendChild(tr);
 });
 </script>

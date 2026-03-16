@@ -1,33 +1,33 @@
 # PM × Deribit 对冲研究报告
 
-研究 Polymarket 加密二元市场做市 + Deribit 期权/永续合约对冲的可行性。目标是在零方向风险敞口下，赚取 PM Maker Rebate 及跨市场风险价差。
+研究 Polymarket 加密二元市场 + Deribit 期权对冲套利的可行性。
 
 ## 在线查看
 
 https://amoukyou.github.io/pm-deribit-hedge-report/
 
-## 核心结论
+## 报告结构
 
-无库存起手时，优先研究：
+### 首页
+- 研究动机与背景
 
-1. **BTC** — 流动性最好
-2. **Above / Below** — 与 Deribit 适配度最高
-3. **1H / 4H / Daily** — 可对冲且 gamma 可控
-4. **价格 40%–60%** — fee_equivalent 权重最大，分到最多 rebate
-5. **Buy Yes / Buy No** — 无需库存，直接可执行
+### 第一章：问题分类与策略推导
+- PM 加密市场 4 类问题（Up/Down、Above/Below、Price Range、Hit Price）
+- 4 类 × Yes/No × Buy/Sell = 16 种策略（编号 #1–#16），含近似期权组合和建议对冲方式
+- 研究优先顺序：筛出 #1、#3、#9、#11（适配度高 + 无库存可做）
+- 4 种优先策略的理论损益图（标准期权损益图风格，红绿分区）
+- 全绿条件推导：q − p > 0（Deribit 权利金 > PM 票价）
+- 实际手续费分析：PM taker fee + Deribit 每腿费用
+- 研究优先级漏斗：逐步推导找出套利机会
 
-## 报告内容
+### 第二章：认识风险，筛出观察样本
+- 核心风险：PM 结束时间（16:00 UTC）vs Deribit 到期时间（08:00 UTC）的时间差
+- 两种处理方法：事前筛选 + 事后提前平仓
+- 完整实盘数据表：45 个 BTC Above 问题 × Deribit 匹配期权（含超链接）
+- 数据来源：Polymarket Gamma API + Deribit Public API
 
-- PM 加密市场 4 类问题分类（Up/Down、Above/Below、Price Range、Hit Price）
-- 4 类 × Yes/No × Buy/Sell = 16 个玩法的适配度分析
-- 无库存起手的研究优先顺序
-- 交互式图表：单腿盈亏、PM vs Deribit 近似对比、组合后 PnL
-- 研究优先级漏斗图
+## 数据来源
 
-## 交互功能
-
-- 拖动目标价位 (K)
-- 拖动组合宽度 (ΔK)，观察 Deribit 斜坡如何逼近 PM 台阶
-- 切换 Buy Yes / Buy No / 两者对比
-- 切换 PM / Deribit / 组合视图
-- 按问题类型和操作筛选 16 玩法表
+- PM 市场数据：[Polymarket Gamma API](https://gamma-api.polymarket.com)
+- Deribit 期权数据：[Deribit Public API](https://www.deribit.com/api/v2/public)
+- PM Maker Rebate 规则：[Polymarket Docs](https://docs.polymarket.com/market-makers/maker-rebates)
