@@ -6,7 +6,6 @@ const { DatabaseSync } = require('node:sqlite');
 
 const PORT = 3456;
 const BASE = __dirname;
-const SPREAD_WIDTH = 1000;
 const REFRESH_INTERVAL = 30000; // 30s
 
 // --- SQLite ---
@@ -73,10 +72,48 @@ async function getDeribitTicker(instrument) {
   return { bid: r.best_bid_price, ask: r.best_ask_price, mark: r.mark_price, underlying: r.underlying_price };
 }
 
+// --- Load Deribit available strikes per expiry ---
+let deribitStrikes = {}; // { '17MAR26': [63000, 64000, ...], ... }
+
+async function loadDeribitStrikes() {
+  const data = await fetchJSON('https://www.deribit.com/api/v2/public/get_instruments?currency=BTC&kind=option&expired=false');
+  if (!data || !data.result) return;
+  deribitStrikes = {};
+  for (const inst of data.result) {
+    const name = inst.instrument_name; // BTC-17MAR26-74000-C
+    const parts = name.split('-');
+    const expiry = parts[1]; // 17MAR26
+    if (!deribitStrikes[expiry]) deribitStrikes[expiry] = new Set();
+    deribitStrikes[expiry].add(inst.strike);
+  }
+  // Convert to sorted arrays
+  for (const exp in deribitStrikes) {
+    deribitStrikes[exp] = [...deribitStrikes[exp]].sort((a, b) => a - b);
+  }
+  console.log(`  Loaded Deribit strikes for ${Object.keys(deribitStrikes).length} expiries`);
+}
+
+function findNextStrike(expiry, K, direction) {
+  // direction: 'up' = next higher, 'down' = next lower
+  const strikes = deribitStrikes[expiry];
+  if (!strikes) return null;
+  if (direction === 'up') {
+    return strikes.find(s => s > K) || null;
+  } else {
+    for (let i = strikes.length - 1; i >= 0; i--) {
+      if (strikes[i] < K) return strikes[i];
+    }
+    return null;
+  }
+}
+
 // --- Background data refresh ---
 async function refreshData() {
   const t0 = Date.now();
   console.log(`[${new Date().toISOString()}] Refreshing...`);
+
+  // Load available strikes first
+  await loadDeribitStrikes();
 
   const refTicker = await getDeribitTicker('BTC-17MAR26-74000-C');
   const underlying = refTicker.underlying || 73500;
@@ -94,17 +131,24 @@ async function refreshData() {
 
     if (m.type === 'Above') {
       const K = m.strike;
-      const dbPrefix = m.deribit_instrument;
-      const k2 = K + SPREAD_WIDTH, k1 = K - SPREAD_WIDTH;
-      const dbK2 = dbPrefix.replace(`-${K}`, `-${k2}`);
-      const dbK1 = dbPrefix.replace(`-${K}`, `-${k1}`);
+      const dbPrefix = m.deribit_instrument; // BTC-17MAR26-74000
+      const expiry = dbPrefix.split('-')[1]; // 17MAR26
+
+      // Find nearest next strike up (for #1 call spread) and down (for #3 put spread)
+      const k2 = findNextStrike(expiry, K, 'up');
+      const k1 = findNextStrike(expiry, K, 'down');
+      const sw_up = k2 ? k2 - K : null;   // actual spread width for #1
+      const sw_down = k1 ? K - k1 : null;  // actual spread width for #3
+
+      const dbK2 = k2 ? dbPrefix.replace(`-${K}`, `-${k2}`) : null;
+      const dbK1 = k1 ? dbPrefix.replace(`-${K}`, `-${k1}`) : null;
 
       const ci = [dbTasks.length]; dbTasks.push(() => getDeribitTicker(`${dbPrefix}-C`));
-      ci.push(dbTasks.length); dbTasks.push(() => getDeribitTicker(`${dbK2}-C`));
+      ci.push(dbTasks.length); dbTasks.push(k2 ? () => getDeribitTicker(`${dbK2}-C`) : async () => ({bid:null,ask:null,mark:null,underlying:null}));
       ci.push(dbTasks.length); dbTasks.push(() => getDeribitTicker(`${dbPrefix}-P`));
-      ci.push(dbTasks.length); dbTasks.push(() => getDeribitTicker(`${dbK1}-P`));
+      ci.push(dbTasks.length); dbTasks.push(k1 ? () => getDeribitTicker(`${dbK1}-P`) : async () => ({bid:null,ask:null,mark:null,underlying:null}));
 
-      metas.push({ m, yesIdx, noIdx, type: 'Above', K, k2, k1, dbPrefix, ci });
+      metas.push({ m, yesIdx, noIdx, type: 'Above', K, k2, k1, sw_up, sw_down, dbPrefix, dbK2, dbK1, ci });
     } else {
       metas.push({ m, yesIdx, noIdx, type: 'Range' });
     }
@@ -126,30 +170,30 @@ async function refreshData() {
     const noAsk = pmR[meta.noIdx];
 
     if (meta.type === 'Above') {
-      const { K, k2, k1, dbPrefix, ci } = meta;
+      const { K, k2, k1, sw_up, sw_down, dbPrefix, dbK2, dbK1, ci } = meta;
       const callK = dbR[ci[0]], callK2 = dbR[ci[1]], putK = dbR[ci[2]], putK1 = dbR[ci[3]];
 
-      // #1: sell K call (at bid), buy K+1000 call (at ask)
+      // #1: sell K call (at bid), buy next-strike-up call (at ask)
       let q1 = null;
-      if (callK.bid != null && callK2.ask != null) q1 = (callK.bid - callK2.ask) * underlying / SPREAD_WIDTH;
+      if (k2 && sw_up && callK.bid != null && callK2.ask != null) q1 = (callK.bid - callK2.ask) * underlying / sw_up;
       const qp1 = (q1 != null && yesAsk != null) ? +(q1 - yesAsk).toFixed(4) : null;
       insert.run('Above', '#1', 'Buy Yes', m.question, m.pm_date, String(K), yesAsk,
-        `Sell ${K}C / Buy ${k2}C`, q1, qp1, m.time_diff_hours,
+        k2 ? `Sell ${K}C / Buy ${k2}C` : 'No matching strike', q1, qp1, m.time_diff_hours,
         `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-C`,
         `${dbPrefix}-C`, 'Sell', callK.bid,
-        `${dbPrefix.replace(`-${K}`,`-${k2}`)}-C`, 'Buy', callK2.ask,
-        underlying, SPREAD_WIDTH, now);
+        k2 ? `${dbK2}-C` : null, 'Buy', k2 ? callK2.ask : null,
+        underlying, sw_up, now);
 
-      // #3: sell K put (at bid), buy K-1000 put (at ask)
+      // #3: sell K put (at bid), buy next-strike-down put (at ask)
       let q3 = null;
-      if (putK.bid != null && putK1.ask != null) q3 = (putK.bid - putK1.ask) * underlying / SPREAD_WIDTH;
+      if (k1 && sw_down && putK.bid != null && putK1.ask != null) q3 = (putK.bid - putK1.ask) * underlying / sw_down;
       const qp3 = (q3 != null && noAsk != null) ? +(q3 - noAsk).toFixed(4) : null;
       insert.run('Above', '#3', 'Buy No', m.question, m.pm_date, String(K), noAsk,
-        `Sell ${K}P / Buy ${k1}P`, q3, qp3, m.time_diff_hours,
+        k1 ? `Sell ${K}P / Buy ${k1}P` : 'No matching strike', q3, qp3, m.time_diff_hours,
         `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-P`,
         `${dbPrefix}-P`, 'Sell', putK.bid,
-        `${dbPrefix.replace(`-${K}`,`-${k1}`)}-P`, 'Buy', putK1.ask,
-        underlying, SPREAD_WIDTH, now);
+        k1 ? `${dbK1}-P` : null, 'Buy', k1 ? putK1.ask : null,
+        underlying, sw_down, now);
     } else {
       insert.run('Range', '#9', 'Buy Yes', m.question, m.pm_date, JSON.stringify(m.strike), yesAsk, 'Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, underlying, null, now);
       insert.run('Range', '#11', 'Buy No', m.question, m.pm_date, JSON.stringify(m.strike), noAsk, 'Rev Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, underlying, null, now);
