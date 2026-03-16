@@ -293,11 +293,11 @@ function toggleDetail(tr, r) {
   const leg1noMarket = leg1p == null || leg1p === 0;
   const leg2noMarket = leg2p == null || leg2p === 0;
   const anyNoMarket = leg1noMarket || leg2noMarket;
-  // All Deribit values shown for 0.1 BTC (actual trade size)
-  const leg1usd = leg1noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg1p * ul * 0.1).toFixed(2);
-  const leg2usd = leg2noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg2p * ul * 0.1).toFixed(2);
-  const leg1btc = leg1noMarket ? '无挂单' : (leg1p * 0.1).toFixed(5) + ' BTC';
-  const leg2btc = leg2noMarket ? '无挂单' : (leg2p * 0.1).toFixed(5) + ' BTC';
+  // Deribit: show price per contract + total for 0.1 contracts
+  const leg1usd = leg1noMarket ? '<span style="color:var(--red);">无挂单</span>' : leg1p.toFixed(4) + ' BTC/合约 × 0.1 = <b>$' + (leg1p * ul * 0.1).toFixed(2) + '</b>';
+  const leg2usd = leg2noMarket ? '<span style="color:var(--red);">无挂单</span>' : leg2p.toFixed(4) + ' BTC/合约 × 0.1 = <b>$' + (leg2p * ul * 0.1).toFixed(2) + '</b>';
+  const leg1btc = '';
+  const leg2btc = '';
 
   const dbTotalBTC = (!anyNoMarket) ? (r.leg1_action === 'Sell' ? leg1p - leg2p : leg2p - leg1p) : null;
   const dbTotalUSD = dbTotalBTC != null ? (dbTotalBTC * ul * 0.1).toFixed(2) : '--';
@@ -321,8 +321,8 @@ function toggleDetail(tr, r) {
       <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;">
         <div style="font-weight:700;margin-bottom:8px;color:var(--blue);">Deribit 端（${r.deribit_desc}）</div>
         <table style="width:100%;font-size:0.8rem;">
-          <tr><td style="color:var(--muted);">${r.leg1_action || 'Sell'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;">${leg1btc} = ${leg1usd}</td></tr>
-          <tr><td style="color:var(--muted);">${r.leg2_action || 'Buy'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;">${leg2btc} = ${leg2usd}</td></tr>
+          <tr><td style="color:var(--muted);">${r.leg1_action || 'Sell'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${leg1usd}</td></tr>
+          <tr><td style="color:var(--muted);">${r.leg2_action || 'Buy'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${leg2usd}</td></tr>
           <tr><td style="color:var(--muted);">合约数量</td><td class="mono" style="text-align:right;">0.1 BTC / 每腿</td></tr>
           <tr><td style="color:var(--muted);">保证金占用（spread 最大风险）</td><td class="mono" style="text-align:right;">$${(sw * 0.1).toFixed(0)}</td></tr>
           <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">Deribit 净收入</td><td class="mono" style="text-align:right;font-weight:700;">${anyNoMarket ? '<span style="color:var(--red);">无法执行（盘口缺失）</span>' : '$'+dbTotalUSD}</td></tr>
