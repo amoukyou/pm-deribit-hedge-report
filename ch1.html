@@ -644,23 +644,33 @@
       真实全绿条件：<b>q − p &gt; 每张票分摊的手续费</b>（本例中手续费 $7.44 / 300 张 = $0.025/张，q−p 需 &gt; $0.025）
     </div>
 
-    <h3 style="font-size:1.05rem;margin:28px 0 12px;">两边手续费的算法都不是简单百分比</h3>
+    <h3 style="font-size:1.05rem;margin:28px 0 12px;">两边手续费都不是简单百分比</h3>
     <div class="prose">
-      <p><b><a href="https://docs.polymarket.com/market-makers/maker-rebates" target="_blank" style="color:var(--accent);">PM 手续费</a></b>：fee = C × p × 0.25 × (p×(1−p))²。这是一条非线性曲线——p = $0.50 时最高约 1.56%，但接近 $0 或 $1 时趋近于零。</p>
-      <p style="margin-top:10px;"><b><a href="https://support.deribit.com/hc/en-us/articles/25944746248989-Fees" target="_blank" style="color:var(--accent);">Deribit 手续费</a></b>：fee = min(0.03% × underlying 面值, 12.5% × 权利金)。正常按 BTC 面值算（跟期权贵不贵无关），但便宜期权有 12.5% 权利金上限保护。</p>
+      <p><b><a href="https://docs.polymarket.com/market-makers/maker-rebates" target="_blank" style="color:var(--accent);">PM 手续费</a></b>：fee = C × p × 0.25 × (p×(1−p))²。非线性曲线——p = $0.50 时最高约 1.56%，接近 $0 或 $1 时趋近于零。</p>
+      <p style="margin-top:10px;"><b><a href="https://support.deribit.com/hc/en-us/articles/25944746248989-Fees" target="_blank" style="color:var(--accent);">Deribit 手续费</a></b>：fee = min(0.03% × underlying 面值, 12.5% × 权利金)。正常按 BTC 面值算，但便宜期权有 12.5% 权利金上限保护。</p>
       <p style="margin-top:14px;">两边的规律刚好反过来：</p>
     </div>
     <div class="table-wrap" style="margin-top:12px;">
       <table>
-        <thead><tr><th></th><th>手续费高的情况</th><th>手续费低的情况</th></tr></thead>
+        <thead><tr><th></th><th>手续费高</th><th>手续费低</th></tr></thead>
         <tbody>
-          <tr><td style="font-weight:600;">PM</td><td>票价接近 $0.50（中间价位）</td><td>票价接近 $0 或 $1（结果接近确定）</td></tr>
-          <tr><td style="font-weight:600;">Deribit</td><td>ITM / ATM 期权（权利金高）</td><td>深度 OTM 期权（权利金低，12.5% cap 压低手续费）</td></tr>
+          <tr><td style="font-weight:600;">PM</td><td>票价接近 $0.50</td><td>票价接近 $0 或 $1</td></tr>
+          <tr><td style="font-weight:600;">Deribit</td><td>ITM / ATM 期权（权利金高）</td><td>深度 OTM 期权（权利金低，12.5% cap 生效）</td></tr>
         </tbody>
       </table>
     </div>
     <div class="callout" style="margin-top:16px;">
-      如果能找到 <b>PM 票价接近 $0 或 $1</b>（PM 手续费低）+ <b>Deribit 对应期权权利金也低</b>（12.5% cap 压低手续费）的组合，两边手续费同时很低，利润空间最大。
+      PM 票价接近 $0 或 $1 时，对应的 Deribit 期权也是深度 OTM（权利金低）。两个不同的收费机制在同一个市场状态下同时触底——<b>手续费两边同时最低，利润空间最大</b>。
+    </div>
+
+    <h3 style="font-size:1.05rem;margin:28px 0 12px;">补充收入：PM 的两个激励计划</h3>
+    <div class="prose">
+      <p>以上手续费计算用的是标准 taker fee（直接买入）。实际上 PM 还有两个额外的激励计划，如果后续策略升级为挂单做市，可以作为补充收入：</p>
+      <p style="margin-top:10px;">
+        <b>1. <a href="https://docs.polymarket.com/market-makers/maker-rebates" target="_blank" style="color:var(--accent);">Maker Rebates</a></b> — 你的挂单被 taker 吃掉后，从 taker 手续费里返还 20-25% 给你。每日 USDC 支付。<br>
+        <b>2. <a href="https://docs.polymarket.com/market-makers/liquidity-rewards" target="_blank" style="color:var(--accent);">Liquidity Rewards</a></b> — 只要挂单挂在那里就有奖励，不需要被成交。按 spread 紧度、挂单量、双边平衡度评分，每日 USDC 支付。
+      </p>
+      <p style="margin-top:10px;">这两个计划和本章的标准手续费计算是独立的。当前策略假设直接 taker 买入，不涉及这两项收入。但如果后续转为挂单做市，理论上两个都能拿到。</p>
     </div>
   </div>
 
