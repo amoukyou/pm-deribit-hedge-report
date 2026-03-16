@@ -321,6 +321,60 @@
     </div>
   </div>
 
+  <!-- 2.1b 其他交易所时间匹配 -->
+  <div class="section ch2">
+    <h2>能不能找到更近的时间匹配？</h2>
+    <div class="prose">
+      <p>Deribit 和 PM 固定差 8 小时。如果换其他交易所的期权，时间差能不能更小？</p>
+      <p style="margin-top:10px;">我们对比了 4 个有 BTC 期权的交易所，看它们的到期时间和 PM 16:00 UTC 的匹配度：</p>
+    </div>
+    <div class="table-wrap" style="margin-top:16px;">
+      <table class="ch2">
+        <thead><tr>
+          <th>交易所</th>
+          <th>到期时间</th>
+          <th>与 PM 时间差</th>
+          <th>到期频率</th>
+          <th>数据来源</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;"><a href="https://www.deribit.com/options/BTC" target="_blank" style="color:var(--ch2);">Deribit</a></td>
+            <td>08:00 UTC</td>
+            <td><span class="badge badge-midhigh">8h</span>（交易所先）</td>
+            <td>每日（工作日）+ 周五 + 月末</td>
+            <td>Deribit API</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;"><a href="https://www.okx.com/trade-options/btc-usd" target="_blank" style="color:var(--ch2);">OKX</a></td>
+            <td>08:00 UTC</td>
+            <td><span class="badge badge-midhigh">8h</span>（交易所先）</td>
+            <td>每日（但日期覆盖较少）</td>
+            <td>OKX API</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;"><a href="https://www.binance.com/en/eoptions/BTC" target="_blank" style="color:var(--ch2);">Binance</a></td>
+            <td>08:00 UTC</td>
+            <td><span class="badge badge-midhigh">8h</span>（交易所先）</td>
+            <td>每日 + 周五 + 月末</td>
+            <td>Binance eAPI</td>
+          </tr>
+          <tr style="background:rgba(13,148,136,0.06);">
+            <td style="font-weight:600;"><a href="https://finance.yahoo.com/quote/IBIT/options/" target="_blank" style="color:var(--ch2);">IBIT（BlackRock BTC ETF）</a></td>
+            <td>20:00 UTC（4:00 PM ET）</td>
+            <td><span class="badge badge-teal">4h</span>（PM 先）</td>
+            <td>周一/周三/周五</td>
+            <td>CBOE API</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:16px;">
+      <b>发现：IBIT 期权在同日到期时只差 4 小时</b>，比 Deribit 的 8 小时缩短一半。但 IBIT 是美股 ETF 期权，存在跨交易所资金调配成本（加密钱包 vs 美股券商）和行权价换算差异（IBIT 股价 vs BTC 价格）的问题。<b>目前先不考虑 IBIT，继续用 Deribit 作为主要对冲工具。</b>
+    </div>
+  </div>
+
   <!-- 2.2 方法1 -->
   <div class="section ch2">
     <h2 id="methods">两种最现实的处理方法</h2>
@@ -399,77 +453,6 @@
     </div>
   </div>
 
-  <!-- 2.7 其他交易所时间匹配 -->
-  <div class="section ch2">
-    <h2>能不能找到更近的时间匹配？</h2>
-    <div class="prose">
-      <p>Deribit 和 PM 固定差 8 小时。如果换其他交易所的期权，时间差能不能更小？</p>
-      <p style="margin-top:10px;">我们对比了 4 个有 BTC 期权的交易所，看它们的到期时间和 PM 16:00 UTC 的匹配度：</p>
-    </div>
-    <div class="table-wrap" style="margin-top:16px;">
-      <table class="ch2">
-        <thead><tr>
-          <th>交易所</th>
-          <th>到期时间</th>
-          <th>与 PM 时间差</th>
-          <th>到期频率</th>
-          <th>数据来源</th>
-        </tr></thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;"><a href="https://www.deribit.com/options/BTC" target="_blank" style="color:var(--ch2);">Deribit</a></td>
-            <td>08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8h</span>（交易所先）</td>
-            <td>每日（工作日）+ 周五 + 月末</td>
-            <td>Deribit API</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;"><a href="https://www.okx.com/trade-options/btc-usd" target="_blank" style="color:var(--ch2);">OKX</a></td>
-            <td>08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8h</span>（交易所先）</td>
-            <td>每日（但日期覆盖较少）</td>
-            <td>OKX API</td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;"><a href="https://www.binance.com/en/eoptions/BTC" target="_blank" style="color:var(--ch2);">Binance</a></td>
-            <td>08:00 UTC</td>
-            <td><span class="badge badge-midhigh">8h</span>（交易所先）</td>
-            <td>每日 + 周五 + 月末</td>
-            <td>Binance eAPI</td>
-          </tr>
-          <tr style="background:rgba(13,148,136,0.06);">
-            <td style="font-weight:600;"><a href="https://finance.yahoo.com/quote/IBIT/options/" target="_blank" style="color:var(--ch2);">IBIT（BlackRock BTC ETF）</a></td>
-            <td>20:00 UTC（4:00 PM ET）</td>
-            <td><span class="badge badge-teal">4h</span>（PM 先）</td>
-            <td>周一/周三/周五</td>
-            <td>CBOE API</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div style="margin-top:20px;">
-      <p style="font-weight:700;margin-bottom:12px;">按 PM 日期逐日对比最优匹配：</p>
-      <div class="table-wrap">
-        <table class="ch2">
-          <thead><tr><th>PM 日期</th><th>Deribit / OKX / Binance</th><th>IBIT</th><th>最优</th></tr></thead>
-          <tbody>
-            <tr><td>Mar 16 (周日)</td><td>Mar 17 到期，差 16h</td><td style="font-weight:600;color:var(--ch2);">Mar 16 同日到期，差 4h</td><td><span class="badge badge-teal">IBIT 4h</span></td></tr>
-            <tr><td>Mar 17 (周一)</td><td style="font-weight:600;">Mar 17 同日到期，差 8h</td><td>Mar 16 已过期，差 20h</td><td><span class="badge badge-midhigh">Deribit 8h</span></td></tr>
-            <tr><td>Mar 18 (周二)</td><td>Mar 18 同日到期，差 8h</td><td style="font-weight:600;color:var(--ch2);">Mar 18 同日到期，差 4h</td><td><span class="badge badge-teal">IBIT 4h</span></td></tr>
-            <tr><td>Mar 19 (周三)</td><td>Mar 19 同日到期，差 8h</td><td>Mar 18 已过期，差 20h</td><td><span class="badge badge-midhigh">Deribit 8h</span></td></tr>
-            <tr><td>Mar 20 (周四)</td><td>Mar 20 同日到期，差 8h</td><td style="font-weight:600;color:var(--ch2);">Mar 20 同日到期，差 4h</td><td><span class="badge badge-teal">IBIT 4h</span></td></tr>
-            <tr><td>Mar 21 (周五)</td><td>Mar 20 已过期，差 32h</td><td>Mar 20 已过期，差 20h</td><td><span class="badge badge-mid">IBIT 20h</span></td></tr>
-            <tr><td>Mar 22 (周六)</td><td>Mar 20 已过期，差 56h</td><td>Mar 23 到期，差 28h</td><td><span class="badge badge-mid">IBIT 28h</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="callout" style="margin-top:16px;">
-      <b>发现：IBIT 期权在同日到期时只差 4 小时</b>，比 Deribit 的 8 小时缩短一半。但 IBIT 是美股 ETF 期权，存在跨交易所资金调配成本（加密钱包 vs 美股券商）和行权价换算差异（IBIT 股价 vs BTC 价格）的问题。<b>目前先不考虑 IBIT，继续用 Deribit 作为主要对冲工具。</b>
-    </div>
-  </div>
 
   <!-- ===== 第二章结论 ===== -->
   <div class="summary-box ch2">
