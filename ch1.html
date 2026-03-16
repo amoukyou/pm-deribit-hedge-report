@@ -416,29 +416,20 @@
     <div class="table-wrap">
       <table>
         <thead><tr>
-          <th>编号</th><th>问题类型</th><th>方向</th><th>操作</th><th>近似期权组合</th><th>适配度</th><th>能否无库存做</th><th>是否优先</th>
+          <th>编号</th><th>问题类型</th><th>方向</th><th>操作</th><th>近似期权组合</th><th>建议对冲方式</th><th>适配度</th>
         </tr></thead>
         <tbody>
-          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#1</td><td>Above / Below</td><td>Yes</td><td>Buy</td><td>Digital Call</td><td><span class="badge badge-high">高</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
-          <tr><td style="color:var(--muted);">#2</td><td>Above / Below</td><td>Yes</td><td>Sell</td><td>Short Digital Call</td><td><span class="badge badge-high">高</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
-          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#3</td><td>Above / Below</td><td>No</td><td>Buy</td><td>Digital Put</td><td><span class="badge badge-high">高</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
-          <tr><td style="color:var(--muted);">#4</td><td>Above / Below</td><td>No</td><td>Sell</td><td>Short Digital Put</td><td><span class="badge badge-high">高</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
-          <tr><td style="color:var(--muted);">#5</td><td>Up / Down</td><td>Yes</td><td>Buy</td><td>近似 Digital Call</td><td><span class="badge badge-mid">中</span></td><td style="color:var(--green);">可以</td><td style="color:var(--muted);">次优先</td></tr>
-          <tr><td style="color:var(--muted);">#7</td><td>Up / Down</td><td>No</td><td>Buy</td><td>近似 Digital Put</td><td><span class="badge badge-mid">中</span></td><td style="color:var(--green);">可以</td><td style="color:var(--muted);">次优先</td></tr>
-          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#9</td><td>Price Range</td><td>Yes</td><td>Buy</td><td>Short Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
-          <tr><td style="color:var(--muted);">#10</td><td>Price Range</td><td>Yes</td><td>Sell</td><td>Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
-          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#11</td><td>Price Range</td><td>No</td><td>Buy</td><td>Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--green);font-weight:600;">可以</td><td style="color:var(--accent);font-weight:700;">优先</td></tr>
-          <tr><td style="color:var(--muted);">#12</td><td>Price Range</td><td>No</td><td>Sell</td><td>Short Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
-          <tr><td style="color:var(--muted);">#6,#8</td><td>Up / Down</td><td colspan="2">Sell</td><td>—</td><td><span class="badge badge-mid">中</span></td><td style="color:var(--red);">需要库存</td><td style="color:var(--muted);">暂缓</td></tr>
-          <tr><td style="color:var(--muted);">#13–#16</td><td>Hit Price</td><td colspan="2">全部</td><td>—</td><td><span class="badge badge-low">低</span></td><td>—</td><td style="color:var(--muted);">不优先</td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#1</td><td>Above / Below</td><td>Yes</td><td>Buy</td><td>Digital Call</td><td>买入 Bull Call Spread（窄行权价）</td><td><span class="badge badge-high">高</span></td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#3</td><td>Above / Below</td><td>No</td><td>Buy</td><td>Digital Put</td><td>买入 Bear Put Spread（窄行权价）</td><td><span class="badge badge-high">高</span></td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#9</td><td>Price Range</td><td>Yes</td><td>Buy</td><td>Short Iron Butterfly</td><td>买入 Bull Call Spread(K1) + Bear Put Spread(K2)</td><td><span class="badge badge-midhigh">中上</span></td></tr>
+          <tr class="row-highlight"><td style="font-weight:700;color:var(--accent);">#11</td><td>Price Range</td><td>No</td><td>Buy</td><td>Iron Butterfly</td><td>买入 Long Strangle / Iron Butterfly</td><td><span class="badge badge-midhigh">中上</span></td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout" style="margin-top:20px;">
-      <b>结论：优先研究 #1、#3、#9、#11</b><br>
-      这 4 个策略的共同特点：<b>适配度高</b>（Above/Below 为高，Price Range 为中上），且都是 <b>Buy 操作</b>——无需库存、可以直接做。<br>
-      Sell 方向（#2、#4、#10、#12）适配度同样高，但我们没有库存不能裸卖，暂不优先。
+      <b>为什么是这 4 个？</b><br>
+      适配度高（Above/Below 为高，Price Range 为中上），且都是 Buy 操作——我们没有库存不能裸卖，所以 Sell 方向暂不优先。
     </div>
   </div>
 
