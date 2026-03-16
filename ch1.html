@@ -492,7 +492,64 @@
 
   </div><!-- end chart section -->
 
-  <!-- 1.6 漏斗图 -->
+  <!-- 1.6 全绿条件 -->
+  <div class="section">
+    <h2>全绿条件：什么时候组合 PnL 全在零线以上</h2>
+    <p style="color:var(--muted);margin-bottom:16px;">不考虑手续费的情况下，4 种策略的组合 PnL 全绿只需要满足一个条件。</p>
+
+    <div class="prose" style="margin-bottom:20px;">
+      <p>设 <b>p</b> = PM 买入价（你花多少钱买这张票），<b>q</b> = Deribit 对冲收到的权利金（你卖出期权组合收到多少钱）。</p>
+      <p style="margin-top:10px;">在上面 4 种策略里，组合到期盈亏在每个价格点都等于同一个值：</p>
+      <p style="margin-top:14px;text-align:center;font-size:1.3rem;font-weight:700;color:var(--accent);letter-spacing:1px;">组合 PnL = q − p</p>
+      <p style="margin-top:14px;">所以全绿条件只有一个：</p>
+      <p style="margin-top:10px;text-align:center;font-size:1.2rem;font-weight:700;color:var(--green);">q &gt; p</p>
+      <p style="margin-top:14px;">也就是：<b>卖出 Deribit 期权组合收到的钱，比买 PM 票花的钱多</b>。差值 q−p 就是你的无风险利润。</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>策略</th><th>p（PM 成本）</th><th>q（Deribit 收入）</th><th>全绿条件</th><th>额外约束</th></tr></thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td style="font-weight:700;color:var(--accent);">#1 Above Buy Yes</td>
+            <td>买 PM Yes 的价格</td>
+            <td>卖出 Bull Call Spread 收到的权利金</td>
+            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
+            <td>ΔK 越小，Deribit 越接近 PM 台阶，但流动性越差</td>
+          </tr>
+          <tr class="row-highlight">
+            <td style="font-weight:700;color:var(--accent);">#3 Above Buy No</td>
+            <td>买 PM No 的价格</td>
+            <td>卖出 Bear Put Spread 收到的权利金</td>
+            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
+            <td>同上</td>
+          </tr>
+          <tr class="row-highlight">
+            <td style="font-weight:700;color:var(--accent);">#9 Range Buy Yes</td>
+            <td>买 PM Yes 的价格</td>
+            <td>卖出 Iron Butterfly 收到的权利金</td>
+            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
+            <td>Deribit 斜坡必须收在 PM 区间内（ΔK &lt; (K2−K1)/2）</td>
+          </tr>
+          <tr class="row-highlight">
+            <td style="font-weight:700;color:var(--accent);">#11 Range Buy No</td>
+            <td>买 PM No 的价格</td>
+            <td>买入 Iron Butterfly 花的钱 = 1−q</td>
+            <td style="color:var(--green);font-weight:700;">q &gt; p</td>
+            <td>Deribit 斜坡必须在 PM 区间外（ΔK 合理）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:20px;">
+      <b>一句话总结</b><br>
+      不考虑手续费时，只要 Deribit 那边收到（或等效收到）的权利金 q 比 PM 票价 p 高，组合就是全绿的。<br>
+      <b>q − p</b> 就是每张票的理论无风险利润。这个差值是否存在、有多大，取决于 PM 和 Deribit 之间的实际定价偏差——这正是第二章和后续监控要去验证的事情。
+    </div>
+  </div>
+
+  <!-- 1.7 漏斗图 -->
   <div class="section">
     <h2>研究优先级漏斗</h2>
     <p style="color:var(--muted);margin-bottom:12px;">从最大范围一步步收窄，直到锁定第一优先研究对象。</p>
