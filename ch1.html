@@ -786,8 +786,9 @@ function rangeSpread(s, k1, k2, dk) {
 })();
 
 // #11 defaults: K1=80000, K2=88000, dK=1000, p=0.70, q=0.75
-// PM Buy No: pays $1 outside K1-K2. Hedge: buy Iron Butterfly (pays rangeSpread inside)
-// Deribit PnL = rangeSpread - (1-q). Combo = PM + Deribit = q-p everywhere.
+// PM Buy No: pays $1 OUTSIDE K1-K2. Hedge: buy rangeSpread with ramps OUTSIDE K1-K2
+// Use rangeSpread(s, K1-dK, K2, dK): ramps at K1-dK→K1 and K2→K2+dK (both outside)
+// Where PM=1 (outside) covers Deribit ramps. Combo = q-p everywhere.
 (function(){
   const K1=80000, K2=88000, dK=1000, p=0.70, q=0.75;
   const payoffCtx11 = document.getElementById('payoffChart11').getContext('2d');
@@ -797,7 +798,7 @@ function rangeSpread(s, k1, k2, dk) {
 
   const compareCtx11 = document.getElementById('compareChart11').getContext('2d');
   const lo2=K1-10000, hi2=K2+10000, labels2=[], data2=[];
-  for(let s=lo2;s<=hi2;s+=200){ labels2.push((s/1000).toFixed(1)+'k'); data2.push(rangeSpread(s,K1,K2-dK,dK)-(1-q)); }
+  for(let s=lo2;s<=hi2;s+=200){ labels2.push((s/1000).toFixed(1)+'k'); data2.push(rangeSpread(s,K1-dK,K2,dK)-(1-q)); }
   new Chart(compareCtx11,{type:'line',data:{labels:labels2,datasets:[{label:'买入 Iron Butterfly 损益',data:data2,borderColor:'#ca8a04',segment:segmentGreenRed,fill:{target:'origin',above:'rgba(22,163,74,0.15)',below:'rgba(220,38,38,0.15)'},pointRadius:0,borderWidth:2.5}]},options:{responsive:true,plugins:{legend:{labels:{color:'#374151'}}},scales:{x:{title:{display:true,text:'最后 BTC 价格',color:'#6b7280'},ticks:{color:'#6b7280',maxTicksLimit:10},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:'PnL ($)',color:'#6b7280'},ticks:{color:'#6b7280'},grid:zeroLineGrid}}}});
 
   const comboCtx11 = document.getElementById('comboChart11').getContext('2d');
@@ -805,7 +806,7 @@ function rangeSpread(s, k1, k2, dk) {
   for(let s=lo2;s<=hi2;s+=200){
     labels3.push((s/1000).toFixed(1)+'k');
     const pm = ((s<K1||s>K2)?1:0) - p;
-    const db = rangeSpread(s,K1,K2-dK,dK) - (1-q);
+    const db = rangeSpread(s,K1-dK,K2,dK) - (1-q);
     pmP.push(pm); dbP.push(db); coP.push(pm+db);
   }
   new Chart(comboCtx11,{type:'line',data:{labels:labels3,datasets:[
