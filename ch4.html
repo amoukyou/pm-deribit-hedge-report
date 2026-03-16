@@ -293,10 +293,11 @@ function toggleDetail(tr, r) {
   const leg1noMarket = leg1p == null || leg1p === 0;
   const leg2noMarket = leg2p == null || leg2p === 0;
   const anyNoMarket = leg1noMarket || leg2noMarket;
-  const leg1usd = leg1noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg1p * ul).toFixed(2);
-  const leg2usd = leg2noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg2p * ul).toFixed(2);
-  const leg1btc = leg1noMarket ? '无挂单' : leg1p.toFixed(4) + ' BTC';
-  const leg2btc = leg2noMarket ? '无挂单' : leg2p.toFixed(4) + ' BTC';
+  // All Deribit values shown for 0.1 BTC (actual trade size)
+  const leg1usd = leg1noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg1p * ul * 0.1).toFixed(2);
+  const leg2usd = leg2noMarket ? '<span style="color:var(--red);">无挂单</span>' : '$' + (leg2p * ul * 0.1).toFixed(2);
+  const leg1btc = leg1noMarket ? '无挂单' : (leg1p * 0.1).toFixed(5) + ' BTC';
+  const leg2btc = leg2noMarket ? '无挂单' : (leg2p * 0.1).toFixed(5) + ' BTC';
 
   const dbTotalBTC = (!anyNoMarket) ? (r.leg1_action === 'Sell' ? leg1p - leg2p : leg2p - leg1p) : null;
   const dbTotalUSD = dbTotalBTC != null ? (dbTotalBTC * ul * 0.1).toFixed(2) : '--';
