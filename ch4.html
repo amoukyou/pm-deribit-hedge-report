@@ -41,54 +41,52 @@
   .status-bar .status-text { font-size:0.82rem; color:var(--muted); }
 
   /* Stats bar */
-  .stats { display:flex; gap:12px; padding:16px 24px; flex-wrap:wrap; }
-  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 18px; min-width:140px; }
-  .stat .label { font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
-  .stat .value { font-size:1.3rem; font-weight:700; margin-top:2px; }
+  .stats { display:flex; gap:10px; padding:14px 24px; flex-wrap:wrap; background:var(--card); border-bottom:1px solid var(--border); }
+  .stat { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 16px; min-width:120px; }
+  .stat .label { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  .stat .value { font-size:1.15rem; font-weight:700; margin-top:2px; }
   .stat .value.green { color:var(--green); }
   .stat .value.red { color:var(--red); }
 
   /* Controls */
-  .controls { padding:8px 24px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .controls button { background:var(--card); border:1px solid var(--border); color:var(--text); padding:5px 14px; border-radius:6px; cursor:pointer; font-size:0.82rem; transition:all 0.15s; }
-  .controls button:hover { border-color:var(--blue); }
+  .controls { padding:10px 24px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; background:var(--bg); border-bottom:1px solid var(--border); }
+  .controls button { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78rem; font-weight:500; transition:all 0.15s; }
+  .controls button:hover { border-color:var(--accent); color:var(--text); }
   .controls button.active { background:var(--accent); border-color:var(--accent); color:white; }
-  .controls .sep { color:var(--border); margin:0 4px; }
-  .controls .refresh-btn { background:var(--accent); color:white; border-color:var(--accent); }
-  .controls .refresh-btn:hover { opacity:0.9; }
+  .controls .sep { color:var(--border); margin:0 2px; font-size:0.7rem; }
 
   /* Table */
-  .table-wrap { padding:0 24px 24px; overflow-x:auto; }
+  .table-wrap { padding:0; overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:0.8rem; }
-  th { background:#f0f4ff; color:var(--blue); padding:8px 10px; text-align:left; position:sticky; top:48px; z-index:1; cursor:pointer; white-space:nowrap; border-bottom:2px solid var(--blue); font-weight:600; }
-  th:hover { background:#dbeafe; }
-  td { padding:7px 10px; border-bottom:1px solid var(--border); }
+  th { background:var(--bg); color:var(--muted); padding:8px 12px; text-align:left; position:sticky; top:48px; z-index:1; white-space:nowrap; border-bottom:1px solid var(--border); font-weight:600; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.03em; }
+  th:hover { color:var(--text); }
+  th#qpHeader { color:var(--accent); cursor:pointer; }
+  td { padding:8px 12px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+  tr:nth-child(even) { background:#fafbfc; }
   tr:hover { background:#f0f4ff; }
   .qp-pos { color:var(--green); font-weight:700; }
-  .qp-neg { color:var(--red); }
-  .qp-null { color:var(--muted); font-style:italic; }
-  .badge { display:inline-block; font-size:0.68rem; padding:1px 7px; border-radius:8px; font-weight:600; }
-  .badge-above { background:rgba(79,70,229,0.12); color:var(--accent); }
-  .badge-range { background:rgba(234,88,12,0.12); color:#ea580c; }
-  .badge-yes { background:rgba(22,163,74,0.1); color:var(--green); }
-  .badge-no { background:rgba(220,38,38,0.1); color:var(--red); }
-  a { color:var(--blue); text-decoration:none; }
-  a:hover { text-decoration:underline; }
-  .mono { font-family:'SF Mono',Consolas,monospace; font-size:0.78rem; }
+  .qp-neg { color:var(--red); font-weight:500; }
+  .qp-null { color:#d1d5db; font-size:0.75rem; }
+  .badge { display:inline-block; font-size:0.68rem; padding:2px 8px; border-radius:10px; font-weight:600; line-height:1.4; }
+  .badge-above { background:rgba(79,70,229,0.08); color:var(--accent); }
+  .badge-range { background:rgba(234,88,12,0.08); color:#ea580c; }
+  .badge-yes { background:rgba(22,163,74,0.06); color:var(--green); }
+  .badge-no { background:rgba(220,38,38,0.06); color:var(--red); }
+  a { color:var(--text); text-decoration:none; }
+  a:hover { color:var(--accent); }
+  .mono { font-family:'SF Mono',Consolas,'Courier New',monospace; font-size:0.76rem; color:var(--muted); }
 
   .empty { text-align:center; padding:60px 24px; color:var(--muted); }
   .empty p { font-size:1.1rem; margin-bottom:8px; }
 
   /* Expandable detail row */
-  tr.clickable { cursor:pointer; }
+  tr.clickable { cursor:pointer; transition:background 0.1s; }
   tr.clickable:hover { background:#eef2ff; }
-  tr.expanded { background:#eef2ff !important; }
-  .detail-row td { padding:16px 20px; background:#f8faff; border-bottom:2px solid var(--blue); }
-  .detail-charts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-  .detail-chart { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px; }
-  .detail-chart p { font-size:0.78rem; color:var(--muted); margin-bottom:6px; }
-  .detail-info { font-size:0.82rem; color:var(--muted); margin-bottom:12px; }
-  .detail-info b { color:var(--text); }
+  tr.expanded { background:#eef2ff !important; border-left:3px solid var(--accent); }
+  .detail-row td { padding:20px 24px; background:var(--card); border-bottom:2px solid var(--accent); border-top:1px solid var(--border); }
+  .detail-charts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  .detail-chart { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:14px; }
+  .detail-chart p { font-size:0.78rem; color:var(--muted); margin-bottom:8px; line-height:1.5; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
