@@ -213,7 +213,13 @@ function renderTable() {
   if (currentFilter !== 'all') rows = rows.filter(r => r.type === currentFilter);
   if (currentDirFilter !== 'all') rows = rows.filter(r => r.direction === currentDirFilter);
   if (hideNull) rows = rows.filter(r => r.qp !== null);
-  if (hideNoBook) rows = rows.filter(r => r.leg1_price != null && r.leg1_price !== 0 && r.leg2_price != null && r.leg2_price !== 0);
+  if (hideNoBook) rows = rows.filter(r => {
+    if (r.leg1_price == null || r.leg1_price === 0) return false;
+    if (r.leg2_price == null || r.leg2_price === 0) return false;
+    if (r.leg3_name && (r.leg3_price == null || r.leg3_price === 0)) return false;
+    if (r.leg4_name && (r.leg4_price == null || r.leg4_price === 0)) return false;
+    return true;
+  });
 
   // Sort
   if (currentSort === 'qp_desc') rows.sort((a, b) => (b.qp ?? -999) - (a.qp ?? -999));
