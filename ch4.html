@@ -370,17 +370,18 @@ function toggleDetail(tr, r) {
         <tr id="comboMaxRow"></tr>
       </table>
     </div>
-    <div class="detail-charts">
+    ${executable ? `<div class="detail-charts">
       <div class="detail-chart"><p>PM 单腿损益</p><canvas id="detailChart1"></canvas></div>
       <div class="detail-chart"><p>Deribit 对冲损益</p><canvas id="detailChart2"></canvas></div>
       <div class="detail-chart"><p>组合 PnL</p><canvas id="detailChart3"></canvas></div>
-    </div>
+    </div>` : ''}
   `;
   detailRow.appendChild(td);
   tr.after(detailRow);
 
   openDetail = { tr, detailRow };
 
+  if (!executable) return;
   // Draw charts — all values in TOTAL USD (× pmQty tickets)
   // Dynamic range: spread zone + 30% padding on each side
   const rangeWidth = isRange ? (K2 - K) : 0;
