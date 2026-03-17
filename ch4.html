@@ -277,11 +277,13 @@ function toggleDetail(tr, r) {
 
   const p = r.pm_ask ?? 0.5;
   const q = r.deribit_q ?? (p + 0.05);
-  let K;
+  let K, K2 = null;
   try {
     const parsed = typeof r.strike === 'string' ? JSON.parse(r.strike) : r.strike;
-    K = Array.isArray(parsed) ? parsed[0] : Number(parsed);
+    if (Array.isArray(parsed)) { K = parsed[0]; K2 = parsed[1]; }
+    else { K = Number(parsed); }
   } catch { K = parseInt(r.strike) || 74000; }
+  const isRange = r.type === 'Range' && K2 != null;
   const isYes = r.direction === 'Buy Yes';
   const sw = r.spread_width || 1000;
   const ul = r.underlying || 73500;
@@ -376,10 +378,12 @@ function toggleDetail(tr, r) {
 
   // Draw charts — all values in TOTAL USD (× pmQty tickets)
   // Dynamic range: spread zone + 30% padding on each side
-  const actionWidth = sw * 2; // the spread transition zone
-  const pad = Math.max(actionWidth * 0.3, sw); // at least 1x spread width padding
-  const lo = Math.round(K - actionWidth - pad);
-  const hi = Math.round(K + actionWidth + pad);
+  const rangeWidth = isRange ? (K2 - K) : 0;
+  const actionWidth = rangeWidth + sw * 2;
+  const pad = Math.max(actionWidth * 0.3, sw);
+  const center = isRange ? (K + K2) / 2 : K;
+  const lo = Math.round(center - actionWidth / 2 - pad);
+  const hi = Math.round(center + actionWidth / 2 + pad);
   const step = Math.max(50, Math.round((hi - lo) / 100)); // ~100 data points
   const labels = [], pmPnl = [], dbPnl = [], comboPnl = [];
 
@@ -388,26 +392,32 @@ function toggleDetail(tr, r) {
 
     // PM payoff per ticket
     let pmPayoff;
-    if (r.type === 'Above') {
-      pmPayoff = isYes ? (s >= K ? 1 : 0) : (s < K ? 1 : 0);
+    if (isRange) {
+      pmPayoff = isYes ? (s >= K && s <= K2 ? 1 : 0) : (s < K || s > K2 ? 1 : 0);
     } else {
-      const k1 = Array.isArray(r.strike) ? r.strike[0] : K;
-      const k2 = Array.isArray(r.strike) ? r.strike[1] : K + 2000;
-      pmPayoff = isYes ? (s >= k1 && s <= k2 ? 1 : 0) : (s < k1 || s > k2 ? 1 : 0);
+      pmPayoff = isYes ? (s >= K ? 1 : 0) : (s < K ? 1 : 0);
     }
     const pmTotal = (pmPayoff - p) * pmQty;
     pmPnl.push(+pmTotal.toFixed(2));
 
     // Deribit spread payoff per ticket
     let dbPayoff;
-    if (r.type === 'Above') {
+    if (isRange) {
+      if (isYes) {
+        const up = Math.max(0, Math.min((s - K) / sw, 1));
+        const dn = Math.max(0, Math.min((s - (K2 - sw)) / sw, 1));
+        dbPayoff = up - dn;
+      } else {
+        const up = Math.max(0, Math.min((s - (K - sw)) / sw, 1));
+        const dn = Math.max(0, Math.min((s - K2) / sw, 1));
+        dbPayoff = up - dn;
+      }
+    } else {
       if (isYes) {
         dbPayoff = Math.max(0, Math.min((s - K) / sw, 1));
       } else {
         dbPayoff = Math.max(0, Math.min((K - s) / sw, 1));
       }
-    } else {
-      dbPayoff = pmPayoff;
     }
     const dbTotal = (q - dbPayoff) * pmQty;
     dbPnl.push(+dbTotal.toFixed(2));
@@ -476,18 +486,21 @@ function toggleDetail(tr, r) {
   ]}, options:chartOpts('损益 (USD)') });
 
   // Chart 3: Zoomed tighter into the transition zone
-  const z3pad = Math.max(sw * 1.5, actionWidth * 0.5);
-  const zoomLo = Math.round(K - sw - z3pad), zoomHi = Math.round(K + sw + z3pad);
+  const z3pad = Math.max(sw * 1.5, actionWidth * 0.3);
+  const zoomLo = Math.round((isRange ? K : K) - sw - z3pad);
+  const zoomHi = Math.round((isRange ? K2 : K) + sw + z3pad);
   const zStep = Math.max(20, Math.round((zoomHi - zoomLo) / 120));
   const zLabels = [], zCombo = [];
   for (let s = zoomLo; s <= zoomHi; s += zStep) {
     zLabels.push('$' + (s/1000).toFixed(1) + 'k');
     let pmPay;
     if (r.type === 'Above') { pmPay = isYes ? (s >= K ? 1 : 0) : (s < K ? 1 : 0); }
-    else { const k1a = Array.isArray(r.strike)?r.strike[0]:K, k2a = Array.isArray(r.strike)?r.strike[1]:K+2000; pmPay = isYes ? (s>=k1a&&s<=k2a?1:0) : (s<k1a||s>k2a?1:0); }
+    else { pmPay = isYes ? (s>=K&&s<=K2?1:0) : (s<K||s>K2?1:0); }
     let dbPay;
-    if (r.type === 'Above') { dbPay = isYes ? Math.max(0,Math.min((s-K)/sw,1)) : Math.max(0,Math.min((K-s)/sw,1)); }
-    else { dbPay = pmPay; }
+    if (isRange) {
+      if (isYes) { const u=Math.max(0,Math.min((s-K)/sw,1)),d=Math.max(0,Math.min((s-(K2-sw))/sw,1)); dbPay=u-d; }
+      else { const u=Math.max(0,Math.min((s-(K-sw))/sw,1)),d=Math.max(0,Math.min((s-K2)/sw,1)); dbPay=u-d; }
+    } else { dbPay = isYes ? Math.max(0,Math.min((s-K)/sw,1)) : Math.max(0,Math.min((K-s)/sw,1)); }
     zCombo.push(+((pmPay - p + q - dbPay) * pmQty).toFixed(2));
   }
 
