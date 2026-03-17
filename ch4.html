@@ -92,6 +92,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0/dist/chartjs-plugin-zoom.min.js"></script>
 </head>
 <body>
 
@@ -445,7 +446,8 @@ function toggleDetail(tr, r) {
       }
     }
   };
-  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'nearest',intersect:false,axis:'x'}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:tipStyle}, scales:{x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid,suggestedMin:0,suggestedMax:0}} });
+  const zoomPlugin = { zoom:{ wheel:{enabled:true,speed:0.1}, pinch:{enabled:true}, mode:'x' }, pan:{enabled:true,mode:'x'} };
+  const chartOpts = (yLabel) => ({ responsive:true, animation:{duration:0}, interaction:{mode:'nearest',intersect:false,axis:'x'}, plugins:{legend:{labels:{color:'#374151',font:{size:10}}},tooltip:tipStyle,zoom:zoomPlugin}, scales:{x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:8,font:{size:9}},grid:{color:'#e5e7eb'}},y:{title:{display:true,text:yLabel,color:'#6b7280',font:{size:10}},ticks:{color:'#6b7280',font:{size:9},callback:v=>'$'+v},grid:zeroGrid,suggestedMin:0,suggestedMax:0}} });
 
   // Max/min
   const pmMax = Math.max(...pmPnl), pmMin = Math.min(...pmPnl);
@@ -555,7 +557,8 @@ function toggleDetail(tr, r) {
           }
         }
       },
-      annotation:{ annotations }
+      annotation:{ annotations },
+      zoom:zoomPlugin
     },
     scales:{
       x:{title:{display:true,text:'BTC 到期价格',color:'#6b7280',font:{size:9}},ticks:{color:'#6b7280',maxTicksLimit:10,font:{size:9}},grid:{color:'#e5e7eb'}},
