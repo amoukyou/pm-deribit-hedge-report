@@ -19,6 +19,8 @@ db.exec(`
     pm_link TEXT, deribit_link TEXT,
     leg1_name TEXT, leg1_action TEXT, leg1_price REAL,
     leg2_name TEXT, leg2_action TEXT, leg2_price REAL,
+    leg3_name TEXT, leg3_action TEXT, leg3_price REAL,
+    leg4_name TEXT, leg4_action TEXT, leg4_price REAL,
     underlying REAL, spread_width REAL,
     updated_at TEXT
   )
@@ -149,6 +151,34 @@ async function refreshData() {
       ci.push(dbTasks.length); dbTasks.push(k1 ? () => getDeribitTicker(`${dbK1}-P`) : async () => ({bid:null,ask:null,mark:null,underlying:null}));
 
       metas.push({ m, yesIdx, noIdx, type: 'Above', K, k2, k1, sw_up, sw_down, dbPrefix, dbK2, dbK1, ci });
+    } else if (m.type === 'Range' && Array.isArray(m.strike)) {
+      const K1 = m.strike[0], K2 = m.strike[1];
+      // Find the expiry from deribit_instrument: "BTC-17MAR26-60000/62000" → "17MAR26"
+      const expiry = (m.deribit_instrument || '').split('-')[1];
+
+      // #9: Sell rangeSpread = Sell K1 Call, Buy next-up Call, Buy K2-prev Call, Sell K2 Call
+      const k1up = findNextStrike(expiry, K1, 'up');   // K1+dK
+      const k2dn = findNextStrike(expiry, K2, 'down'); // K2-dK
+      // #11: Buy rangeSpread with ramps outside = need K1-dK and K2+dK
+      const k1dn = findNextStrike(expiry, K1, 'down');
+      const k2up = findNextStrike(expiry, K2, 'up');
+
+      const dkUp = k1up ? k1up - K1 : null;
+      const dkDn = k2dn ? K2 - k2dn : null;
+
+      const makeInst = (exp, strike) => exp && strike ? `BTC-${exp}-${strike}` : null;
+
+      // Fetch tasks for #9: 4 calls
+      const rci = [];
+      rci.push(dbTasks.length); dbTasks.push(() => getDeribitTicker(`${makeInst(expiry,K1)}-C`));    // sell K1 call
+      rci.push(dbTasks.length); dbTasks.push(k1up ? () => getDeribitTicker(`${makeInst(expiry,k1up)}-C`) : async()=>({bid:null,ask:null})); // buy K1+dK call
+      rci.push(dbTasks.length); dbTasks.push(k2dn ? () => getDeribitTicker(`${makeInst(expiry,k2dn)}-C`) : async()=>({bid:null,ask:null})); // buy K2-dK call
+      rci.push(dbTasks.length); dbTasks.push(() => getDeribitTicker(`${makeInst(expiry,K2)}-C`));    // sell K2 call
+      // For #11: 4 more
+      rci.push(dbTasks.length); dbTasks.push(k1dn ? () => getDeribitTicker(`${makeInst(expiry,k1dn)}-C`) : async()=>({bid:null,ask:null})); // buy K1-dK call
+      rci.push(dbTasks.length); dbTasks.push(k2up ? () => getDeribitTicker(`${makeInst(expiry,k2up)}-C`) : async()=>({bid:null,ask:null})); // sell K2+dK call... wait
+
+      metas.push({ m, yesIdx, noIdx, type: 'Range', K1, K2, k1up, k2dn, k1dn, k2up, dkUp, dkDn, expiry, rci });
     } else {
       metas.push({ m, yesIdx, noIdx, type: 'Range' });
     }
@@ -161,7 +191,7 @@ async function refreshData() {
 
   // Build rows and write to DB
   const now = new Date().toISOString();
-  const insert = db.prepare(`INSERT INTO monitor (type,strategy,direction,question,pm_date,strike,pm_ask,deribit_desc,deribit_q,qp,time_diff,pm_link,deribit_link,leg1_name,leg1_action,leg1_price,leg2_name,leg2_action,leg2_price,underlying,spread_width,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+  const insert = db.prepare(`INSERT INTO monitor (type,strategy,direction,question,pm_date,strike,pm_ask,deribit_desc,deribit_q,qp,time_diff,pm_link,deribit_link,leg1_name,leg1_action,leg1_price,leg2_name,leg2_action,leg2_price,leg3_name,leg3_action,leg3_price,leg4_name,leg4_action,leg4_price,underlying,spread_width,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
 
   db.exec('DELETE FROM monitor');
   for (const meta of metas) {
@@ -182,6 +212,7 @@ async function refreshData() {
         `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-C`,
         `${dbPrefix}-C`, 'Sell', callK.bid,
         k2 ? `${dbK2}-C` : null, 'Buy', k2 ? callK2.ask : null,
+        null,null,null, null,null,null,
         underlying, sw_up, now);
 
       // #3: sell K put (at bid), buy next-strike-down put (at ask)
@@ -193,10 +224,58 @@ async function refreshData() {
         `https://polymarket.com/event/${m.pm_event_slug}`, `https://www.deribit.com/options/BTC/${dbPrefix}-P`,
         `${dbPrefix}-P`, 'Sell', putK.bid,
         k1 ? `${dbK1}-P` : null, 'Buy', k1 ? putK1.ask : null,
+        null,null,null, null,null,null,
         underlying, sw_down, now);
     } else {
-      insert.run('Range', '#9', 'Buy Yes', m.question, m.pm_date, JSON.stringify(m.strike), yesAsk, 'Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, underlying, null, now);
-      insert.run('Range', '#11', 'Buy No', m.question, m.pm_date, JSON.stringify(m.strike), noAsk, 'Rev Iron Butterfly', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, underlying, null, now);
+      if (meta.rci) {
+        // Range with Deribit data
+        const { K1, K2, k1up, k2dn, k1dn, k2up, dkUp, dkDn, expiry, rci } = meta;
+        const cK1 = dbR[rci[0]], cK1up = dbR[rci[1]], cK2dn = dbR[rci[2]], cK2 = dbR[rci[3]];
+        const cK1dn = dbR[rci[4]], cK2up = dbR[rci[5]];
+
+        // #9 Sell rangeSpread: sell K1C(bid) + buy K1upC(ask) + buy K2dnC(ask) + sell K2C(bid)
+        let q9 = null;
+        if (k1up && k2dn && dkUp && cK1.bid!=null && cK1up.ask!=null && cK2dn.ask!=null && cK2.bid!=null) {
+          q9 = (cK1.bid - cK1up.ask - cK2dn.ask + cK2.bid) * underlying / dkUp;
+        }
+        const qp9 = (q9!=null && yesAsk!=null) ? +(q9 - yesAsk).toFixed(4) : null;
+        const desc9 = k1up && k2dn ? `S ${K1}C B ${k1up}C B ${k2dn}C S ${K2}C` : 'No match';
+        insert.run('Range', '#9', 'Buy Yes', m.question, m.pm_date, JSON.stringify(m.strike), yesAsk,
+          desc9, q9, qp9, m.time_diff_hours,
+          `https://polymarket.com/event/${m.pm_event_slug}`, expiry ? `https://www.deribit.com/options/BTC/BTC-${expiry}-${K1}-C` : null,
+          `BTC-${expiry}-${K1}-C`, 'Sell', cK1.bid,
+          k1up ? `BTC-${expiry}-${k1up}-C` : null, 'Buy', k1up ? cK1up.ask : null,
+          k2dn ? `BTC-${expiry}-${k2dn}-C` : null, 'Buy', k2dn ? cK2dn.ask : null,
+          `BTC-${expiry}-${K2}-C`, 'Sell', cK2.bid,
+          underlying, dkUp, now);
+
+        // #11 Buy rangeSpread(ramps outside): Buy K1dnC(ask) + Sell K1C(bid) + Sell K2C(bid) + Buy K2upC(ask)
+        let q11 = null;
+        if (k1dn && k2up && cK1dn.ask!=null && cK1.bid!=null && cK2.bid!=null && cK2up.ask!=null) {
+          const dkOut = K1 - k1dn;
+          q11 = (cK1.bid - cK1dn.ask + cK2up.ask - cK2.bid); // net BTC cost to buy
+          // Hmm, for #11 we BUY the spread, so: cost = ask(K1dn) - bid(K1) + bid(K2) - ask(K2up)...
+          // Actually: we buy outside-range payoff. This = 1 - rangeSpread(K1,K2)
+          // Buy it: pay (1-q_sell_price). But simpler: q11 per ticket = (bid(K1) - ask(K1dn) - ask(K2up) + bid(K2)) * ul / dkOut...
+          // This is the reverse of selling. q11_normalized = -sell_cost = receive from selling the reverse
+          q11 = (-cK1dn.ask + cK1.bid + cK2.bid - cK2up.ask) * underlying / dkOut;
+        }
+        const dkOut = k1dn ? K1 - k1dn : null;
+        const qp11 = (q11!=null && noAsk!=null) ? +(q11 - noAsk).toFixed(4) : null;
+        const desc11 = k1dn && k2up ? `B ${k1dn}C S ${K1}C S ${K2}C B ${k2up}C` : 'No match';
+        insert.run('Range', '#11', 'Buy No', m.question, m.pm_date, JSON.stringify(m.strike), noAsk,
+          desc11, q11, qp11, m.time_diff_hours,
+          `https://polymarket.com/event/${m.pm_event_slug}`, expiry ? `https://www.deribit.com/options/BTC/BTC-${expiry}-${K1}-C` : null,
+          k1dn ? `BTC-${expiry}-${k1dn}-C` : null, 'Buy', k1dn ? cK1dn.ask : null,
+          `BTC-${expiry}-${K1}-C`, 'Sell', cK1.bid,
+          `BTC-${expiry}-${K2}-C`, 'Sell', cK2.bid,
+          k2up ? `BTC-${expiry}-${k2up}-C` : null, 'Buy', k2up ? cK2up.ask : null,
+          underlying, dkOut, now);
+      } else {
+        // Fallback: no Deribit data
+        insert.run('Range', '#9', 'Buy Yes', m.question, m.pm_date, JSON.stringify(m.strike), yesAsk, 'No match', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, null,null,null, null,null,null, underlying, null, now);
+        insert.run('Range', '#11', 'Buy No', m.question, m.pm_date, JSON.stringify(m.strike), noAsk, 'No match', null, null, m.time_diff_hours, `https://polymarket.com/event/${m.pm_event_slug}`, null, null,null,null, null,null,null, null,null,null, null,null,null, underlying, null, now);
+      }
     }
   }
 
