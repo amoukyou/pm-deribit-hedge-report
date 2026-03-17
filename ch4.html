@@ -277,7 +277,11 @@ function toggleDetail(tr, r) {
 
   const p = r.pm_ask ?? 0.5;
   const q = r.deribit_q ?? (p + 0.05);
-  const K = typeof r.strike === 'string' ? parseInt(r.strike) : (Array.isArray(r.strike) ? r.strike[0] : r.strike);
+  let K;
+  try {
+    const parsed = typeof r.strike === 'string' ? JSON.parse(r.strike) : r.strike;
+    K = Array.isArray(parsed) ? parsed[0] : Number(parsed);
+  } catch { K = parseInt(r.strike) || 74000; }
   const isYes = r.direction === 'Buy Yes';
   const sw = r.spread_width || 1000;
   const ul = r.underlying || 73500;
