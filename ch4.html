@@ -20,7 +20,7 @@
     display:flex; align-items:center; gap:0; height:48px; overflow-x:auto;
   }
   .topnav-inner a {
-    color:var(--muted); text-decoration:none; font-size:0.85rem;
+    color:var(--muted); text-decoration:none; font-size:0.78rem;
     font-weight:600; padding:0 16px; height:48px; display:flex;
     align-items:center; white-space:nowrap; border-bottom:2px solid transparent;
     transition:all 0.2s;
@@ -57,7 +57,7 @@
 
   /* Table */
   .table-wrap { padding:0; overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+  table { width:100%; border-collapse:collapse; font-size:0.76rem; }
   th { background:var(--bg); color:var(--muted); padding:8px 12px; text-align:left; position:sticky; top:48px; z-index:1; white-space:nowrap; border-bottom:1px solid var(--border); font-weight:600; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.03em; }
   th:hover { color:var(--text); }
   th#qpHeader { color:var(--accent); cursor:pointer; }
@@ -83,10 +83,10 @@
   tr.clickable { cursor:pointer; transition:background 0.1s; }
   tr.clickable:hover { background:#eef2ff; }
   tr.expanded { background:#eef2ff !important; border-left:3px solid var(--accent); }
-  .detail-row td { padding:20px 24px; background:var(--card); border-bottom:2px solid var(--accent); border-top:1px solid var(--border); }
-  .detail-charts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-  .detail-chart { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:14px; }
-  .detail-chart p { font-size:0.78rem; color:var(--muted); margin-bottom:8px; line-height:1.5; }
+  .detail-row td { padding:12px 16px; background:var(--card); border-bottom:2px solid var(--accent); border-top:1px solid var(--border); }
+  .detail-charts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:10px; }
+  .detail-chart { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:10px; }
+  .detail-chart p { font-size:0.72rem; color:var(--muted); margin-bottom:4px; line-height:1.4; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
@@ -129,7 +129,6 @@
   <button onclick="setDirFilter('Buy No',this)">Buy No</button>
   <span class="sep">|</span>
   <button onclick="setSort('time')">按时间差排序</button>
-  <button onclick="setSort('pm_ask')">按 PM ask 排序</button>
   <span class="sep">|</span>
   <button onclick="toggleNull(this)">隐藏无期权组合</button>
   <button onclick="toggleNoBook(this)">隐藏无盘口挂单</button>
@@ -143,7 +142,7 @@
         <th>策略</th>
         <th>方向</th>
         <th>PM 问题</th>
-        <th>PM ask (p)</th>
+        <th style="cursor:pointer;" onclick="togglePMAskSort()" id="pmAskHeader">PM ask (p) ↕</th>
         <th>Deribit 组合</th>
         <th>Deribit q</th>
         <th style="background:#1e3a5f;cursor:pointer;" onclick="toggleQPSort()" id="qpHeader">q - p ↕</th>
@@ -156,7 +155,7 @@
 
 <div class="empty" id="emptyMsg" style="display:none;">
   <p>等待数据加载...</p>
-  <p style="font-size:0.85rem;">确保后端运行中：<code>node server.js</code></p>
+  <p style="font-size:0.78rem;">确保后端运行中：<code>node server.js</code></p>
 </div>
 
 <script>
@@ -223,7 +222,8 @@ function renderTable() {
   if (currentSort === 'qp_desc') rows.sort((a, b) => (b.qp ?? -999) - (a.qp ?? -999));
   else if (currentSort === 'qp_asc') rows.sort((a, b) => (a.qp ?? 999) - (b.qp ?? 999));
   else if (currentSort === 'time') rows.sort((a, b) => a.time_diff - b.time_diff);
-  else if (currentSort === 'pm_ask') rows.sort((a, b) => (a.pm_ask ?? 999) - (b.pm_ask ?? 999));
+  else if (currentSort === 'pm_ask_asc') rows.sort((a, b) => (a.pm_ask ?? 999) - (b.pm_ask ?? 999));
+  else if (currentSort === 'pm_ask_desc') rows.sort((a, b) => (b.pm_ask ?? -1) - (a.pm_ask ?? -1));
 
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = '';
@@ -338,18 +338,18 @@ function toggleDetail(tr, r) {
   const executable = !anyNoMarketAll && r.pm_ask != null;
 
   td.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;">
-        <div style="font-weight:700;margin-bottom:8px;color:var(--accent);">PM 端（${r.direction}）</div>
-        <table style="width:100%;font-size:0.8rem;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;">
+        <div style="font-weight:700;margin-bottom:4px;font-size:0.82rem;color:var(--accent);">PM 端（${r.direction}）</div>
+        <table style="width:100%;font-size:0.76rem;">
           <tr><td style="color:var(--muted);">票价 (p)</td><td class="mono" style="text-align:right;">${p != null ? '$'+p.toFixed(3) : '--'}</td></tr>
           <tr><td style="color:var(--muted);">数量（匹配 0.1 BTC spread）</td><td class="mono" style="text-align:right;">${pmQty} 张</td></tr>
           <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">PM 总成本</td><td class="mono" style="text-align:right;font-weight:700;">$${pmTotalCost.toFixed(2)}</td></tr>
         </table>
       </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;">
-        <div style="font-weight:700;margin-bottom:8px;color:var(--blue);">Deribit 端（${r.deribit_desc}）</div>
-        <table style="width:100%;font-size:0.8rem;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;">
+        <div style="font-weight:700;margin-bottom:4px;font-size:0.82rem;color:var(--blue);">Deribit 端（${r.deribit_desc}）</div>
+        <table style="width:100%;font-size:0.76rem;">
           <tr><td style="color:var(--muted);">${r.leg1_action || '--'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${leg1usd}</td></tr>
           <tr><td style="color:var(--muted);">${r.leg2_action || '--'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${leg2usd}</td></tr>
           ${has4legs ? `<tr><td style="color:var(--muted);">${r.leg3_action || '--'} ${r.leg3_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${fmtLeg(leg3p, leg3noMarket)}</td></tr>` : ''}
@@ -360,9 +360,9 @@ function toggleDetail(tr, r) {
         </table>
       </div>
     </div>
-    <div style="background:var(--card);border:2px solid ${!executable ? 'var(--red)' : r.qp > 0 ? 'var(--green)' : 'var(--border)'};border-radius:8px;padding:14px;margin-bottom:16px;">
+    <div style="background:var(--card);border:2px solid ${!executable ? 'var(--red)' : r.qp > 0 ? 'var(--green)' : 'var(--border)'};border-radius:6px;padding:10px;margin-bottom:8px;">
       ${!executable ? '<div style="color:var(--red);font-weight:700;font-size:1rem;margin-bottom:8px;">无法执行 — Deribit 盘口缺失</div>' : ''}
-      <table style="width:100%;font-size:0.85rem;">
+      <table style="width:100%;font-size:0.78rem;">
         <tr><td style="width:50%;">PM 成本</td><td class="mono">${r.pm_ask != null ? '$'+pmTotalCost.toFixed(2) : '--'}</td></tr>
         <tr><td>Deribit 净收入</td><td class="mono">${anyNoMarket ? '<span style="color:var(--red);">盘口缺失</span>' : '$'+dbTotalUSD}</td></tr>
         <tr style="border-top:2px solid var(--border);"><td style="font-weight:700;">预计到期损益（q-p × ${pmQty} 张）</td><td class="mono" style="font-weight:700;font-size:1.1rem;color:${executable ? pnlColor : 'var(--muted)'};">${executable ? (r.qp > 0 ? '+' : '') + '$' + pnlTotal : '无法计算'}</td></tr>
@@ -595,6 +595,13 @@ function setSort(s) { currentSort = s; renderTable(); }
 function toggleQPSort() {
   currentSort = currentSort === 'qp_desc' ? 'qp_asc' : 'qp_desc';
   document.getElementById('qpHeader').textContent = 'q - p ' + (currentSort === 'qp_desc' ? '↓' : '↑');
+  document.getElementById('pmAskHeader').textContent = 'PM ask (p) ↕';
+  renderTable();
+}
+function togglePMAskSort() {
+  currentSort = currentSort === 'pm_ask_asc' ? 'pm_ask_desc' : 'pm_ask_asc';
+  document.getElementById('pmAskHeader').textContent = 'PM ask (p) ' + (currentSort === 'pm_ask_asc' ? '↑' : '↓');
+  document.getElementById('qpHeader').textContent = 'q - p ↕';
   renderTable();
 }
 function toggleNull(btn) { hideNull = !hideNull; btn.classList.toggle('active'); renderTable(); }
