@@ -60,7 +60,6 @@
   table { width:100%; border-collapse:collapse; font-size:0.76rem; }
   th { background:var(--bg); color:var(--muted); padding:8px 12px; text-align:left; position:sticky; top:48px; z-index:1; white-space:nowrap; border-bottom:1px solid var(--border); font-weight:600; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.03em; }
   th:hover { color:var(--text); }
-  th#qpHeader { color:var(--accent); cursor:pointer; }
   td { padding:8px 12px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
   tr:nth-child(even) { background:#fafbfc; }
   tr:hover { background:#f0f4ff; }
@@ -145,7 +144,7 @@
         <th style="cursor:pointer;" onclick="togglePMAskSort()" id="pmAskHeader">PM ask (p) ↕</th>
         <th>Deribit 组合</th>
         <th>Deribit q</th>
-        <th style="background:#1e3a5f;cursor:pointer;" onclick="toggleQPSort()" id="qpHeader">q - p ↕</th>
+        <th style="cursor:pointer;" onclick="toggleQPSort()" id="qpHeader">q - p ↕</th>
         <th>时间差</th>
       </tr>
     </thead>
