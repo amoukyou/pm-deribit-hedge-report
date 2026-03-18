@@ -82,10 +82,24 @@
   tr.clickable { cursor:pointer; transition:background 0.1s; }
   tr.clickable:hover { background:#eef2ff; }
   tr.expanded { background:#eef2ff !important; border-left:3px solid var(--accent); }
-  .detail-row td { padding:12px 16px; background:var(--card); border-bottom:2px solid var(--accent); border-top:1px solid var(--border); }
-  .detail-charts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:10px; }
-  .detail-chart { background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:10px; }
-  .detail-chart p { font-size:0.72rem; color:var(--muted); margin-bottom:4px; line-height:1.4; }
+  .detail-row td { padding:10px 16px; background:var(--bg); border-bottom:2px solid var(--accent); }
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:6px; }
+  .detail-card { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:8px 10px; }
+  .detail-card .dc-title { font-size:0.72rem; font-weight:600; color:var(--muted); margin-bottom:3px; text-transform:uppercase; letter-spacing:0.03em; }
+  .detail-card table { width:100%; font-size:0.72rem; }
+  .detail-card td { padding:2px 0; }
+  .detail-card .dc-label { color:var(--muted); }
+  .detail-card .dc-val { text-align:right; font-family:'SF Mono',Consolas,monospace; font-size:0.7rem; color:var(--text); }
+  .detail-card .dc-total td { border-top:1px solid var(--border); font-weight:600; padding-top:4px; }
+  .detail-summary { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:8px 10px; margin-bottom:6px; }
+  .detail-summary table { width:100%; font-size:0.72rem; }
+  .detail-summary td { padding:2px 0; }
+  .detail-summary .ds-pnl { font-size:0.9rem; font-weight:700; font-family:'SF Mono',Consolas,monospace; }
+  .detail-summary .ds-sub { color:var(--muted); font-size:0.68rem; }
+  .detail-noexec { color:var(--red); font-size:0.72rem; font-weight:600; margin-bottom:4px; }
+  .detail-charts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .detail-chart { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:8px; }
+  .detail-chart p { font-size:0.68rem; color:var(--muted); margin-bottom:3px; line-height:1.3; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
@@ -337,35 +351,35 @@ function toggleDetail(tr, r) {
   const executable = !anyNoMarketAll && r.pm_ask != null;
 
   td.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;">
-        <div style="font-weight:700;margin-bottom:4px;font-size:0.82rem;color:var(--accent);">PM 端（${r.direction}）</div>
-        <table style="width:100%;font-size:0.76rem;">
-          <tr><td style="color:var(--muted);">票价 (p)</td><td class="mono" style="text-align:right;">${p != null ? '$'+p.toFixed(3) : '--'}</td></tr>
-          <tr><td style="color:var(--muted);">数量（匹配 0.1 BTC spread）</td><td class="mono" style="text-align:right;">${pmQty} 张</td></tr>
-          <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">PM 总成本</td><td class="mono" style="text-align:right;font-weight:700;">$${pmTotalCost.toFixed(2)}</td></tr>
+    <div class="detail-grid">
+      <div class="detail-card">
+        <div class="dc-title">PM（${r.direction}）</div>
+        <table>
+          <tr><td class="dc-label">票价 p</td><td class="dc-val">${p != null ? '$'+p.toFixed(3) : '--'}</td></tr>
+          <tr><td class="dc-label">数量</td><td class="dc-val">${pmQty} 张</td></tr>
+          <tr class="dc-total"><td>总成本</td><td class="dc-val">$${pmTotalCost.toFixed(2)}</td></tr>
         </table>
       </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px;">
-        <div style="font-weight:700;margin-bottom:4px;font-size:0.82rem;color:var(--blue);">Deribit 端（${r.deribit_desc}）</div>
-        <table style="width:100%;font-size:0.76rem;">
-          <tr><td style="color:var(--muted);">${r.leg1_action || '--'} ${r.leg1_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${leg1usd}</td></tr>
-          <tr><td style="color:var(--muted);">${r.leg2_action || '--'} ${r.leg2_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${leg2usd}</td></tr>
-          ${has4legs ? `<tr><td style="color:var(--muted);">${r.leg3_action || '--'} ${r.leg3_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${fmtLeg(leg3p, leg3noMarket)}</td></tr>` : ''}
-          ${has4legs ? `<tr><td style="color:var(--muted);">${r.leg4_action || '--'} ${r.leg4_name || '--'}</td><td class="mono" style="text-align:right;font-size:0.78rem;">${fmtLeg(leg4p, leg4noMarket)}</td></tr>` : ''}
-          <tr><td style="color:var(--muted);">合约数量</td><td class="mono" style="text-align:right;">0.1 BTC / 每腿 × ${has4legs ? '4' : '2'} 腿</td></tr>
-          <tr><td style="color:var(--muted);">保证金占用</td><td class="mono" style="text-align:right;">$${(sw * 0.1).toFixed(0)}</td></tr>
-          <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">Deribit 净收入</td><td class="mono" style="text-align:right;font-weight:700;">${anyNoMarketAll ? '<span style="color:var(--red);">无法执行（盘口缺失）</span>' : '$'+dbTotalUSD}</td></tr>
+      <div class="detail-card">
+        <div class="dc-title">Deribit（${r.deribit_desc}）</div>
+        <table>
+          <tr><td class="dc-label">${r.leg1_action} ${r.leg1_name || '--'}</td><td class="dc-val">${leg1usd}</td></tr>
+          <tr><td class="dc-label">${r.leg2_action} ${r.leg2_name || '--'}</td><td class="dc-val">${leg2usd}</td></tr>
+          ${has4legs ? `<tr><td class="dc-label">${r.leg3_action} ${r.leg3_name || '--'}</td><td class="dc-val">${fmtLeg(leg3p,leg3noMarket)}</td></tr>` : ''}
+          ${has4legs ? `<tr><td class="dc-label">${r.leg4_action} ${r.leg4_name || '--'}</td><td class="dc-val">${fmtLeg(leg4p,leg4noMarket)}</td></tr>` : ''}
+          <tr><td class="dc-label">数量 × ${has4legs?'4':'2'} 腿</td><td class="dc-val">0.1 BTC/腿</td></tr>
+          <tr><td class="dc-label">保证金</td><td class="dc-val">$${(sw*0.1).toFixed(0)}</td></tr>
+          <tr class="dc-total"><td>净收入</td><td class="dc-val">${anyNoMarketAll ? '<span style="color:var(--red)">盘口缺失</span>' : '$'+dbTotalUSD}</td></tr>
         </table>
       </div>
     </div>
-    <div style="background:var(--card);border:2px solid ${!executable ? 'var(--red)' : r.qp > 0 ? 'var(--green)' : 'var(--border)'};border-radius:6px;padding:10px;margin-bottom:8px;">
-      ${!executable ? '<div style="color:var(--red);font-weight:700;font-size:1rem;margin-bottom:8px;">无法执行 — Deribit 盘口缺失</div>' : ''}
-      <table style="width:100%;font-size:0.78rem;">
-        <tr><td style="width:50%;">PM 成本</td><td class="mono">${r.pm_ask != null ? '$'+pmTotalCost.toFixed(2) : '--'}</td></tr>
-        <tr><td>Deribit 净收入</td><td class="mono">${anyNoMarket ? '<span style="color:var(--red);">盘口缺失</span>' : '$'+dbTotalUSD}</td></tr>
-        <tr style="border-top:2px solid var(--border);"><td style="font-weight:700;">预计到期损益（q-p × ${pmQty} 张）</td><td class="mono" style="font-weight:700;font-size:1.1rem;color:${executable ? pnlColor : 'var(--muted)'};">${executable ? (r.qp > 0 ? '+' : '') + '$' + pnlTotal : '无法计算'}</td></tr>
-        ${executable ? `<tr><td style="color:var(--muted);">每张票损益</td><td class="mono" style="color:${pnlColor};">${r.qp > 0 ? '+' : ''}${pnlPerTicket}</td></tr>` : ''}
+    <div class="detail-summary" style="border-color:${!executable ? 'var(--red)' : r.qp > 0 ? 'var(--green)' : 'var(--border)'};">
+      ${!executable ? '<div class="detail-noexec">无法执行 — 盘口缺失</div>' : ''}
+      <table>
+        <tr><td>PM 成本</td><td class="dc-val">${r.pm_ask!=null ? '$'+pmTotalCost.toFixed(2) : '--'}</td></tr>
+        <tr><td>Deribit 净收入</td><td class="dc-val">${anyNoMarketAll ? '<span style="color:var(--red)">缺失</span>' : '$'+dbTotalUSD}</td></tr>
+        <tr style="border-top:1px solid var(--border);"><td style="font-weight:600;">到期损益 (q-p×${pmQty})</td><td class="dc-val ds-pnl" style="color:${executable ? pnlColor : 'var(--muted)'};">${executable ? (r.qp>0?'+':'')+'$'+pnlTotal : '--'}</td></tr>
+        ${executable ? `<tr><td class="ds-sub">每张</td><td class="dc-val ds-sub" style="color:${pnlColor};">${r.qp>0?'+':''}${pnlPerTicket}</td></tr>` : ''}
         <tr id="comboMaxRow"></tr>
       </table>
     </div>
